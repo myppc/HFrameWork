@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HFrameWork.Script.SceneMgr;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -30,7 +31,6 @@ namespace HFrameWork
         public int cacheCount;
         public string sceneName;
         public string path;
-        public string name;
     }
 
     public class GoPoolManager
@@ -48,19 +48,19 @@ namespace HFrameWork
             {
                 instance = new GoPoolManager();
             }
-
             return instance;
         }
 
         /// <summary>
         /// 池子基础初始化
         /// </summary>
-        public void Init()
+        public bool Init()
         {
             cacheInfoDict = new Dictionary<string, CacheInfo>();
             GoDict = new Dictionary<string, List<GameObject>>();
             poolDict = new Dictionary<PoolType, Transform>();
             InitPoolGo();
+            return true;
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace HFrameWork
         /// <param name="name">prefabName</param>
         /// <param name="poolType">缓存类型</param>
         /// <param name="cacheCount">缓存个数</param>
-        public void RegisterCacheInfo(string path,string name,PoolType poolType  = PoolType.TEMP,int cacheCount  = 20,string sceneName = "")
+        public void RegisterCacheInfo(string path,string name,PoolType poolType  = PoolType.TEMP,int cacheCount  = 20,string sceneName = "DEFAULT")
         {
             poolType = poolType == PoolType.STATIC ? PoolType.DYNAMIC : poolType;
             var key = string.Format("{0}/{1}", path, name);
@@ -110,7 +110,6 @@ namespace HFrameWork
             cacheInfo.poolType = poolType;
             cacheInfo.cacheCount = cacheCount;
             cacheInfo.sceneName = sceneName;
-            cacheInfo.name = name;
             cacheInfo.path = path;
             if (cacheInfoDict.ContainsKey(key))
             {
@@ -192,7 +191,7 @@ namespace HFrameWork
                 GameObject.Destroy(go);
                 return;
             }
-            var key = string.Format("{0}/{1}", info.cacheInfo.path, info.cacheInfo.name);
+            var key = string.Format("{0}/{1}", info.cacheInfo.path, info.cacheInfo.sceneName);
             if (!GoDict.ContainsKey(key))
             {
                 GoDict.Add(key,new List<GameObject>());
@@ -216,13 +215,13 @@ namespace HFrameWork
         /// 清理当前场景缓存
         /// </summary>
         /// <param name="sceneName"></param>
-        public void ClearSceneCache(string sceneName)
+        public void ClearSceneCache(string sceneName,bool onlyTemp = false)
         {
             foreach(var item in cacheInfoDict)
             {
                 var key = item.Key;
                 var cacheInfo = item.Value;
-                if (cacheInfo.sceneName == sceneName && cacheInfo.poolType == PoolType.TEMP)
+                if (cacheInfo.sceneName == sceneName && ((cacheInfo.poolType == PoolType.TEMP && !onlyTemp) || cacheInfo.poolType == PoolType.SCENE))
                 {
                     ClearCacheByKey(key);
                 }
@@ -238,7 +237,7 @@ namespace HFrameWork
             foreach (var item in cacheInfoDict)
             {
                 var cacheInfo = item.Value;
-                if (cacheInfo.sceneName == sceneName)
+                if (cacheInfo.sceneName == sceneName && cacheInfo.poolType == PoolType.SCENE)
                 {
                     if (!GoDict.ContainsKey(cacheInfo.key))
                     {
@@ -248,7 +247,7 @@ namespace HFrameWork
                     var count = Mathf.Max(cacheInfo.cacheCount - list.Count, 0);
                     for (var i = 0; i < count; i++)
                     { 
-                        var go = CreateGo(cacheInfo.path,cacheInfo.name);
+                        var go = CreateGo(cacheInfo.path,cacheInfo.sceneName);
                         RecoveryGo(go);
                     }
                 }

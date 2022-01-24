@@ -1,0 +1,11 @@
+SceneMgr :
+	1.异步加载缓存资源 
+		依赖：
+			PoolManager +
+			ResMgr -
+	2.卸载当前场景缓存资源 +
+	3.卸载当前场景临时缓存资源 +
+
+ResMgr:
+	
+	
