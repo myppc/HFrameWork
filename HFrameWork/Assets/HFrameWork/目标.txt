@@ -7,5 +7,15 @@ SceneMgr :
 	3.卸载当前场景临时缓存资源 +
 
 ResMgr:
-	
+	1.加载manifest
+		Editor 生成本地manifest +
+		Package 加载manifest文件 -
+		Net 加载manifest文件 -
+	2.生成预制体
+		通过pool生成gameobject +
+		Editor模式下生成gameObject +
+	3.管理sprite资源
+
+AppConfig：
+	1.持有manifest +
 	

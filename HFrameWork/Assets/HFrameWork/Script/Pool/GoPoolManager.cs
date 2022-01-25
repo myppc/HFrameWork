@@ -1,4 +1,5 @@
-﻿using HFrameWork.Script.SceneMgr;
+﻿using Assets.HFrameWork.Script.Res;
+using HFrameWork.Script.SceneMgr;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -31,6 +32,7 @@ namespace HFrameWork
         public int cacheCount;
         public string sceneName;
         public string path;
+        public string assetName;
     }
 
     public class GoPoolManager
@@ -111,6 +113,7 @@ namespace HFrameWork
             cacheInfo.cacheCount = cacheCount;
             cacheInfo.sceneName = sceneName;
             cacheInfo.path = path;
+            cacheInfo.assetName = name;
             if (cacheInfoDict.ContainsKey(key))
             {
                 cacheInfoDict.Remove(key);
@@ -159,24 +162,10 @@ namespace HFrameWork
                 ret.transform.SetParent(null, false);
                 return ret;
             }
-            else
-            {
-                var go =  CreateGo(path , name);
-                return go;
-            }
+            return null;
         }
 
-        /// <summary>
-        /// 直接new出一个对象，并添加信息
-        /// </summary>
-        public GameObject CreateGo(string path, string name)
-        {
-            var key = string.Format("{0}/{1}", path, name);
-            GameObject ret = GameObject.Instantiate(Resources.Load<GameObject>(key));
-            var objCacheInfo = ret.AddComponent<ObjectCacheInfo>();
-            objCacheInfo.cacheInfo = cacheInfoDict[key];
-            return ret;
-        }
+
 
         /// <summary>
         /// 回收对象
@@ -246,12 +235,42 @@ namespace HFrameWork
                     var list = GoDict[cacheInfo.key];
                     var count = Mathf.Max(cacheInfo.cacheCount - list.Count, 0);
                     for (var i = 0; i < count; i++)
-                    { 
-                        var go = CreateGo(cacheInfo.path,cacheInfo.sceneName);
+                    {
+                        var go = ResMgr.Ins.Load<GameObject>(ERes.GameObject, cacheInfo.path, cacheInfo.assetName);
                         RecoveryGo(go);
                     }
                 }
             }
         }
+
+        /// <summary>
+        /// 为GameObject 打上标签，方便后续回收
+        /// </summary>
+        /// <param name="go"></param>
+        /// <param name="path"></param>
+        /// <param name=""></param>
+        public void AddTag(GameObject go, string path,string name)
+        {
+            var key = string.Format("{0}/{1}", path, name);
+            if(cacheInfoDict.ContainsKey(key))
+            {
+                var objCacheInfo = go.AddComponent<ObjectCacheInfo>();
+                objCacheInfo.cacheInfo = cacheInfoDict[key];
+            }
+        }
+
+        #region 私有方法
+        /// <summary>
+        /// 直接new出一个对象，并添加信息
+        /// </summary>
+        private GameObject CreateGo(string path, string name)
+        {
+            var key = string.Format("{0}/{1}", path, name);
+            GameObject ret = GameObject.Instantiate(Resources.Load<GameObject>(key));
+            var objCacheInfo = ret.AddComponent<ObjectCacheInfo>();
+            objCacheInfo.cacheInfo = cacheInfoDict[key];
+            return ret;
+        }
+        #endregion
     }
 }
