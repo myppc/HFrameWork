@@ -119,6 +119,7 @@ namespace HFrameWork
                 cacheInfoDict.Remove(key);
             }
             cacheInfoDict.Add(key,cacheInfo);
+
         }
 
         /// <summary>
@@ -151,7 +152,11 @@ namespace HFrameWork
             var key = string.Format("{0}/{1}", path, name);
             if (!cacheInfoDict.ContainsKey(key))
             {
-                RegisterCacheInfo(path, name);
+                return null;
+            }
+            if (!GoDict.ContainsKey(key))
+            {
+                return null;
             }
             var list = GoDict[key];
             if (list.Count > 0)

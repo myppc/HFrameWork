@@ -9,13 +9,35 @@ SceneMgr :
 ResMgr:
 	1.加载manifest
 		Editor 生成本地manifest +
-		Package 加载manifest文件 -
+		Package 加载manifest文件 +
 		Net 加载manifest文件 -
 	2.生成预制体
 		通过pool生成gameobject +
-		Editor模式下生成gameObject +
-	3.管理sprite资源
+		Editor模式下生成gameObject 
+			同步 +
+			异步 -
+	3.通过AB包加载资源 -
+		ABLoader -
+			1.加载AB包 -
+			2.卸载AB包 -
+			3.加载依赖项 -
+		
 
 AppConfig：
 	1.持有manifest +
-	
+	2.获取平台字符串 + 
+
+ABPacker : +
+	1.序列化json +
+	2.反序列化manifest.json +
+	3.生成AB包 +
+
+
+
+XLua
+
+UI管理器
+
+网络
+
+热更新

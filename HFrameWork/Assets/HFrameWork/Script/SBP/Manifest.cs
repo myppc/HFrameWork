@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Assets.HFrameWork.Script.SBP
 {
@@ -56,7 +57,7 @@ namespace Assets.HFrameWork.Script.SBP
         /// <param name="path"></param>
         /// <param name="deps"></param>
         /// <param name="assets"></param>
-        public void Add(string module, string abName, string path, List<string> deps, List<ManifestAsset> assets)
+        public void Add(string module, string abName, string fullpath, List<string> deps, List<ManifestAsset> assets)
         {
             // 确保有该模块数据
             if (!modules.TryGetValue(module, out ManifestModule mData))
@@ -67,10 +68,10 @@ namespace Assets.HFrameWork.Script.SBP
 
             // ab包数据
             ManifestAB abData = new ManifestAB(
-                FileHelper.GetFileMD5(path),
-                File2CRC32.GetFileCRC32(path),
+                FileHelper.GetFileMD5(fullpath),
+                File2CRC32.GetFileCRC32(fullpath),
                 deps,
-                new FileInfo(path).Length);
+                new FileInfo(fullpath).Length);
             mData.AddAB(abName, abData);
 
             // 遍历所有的资源
@@ -78,6 +79,7 @@ namespace Assets.HFrameWork.Script.SBP
             {
                 // 添加资源数据
                 string assetName = Path.GetFileName(asset.path);
+                assetName = assetName.Split('.')[0];
                 mData.AddAsset(assetName, asset);
             }
         }

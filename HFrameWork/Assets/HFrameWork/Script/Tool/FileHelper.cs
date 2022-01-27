@@ -16,35 +16,41 @@ namespace Assets.HFrameWork.Script.Tool
         /// </summary>
         /// <param name="path"></param>
         /// <param name="handler"></param>
-        public static void PairAllAssets(string path, Action<string, string, string, string, bool> handler)
+        public static void PairAllAssets(string path, Action<string,string, string, string, string, bool> handler)
         {
             var info = new DirectoryInfo(path);
             DirectoryInfo dirInfo;
 
             var dirs = info.GetDirectories("*", SearchOption.TopDirectoryOnly);
-            foreach (var dir in dirs)
+            foreach (var dir in dirs) ///模块列表
             {
                 dirInfo = new DirectoryInfo(dir.FullName);
                 string moduleName = dir.Name.ToLower();
 
-                var files = dir.GetFiles("*", SearchOption.AllDirectories);
-                foreach (var file in files)
+                var resDirs = dirInfo.GetDirectories("*", SearchOption.TopDirectoryOnly); //资源文件夹目录列表
+                foreach (var resDir in resDirs)
                 {
-                    if (file.Extension == ".meta")
+                    string resName = resDir.Name.ToLower();
+                    var files = resDir.GetFiles("*", SearchOption.AllDirectories);
+                    foreach (var file in files)
                     {
-                        continue;
+                        if (file.Extension == ".meta")
+                        {
+                            continue;
+                        }
+
+                        // 获得路径
+                        string fullPath = file.FullName.Replace(@"\", "/");
+                        string uPath = fullPath.Replace(Application.dataPath, "Assets");
+
+                        // 获得文件名
+                        string fileName = Path.GetFileName(uPath);
+                        fileName = fileName.Replace(file.Extension, "");
+
+                        // 是否是场景
+                        bool isScene = file.Extension == ".unity";
+                        handler.Invoke(moduleName, resName,fullPath, uPath, fileName, isScene);
                     }
-
-                    // 获得路径
-                    string fullPath = file.FullName.Replace(@"\", "/");
-                    string uPath = fullPath.Replace(Application.dataPath, "Assets");
-
-                    // 获得文件名
-                    string fileName = Path.GetFileName(uPath);
-
-                    // 是否是场景
-                    bool isScene = file.Extension == ".unity";
-                    handler.Invoke(moduleName, fullPath, uPath, fileName, isScene);
                 }
             }
         }
