@@ -35,23 +35,13 @@ namespace HFrameWork
         public string assetName;
     }
 
-    public class GoPoolManager
+    public class GoPoolManager:SingletonClass<GoPoolManager>
     {
-        public static GoPoolManager instance;
+
         private GameObject poolRoot;
         private Dictionary<PoolType ,Transform> poolDict;
         public Dictionary<string, CacheInfo> cacheInfoDict;
         public Dictionary<string, List<GameObject>> GoDict;
-
-
-        public static GoPoolManager GetIns()
-        { 
-            if(instance == null)
-            {
-                instance = new GoPoolManager();
-            }
-            return instance;
-        }
 
         /// <summary>
         /// 池子基础初始化

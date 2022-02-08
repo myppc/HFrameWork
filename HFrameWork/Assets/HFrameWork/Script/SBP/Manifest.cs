@@ -79,7 +79,6 @@ namespace Assets.HFrameWork.Script.SBP
             {
                 // 添加资源数据
                 string assetName = Path.GetFileName(asset.path);
-                assetName = assetName.Split('.')[0];
                 mData.AddAsset(assetName, asset);
             }
         }

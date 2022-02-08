@@ -92,14 +92,14 @@ namespace HFrameWork.Script.SceneMgr
                 if (index == sortList.Count - 1)
                 {
                     //只清理临时缓存
-                    GoPoolManager.GetIns().ClearSceneCache(curSceneName, true);
+                    GoPoolManager.Ins.ClearSceneCache(curSceneName, true);
                     sceneInfoDict.TryGetValue(sceneName, out SceneInfo sceneInfo);
                     sceneInfo.args = args;
                 }
                 else
                 {
                     //清理场景缓存和当前场景的临时缓存,并且将栈里的场景信息弹出，直到栈顶为当前场景方可停止
-                    GoPoolManager.GetIns().ClearSceneCache(curSceneName);
+                    GoPoolManager.Ins.ClearSceneCache(curSceneName);
                     for (var i = sortList.Count - 1; i >= index; i--)
                     {
                         var name = sortList[i];
@@ -113,7 +113,7 @@ namespace HFrameWork.Script.SceneMgr
                     info.args = args;
                     sceneInfoDict.Add(sceneName, info);
                     //加载场景缓存
-                    GoPoolManager.GetIns().LoadCacheByScene(sceneName);
+                    GoPoolManager.Ins.LoadCacheByScene(sceneName);
 
                 }
                 UnloadScene(curSceneName);
@@ -127,7 +127,7 @@ namespace HFrameWork.Script.SceneMgr
                 info.args = args;
                 sceneInfoDict.Add(sceneName, info);
                 //加载场景缓存
-                GoPoolManager.GetIns().LoadCacheByScene(sceneName);
+                GoPoolManager.Ins.LoadCacheByScene(sceneName);
             }
             LoadScene(sceneName, finish, progressCallback);
         }

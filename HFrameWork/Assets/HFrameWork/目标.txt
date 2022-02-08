@@ -7,21 +7,29 @@ SceneMgr :
 	3.卸载当前场景临时缓存资源 +
 
 ResMgr:
-	1.加载manifest
+	依赖：
+		AssetsBundleMgr +
+
+	1.加载manifest +
 		Editor 生成本地manifest +
 		Package 加载manifest文件 +
 		Net 加载manifest文件 -
-	2.生成预制体
+	2.生成预制体 +
 		通过pool生成gameobject +
-		Editor模式下生成gameObject 
+		Editor模式下生成gameObject +
 			同步 +
-			异步 -
-	3.通过AB包加载资源 -
-		ABLoader -
-			1.加载AB包 -
-			2.卸载AB包 -
-			3.加载依赖项 -
-		
+			异步 +
+		Package模式下生成gameObject +
+			同步 +
+			异步 +
+
+AssetsBundleMgr:
+	1.通过AB包加载资源 -
+		1.ABLoader +
+			1.加载AB包 +
+			2.加载依赖项 +
+		2.卸载AB包 -
+	2.加载本地资源 +
 
 AppConfig：
 	1.持有manifest +
@@ -32,6 +40,10 @@ ABPacker : +
 	2.反序列化manifest.json +
 	3.生成AB包 +
 
+计时器：
+
+事件：
+	
 
 
 XLua

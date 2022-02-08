@@ -5,6 +5,8 @@ using HFrameWork;
 using Assets.HFrameWork.Script.Tool;
 using Assets.HFrameWork.Script.Res;
 using System.IO;
+using UnityEngine.U2D;
+using System;
 
 public class GameEntrance : MonoBehaviour
 {
@@ -25,7 +27,7 @@ public class GameEntrance : MonoBehaviour
         ResMgr.Ins.LoadManifest();
 
         ///初始化内存管理池
-        GoPoolManager.GetIns().Init();
+        GoPoolManager.Ins.Init();
     }
 
     /// <summary>
@@ -33,12 +35,5 @@ public class GameEntrance : MonoBehaviour
     /// </summary>
     public void StartEntrance()
     {
-        
-        ////var go = ResMgr.Ins.Load<GameObject>(ERes.GameObject, "mode1", "Cube");
-        ////go.transform.SetParent(this.transform,false);
-
-        //var ab = AssetBundle.LoadFromFile(Path.Combine(Application.streamingAssetsPath, "AssetBundle/standalone/mode1"));
-        //var go1 = ab.LoadAsset<GameObject>("Assets/Modules/mode1/Prefabs/Cube.prefab");
-        //GameObject.Instantiate<GameObject>(go1);
     }
 }

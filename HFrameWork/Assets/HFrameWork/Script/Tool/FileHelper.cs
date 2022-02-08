@@ -45,7 +45,7 @@ namespace Assets.HFrameWork.Script.Tool
 
                         // 获得文件名
                         string fileName = Path.GetFileName(uPath);
-                        fileName = fileName.Replace(file.Extension, "");
+                        //fileName = fileName.Replace(file.Extension, "");
 
                         // 是否是场景
                         bool isScene = file.Extension == ".unity";

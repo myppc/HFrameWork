@@ -26,22 +26,19 @@ namespace Assets.HFrameWork.Script.Res
     public class ResMgr :SingletonClass<ResMgr>
     {
         #region 私有变量
-        private Dictionary<string, AssetBundle> abDataDict;
+
         #endregion
 
         #region 构造方法
         public ResMgr()
-        {
-            abDataDict = new Dictionary<string, AssetBundle>();
+        { 
+
         }
         #endregion
 
         #region 公用方法
-
-        
-
         /// <summary>
-        /// 加载资源
+        /// 同步加载资源
         /// </summary>
         /// <param name="eRes"></param>
         /// <param name="path"></param>
@@ -55,12 +52,33 @@ namespace Assets.HFrameWork.Script.Res
                     return (T)LoadGameObject(path, name);
                 default:
                     return LoadAssets<T>(path, name);
-
             }
             return null;
         }
 
-
+        /// <summary>
+        /// 异步加载资源
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="eRes"></param>
+        /// <param name="path"></param>
+        /// <param name="name"></param>
+        /// <param name="finishCallback"></param>
+        public void LoadAsync<T>(ERes eRes, string path, string name, Action<T> finishCallback) where T : UnityEngine.Object
+        {
+            switch (eRes)
+            {
+                case ERes.GameObject:
+                    LoadGameObjectAsync(path,name,finishCallback);
+                    break;
+                default:
+                    LoadAssetsAsync<T>(eRes, path, name, finishCallback);
+                    break;
+            }
+        }
+        /// <summary>
+        /// 加载manifest
+        /// </summary>
         public void LoadManifest()
         {
             switch (AppConfig.runMode)
@@ -76,6 +94,47 @@ namespace Assets.HFrameWork.Script.Res
         #endregion
 
         #region 私有方法
+
+
+
+        /// <summary>
+        /// 用于加载asset，监听加载asset完成
+        /// </summary>
+        /// <param name="ab"></param>
+        /// <param name="assetPath"></param>
+        /// <param name="resType"></param>
+        /// <param name="onAssetComplete"></param>
+        private void LoadAssetsWithAB(ERes eRes ,AssetBundle ab, string assetPath,  Action<UnityEngine.Object> onAssetComplete) 
+        {
+            AssetBundleRequest req = null;
+            switch (eRes)
+            {
+                case ERes.GameObject:
+                    req = ab.LoadAssetAsync<GameObject>(assetPath);
+                    break;
+                case ERes.Sprite:
+                    req = ab.LoadAssetAsync<Sprite>(assetPath);
+                    break;
+                case ERes.Atlas:
+                    req = ab.LoadAssetAsync<UnityEngine.U2D.SpriteAtlas>(assetPath);
+                    break;
+                case ERes.Audio:
+                    req = ab.LoadAssetAsync<AudioClip>(assetPath);
+                    break;
+                default:
+                    req = ab.LoadAssetAsync<GameObject>(assetPath);
+                    break;
+            }
+            req.completed += (operation) => {
+                var request = (AssetBundleRequest)operation;
+                if (request.isDone)
+                {
+                    var ret = request.asset;
+                    onAssetComplete(ret);
+                }
+            };
+        }
+
         /// <summary>
         /// 加载streamingAssets下的manifest
         /// </summary>
@@ -114,7 +173,7 @@ namespace Assets.HFrameWork.Script.Res
         }
 
         /// <summary>
-        /// 加载非GameObject资源
+        /// 同步加载非GameObject资源
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="path"></param>
@@ -122,14 +181,73 @@ namespace Assets.HFrameWork.Script.Res
         /// <returns></returns>
         private T LoadAssets<T>(string path, string name) where T: UnityEngine.Object
         {
-            var asset = GetManifestAsset(path, name);
+            var manifestAsset = GetManifestAsset(path, name);
+            if (AppConfig.runMode == ERunMode.Editor)
+            {
 #if UNITY_EDITOR
-            //编辑器模式下生成
-            var sprite = UnityEditor.AssetDatabase.LoadAssetAtPath<T>(asset.path);
-            return sprite;
-#else
-            return null;
+                //编辑器模式下生成
+                var sprite = UnityEditor.AssetDatabase.LoadAssetAtPath<T>(manifestAsset.path);
+                return sprite;
 #endif
+
+            }
+            else
+            {
+                var ab = AssetsBundleMgr.Ins.GetBundle(manifestAsset.abName);
+                if (ab == null)
+                {
+                    ab = AssetsBundleMgr.Ins.LoadAssetBundle(manifestAsset.abName);
+                }
+                var asset = (T)ab.LoadAsset(manifestAsset.path);
+                return asset;
+            }
+            return null;
+
+        }
+
+
+        /// <summary>
+        /// 异步加载非GameObject资源
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="path"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        private void LoadAssetsAsync<T>(ERes eRes,string path, string name, Action<T> finishCallback) where T : UnityEngine.Object
+        {
+            var manifestAsset = GetManifestAsset(path, name);
+            if (AppConfig.runMode == ERunMode.Editor)
+            {
+#if UNITY_EDITOR
+                //编辑器模式下生成
+                var sprite = UnityEditor.AssetDatabase.LoadAssetAtPath<T>(manifestAsset.path);
+                finishCallback?.Invoke(sprite);
+                return;
+#endif
+            }
+            else
+            {
+                //加载AB完成后的回调
+                var callBack = new Action<string, AssetBundle>((abName, abData) =>
+                {
+                    LoadAssetsWithAB(eRes,abData, manifestAsset.path, new Action<UnityEngine.Object>((asset) =>
+                    {
+                        finishCallback?.Invoke((T)asset);
+                    }));
+                });
+
+                var ab = AssetsBundleMgr.Ins.GetBundle(manifestAsset.abName);
+                if (ab == null)
+                {
+                    //AB包未加载完成，先加载AB包
+                    AssetsBundleMgr.Ins.LoadAssetBundle(manifestAsset.abName, callBack);
+                }
+                else
+                {
+                    //AB包已经加载完成，直接加载asset
+                    callBack(manifestAsset.abName, ab);
+                }
+            }
         }
 
         /// <summary>
@@ -141,21 +259,90 @@ namespace Assets.HFrameWork.Script.Res
         private UnityEngine.Object LoadGameObject(string path,string name)
         {
 
-            var go = GoPoolManager.GetIns().CreateGoFromCache(path, name);
+            var go = GoPoolManager.Ins.CreateGoFromCache(path, name);
             if (go != null)
             {
                 return go;
             }
             var manifestAsset =  GetManifestAsset(path, name);
+            if (AppConfig.runMode == ERunMode.Editor)
+            {
 #if UNITY_EDITOR
-            //编辑器模式下生成
-            var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(manifestAsset.path);
-            go = UnityEngine.Object.Instantiate(asset as GameObject);
-#else
-            
+                //编辑器模式下生成
+                var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(manifestAsset.path);
+                go = UnityEngine.Object.Instantiate(asset as GameObject);
 #endif
-            GoPoolManager.GetIns().AddTag(go, path, name);
+            }
+            else
+            {
+
+                var ab = AssetsBundleMgr.Ins.GetBundle(manifestAsset.abName);
+                if (ab == null)
+                {
+                    ab = AssetsBundleMgr.Ins.LoadAssetBundle(manifestAsset.abName);
+                }
+                var asset = ab.LoadAsset(manifestAsset.path);
+                go = UnityEngine.Object.Instantiate(asset as GameObject);
+            }
+
+            GoPoolManager.Ins.AddTag(go, path, name);
             return go;
+        }
+
+        /// <summary>
+        /// 异步加载gameobject资源
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="path"></param>
+        /// <param name="name"></param>
+        /// <param name="finishCallback"></param>
+        private void LoadGameObjectAsync<T>(string path, string name, Action<T> finishCallback) where T : UnityEngine.Object
+        {
+            UnityEngine.Object go = GoPoolManager.Ins.CreateGoFromCache(path, name);
+            if (go != null)
+            {
+                finishCallback?.Invoke((T)go);
+                return;
+            }
+
+            var manifestAsset = GetManifestAsset(path, name);
+            if (AppConfig.runMode == ERunMode.Editor)
+            {
+#if UNITY_EDITOR
+                //编辑器模式下生成
+                var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(manifestAsset.path);
+                go = UnityEngine.Object.Instantiate(asset as GameObject);
+                finishCallback?.Invoke((T)go);
+#endif
+            }
+            else
+            {
+                //加载AB完成后的回调
+                var callBack = new Action<string, AssetBundle>((abName, abData) =>
+                {
+                    LoadAssetsWithAB(ERes.GameObject,abData, manifestAsset.path,new Action<UnityEngine.Object>((asset) =>
+                    {
+                        var go = UnityEngine.GameObject.Instantiate(asset as GameObject);
+                        GoPoolManager.Ins.AddTag(go, path, name);
+                        finishCallback?.Invoke(go as T);
+                    }));
+                });
+
+                var ab = AssetsBundleMgr.Ins.GetBundle(manifestAsset.abName);
+                if (ab == null)
+                {
+                    //AB包未加载完成，先加载AB包
+                    AssetsBundleMgr.Ins.LoadAssetBundle(manifestAsset.abName, callBack);
+                }
+                else
+                {
+                    //AB包已经加载完成，直接加载asset
+                    callBack(manifestAsset.abName, ab);
+                }
+            }
+
+
+
         }
 
         /// <summary>
@@ -176,44 +363,6 @@ namespace Assets.HFrameWork.Script.Res
             ManifestAsset ret = module.GetAsset(name);
             return ret;
         }
-
-        /// <summary>
-        /// 同步加载AB包并保存
-        /// </summary>
-        /// <param name="abName"></param>
-        /// <returns></returns>
-        private AssetBundle LoadAB(string abName)
-        {
-            var succ = abDataDict.TryGetValue(abName, out AssetBundle abData);
-            if (succ)
-            {
-                return abData;
-            }
-            AssetBundle ab = null;
-            return null;
-            //TODO 加载过程中需要考虑依赖加载
-            //if (AppConfig.runMode == ERunMode.Local)
-            //{
-            //    ab = AssetBundle.LoadFromFile(Path.Combine(Application.streamingAssetsPath, $"{AppConfig.ASSETS_PLAT}/{abName}"));
-            //}
-            //abDataDict.Add(abName, ab);
-            //return ab;
-        }
-
-        /// <summary>
-        /// 异步加载AB包并保存
-        /// </summary>
-        /// <param name="abName"></param>
-        /// <param name="loadFinish"></param>
-        private void LoadAbSync(string abName, Action<AssetBundle> loadFinish)
-        {
-            var succ = abDataDict.TryGetValue(abName, out AssetBundle abData);
-            if (succ)
-            {
-                loadFinish?.Invoke(abData);
-            }
-        }
-
         #endregion
     }
 }

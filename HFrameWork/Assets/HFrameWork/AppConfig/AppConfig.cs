@@ -29,10 +29,38 @@ public enum ERunMode
     Package,
 }
 
+public enum EABMode
+{
+    /// <summary>
+    /// 加载AB使用LoadFromFile 
+    /// </summary>
+    FromFile,
+
+    /// <summary>
+    /// 加载AB使用LoadFromStream
+    /// </summary>
+    FromStream,
+
+    /// <summary>
+    /// 加载AB使用LoadFromMemory
+    /// </summary>
+    FromMemory,
+}
+
 public static class AppConfig
 {
     #region 常量
+
+
+    /// <summary>
+    /// 运行模式
+    /// </summary>
     public static ERunMode runMode = ERunMode.Package;
+
+    /// <summary>
+    /// 加载AB包方式
+    /// </summary>
+    public static EABMode loadMode = EABMode.FromFile;
 
     /// <summary>
     /// 资源根路径
