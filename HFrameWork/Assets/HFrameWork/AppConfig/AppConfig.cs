@@ -124,6 +124,16 @@ public static class AppConfig
         }
     }
 
+    /// <summary>
+    /// lua代码根路径
+    /// </summary>
+    public static readonly string LUA_PATH = Path.Combine(Application.dataPath, "LuaScripts");
+
+    /// <summary>
+    /// Lua主文件路径
+    /// </summary>
+    public static readonly string LUA_MAIN_PATH = "system/main_entrance";
+
     #endregion
 
     #region 变量

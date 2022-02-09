@@ -7,9 +7,11 @@ using Assets.HFrameWork.Script.Res;
 using System.IO;
 using UnityEngine.U2D;
 using System;
+using XLua;
 
 public class GameEntrance : MonoBehaviour
 {
+    public LuaEnv env;
     // Start is called before the first frame update
     void Start()
     {
@@ -35,5 +37,14 @@ public class GameEntrance : MonoBehaviour
     /// </summary>
     public void StartEntrance()
     {
+        // 初始化Lua虚拟机
+        env = new LuaEnv();
+        // 导入RapidJson
+        env.AddBuildin("rapidjson", XLua.LuaDLL.Lua.LoadRapidJson);
+
+        // 自定义加载路径
+        env.AddLoader(LuaABMgr.Ins.LuaLoader);
+
+        env?.DoString(string.Format("local m = require('{0}') m.{1}()", AppConfig.LUA_MAIN_PATH, "run"));
     }
 }
