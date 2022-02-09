@@ -44,9 +44,9 @@ ABPacker : +
 
 事件：
 	
-
-
-XLua
+XLua 
+	集成XLua +
+	GameEntrance调用进入lua
 
 UI管理器
 
