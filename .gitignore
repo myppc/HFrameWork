@@ -61,3 +61,7 @@ crashlytics-build.properties
 HFrameWork/Library/
 HFrameWork/Temp/
 HFrameWork/Logs/
+HFrameWork/obj/Debug/.NETFramework,Version=v4.7.1.AssemblyAttributes.cs
+HFrameWork/obj/Debug/Assembly-CSharp.csproj.AssemblyReference.cache
+HFrameWork/obj/Debug/Assembly-CSharp-Editor.csproj.AssemblyReference.cache
+HFrameWork/obj/Debug/DesignTimeResolveAssemblyReferencesInput.cache
