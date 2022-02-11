@@ -112,6 +112,12 @@ namespace Assets.HFrameWork.Script.Res
             foreach (var depend in depends)
             { 
                 ab = AssetBundle.LoadFromFile(Path.Combine(AppConfig.AB_LOAD_PATH, depend));
+                if (depend == "lua_script")
+                {
+                    var names = ab.GetAllAssetNames();
+                    var allAssets = ab.LoadAllAssets();
+                    var asset = ab.LoadAsset(names[0]);
+                }
                 AssetsBundleMgr.Ins.SetBundle(depend, ab);
             }
             isDone = true;

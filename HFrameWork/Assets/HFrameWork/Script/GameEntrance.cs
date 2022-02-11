@@ -37,6 +37,8 @@ public class GameEntrance : MonoBehaviour
     /// </summary>
     public void StartEntrance()
     {
+        ResMgr.Ins.Load<GameObject>(ERes.GameObject, "mode1", "box.prefab");
+
         // 初始化Lua虚拟机
         env = new LuaEnv();
         // 导入RapidJson
@@ -45,6 +47,17 @@ public class GameEntrance : MonoBehaviour
         // 自定义加载路径
         env.AddLoader(LuaABMgr.Ins.LuaLoader);
 
-        env?.DoString(string.Format("local m = require('{0}') m.{1}()", AppConfig.LUA_MAIN_PATH, "run"));
+        AssetsBundleMgr.Ins.LoadAssetBundle(AppConfig.LUA_AB_NAME, (name, ab) => {
+            CallLuaMain("run");
+        });
+    }
+
+    /// <summary>
+    /// 启动lua
+    /// </summary>
+    /// <param name="func"></param>
+    public void CallLuaMain(string func)
+    {
+        env?.DoString(string.Format("local m = require('{0}') m.{1}()", AppConfig.LUA_MAIN, func));
     }
 }

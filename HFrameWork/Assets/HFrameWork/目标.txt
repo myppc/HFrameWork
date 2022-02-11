@@ -2,7 +2,7 @@ SceneMgr :
 	1.异步加载缓存资源 
 		依赖：
 			PoolManager +
-			ResMgr -
+			ResMgr +
 	2.卸载当前场景缓存资源 +
 	3.卸载当前场景临时缓存资源 +
 
@@ -39,14 +39,22 @@ ABPacker : +
 	1.序列化json +
 	2.反序列化manifest.json +
 	3.生成AB包 +
+	4.生成lua代码AB +
 
+XLua 
+	集成XLua +
+	GameEntrance调用进入lua +
+	集成XLua插件 + 
+		备注：没有自己走CMake，后续还要再研究下，现在直接替换的Plugins文件夹
+
+GameEntrance:
+	
+
+------------------------------------------------------------------------------------------------------
 计时器：
 
 事件：
 	
-XLua 
-	集成XLua +
-	GameEntrance调用进入lua
 
 UI管理器
 

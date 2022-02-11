@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.HFrameWork.Script.Res;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -85,7 +86,15 @@ namespace HFrameWork
         {
 #if UNITY_EDITOR
             // 是否是编辑器模式
-            return LoadLuaFromFile(filepath);
+            if (AppConfig.runMode == ERunMode.Editor)
+            {
+                return LoadLuaFromFile(filepath);
+            }
+            else
+            {
+                return LoadLuaFromAB(filepath);
+            }
+            
 #elif UNITY_STANDALONE_WIN
                 return LoadLuaFromAB(filepath);
 #elif UNITY_ANDROID
@@ -122,7 +131,7 @@ namespace HFrameWork
 
             return bytes;
         }
-        /**********************************************************
+
         /// <summary>
         /// 从ab加载lua
         /// </summary>
@@ -135,29 +144,20 @@ namespace HFrameWork
             {
                 return bytes;
             }
-
-            // 获得对应ab名
-            string abName = Helper.GetLuaABName(filePath);
-
-            // 获得ab包
-            AssetBundle ab = LoadAB(abName);
-
-            // 拼接路径
-            string uPath = Helper.FullPath2UPath(Path.Combine(Helper.LUA_PRE_PATH, filePath));
+            // 获得lua资源
 
             // 处理后缀
-            string extension = Path.GetExtension(uPath);
+            string extension = Path.GetExtension(filePath);
             if (extension == "")
             {
-                uPath = $"{uPath}{Helper.LUA_NEW_EXTENSION}";
+                filePath = $"{filePath}{AppConfig.LUA_NEW_EXTENSION}";
             }
             else
             {
-                uPath = uPath.Replace(extension, Helper.LUA_NEW_EXTENSION);
+                filePath = filePath.Replace(extension, AppConfig.LUA_NEW_EXTENSION);
             }
 
-            // 获得lua资源
-            string txt = ab.LoadAsset<TextAsset>(uPath).text;
+            var txt = ResMgr.Ins.Load<TextAsset>(ERes.TextAsset, AppConfig.LUA_MODULE, filePath).text;
 
             // utf8编码
             bytes = Encoding.UTF8.GetBytes(txt);
@@ -167,7 +167,7 @@ namespace HFrameWork
 
             return bytes;
         }
-        ***************************************/
+
         #endregion
 
         #region 其他方法

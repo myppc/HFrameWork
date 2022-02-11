@@ -132,7 +132,39 @@ public static class AppConfig
     /// <summary>
     /// Lua主文件路径
     /// </summary>
-    public static readonly string LUA_MAIN_PATH = "system/main_entrance";
+    public static readonly string LUA_MAIN = "main_entrance.lua";
+
+    /// <summary>
+    /// Lua AB模块名
+    /// </summary>
+    public static readonly string LUA_MODULE = "lua";
+
+    /// <summary>
+    /// Lua AB包 资源名
+    /// </summary>
+    public static readonly string LUA_RES = "script";
+
+    /// <summary>
+    /// Lua AB包名字
+    /// </summary>
+    public static readonly string LUA_AB_NAME = $"{LUA_MODULE}_{LUA_RES}";
+
+
+    /// <summary>
+    /// lua文件新后缀
+    /// </summary>
+    public static readonly string LUA_NEW_EXTENSION = ".txt";
+
+    /// <summary>
+    /// lua代码预处理路径
+    /// </summary>
+    //public static readonly string LUA_PRE_PATH = Path.Combine(AB_PRE_OUT_PATH, "luas");
+    public static readonly string LUA_PRE_PATH = Path.Combine(Application.dataPath, "Resources", "luas");
+
+    /// <summary>
+    /// lua代码预处理备份路径
+    /// </summary>
+    public static readonly string LUA_PRE_BACKUP_PATH = Application.dataPath.Replace("Assets", "luas");
 
     #endregion
 

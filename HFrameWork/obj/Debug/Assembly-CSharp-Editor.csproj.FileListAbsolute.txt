@@ -1,0 +1,2 @@
+C:\Users\myppc\Desktop\hzy\HFrameWork\HFrameWork\obj\Debug\Assembly-CSharp-Editor.csproj.AssemblyReference.cache
+C:\Users\myppc\Desktop\hzy\HFrameWork\HFrameWork\obj\Debug\Assembly-CSharp-Editor.csproj.CoreCompileInputs.cache

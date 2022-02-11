@@ -1,0 +1,125 @@
+
+
+
+
+
+
+local mainEntrance = {}
+
+
+function mainEntrance.set_global()
+
+end
+
+
+function mainEntrance.set_extension()
+require("system/extension/table_ex")
+require("system/extension/string_ex")
+require("system/extension/math_ex")
+end
+
+
+function mainEntrance.lock_global()
+setmetatable(_G, {
+__index = function()
+gLog(string.format("不可使用全局字段"))
+end,
+__newindex = function(t, k, v)
+gLog(string.format("不可使用全局字段: %s", k))
+end
+})
+end
+
+
+function mainEntrance.start_game()
+
+gMgrs.net.init()
+
+
+gMgrs.unityUpdate.init()
+
+
+gMgrs.timer.init()
+
+
+gMgrs.update.init()
+
+
+gMgrs.res.init()
+
+
+local protocol = require("modules/protocol/protocol")
+protocol.init()
+
+
+gData.init()
+
+
+gMgrs.ui.init()
+
+
+gCfg.init()
+
+
+mainEntrance.start_update()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+end
+
+
+function mainEntrance.start_update()
+
+gMgrs.ui.show_ui(gMgrs.ui.eUI.update)
+end
+
+
+function mainEntrance.run()
+print("=========== mainEntrance.run()")
+local rapidjson = require('rapidjson')
+print("=========== mainEntrance.run() end")
+
+end
+
+
+
+function mainEntrance.on_destroy()
+
+local tcpMgr = require("mgrs/net/tcp/tcp_mgr")
+tcpMgr.clear()
+
+
+gMgrs.msg.clear_all()
+end
+
+
+function mainEntrance.destroy()
+
+mainEntrance.on_destroy()
+
+
+gMgrs.ui.clear_all()
+
+
+gMgrs.scene.unload_scene(function ()
+
+gCSharp.ReloadEntrance()
+end)
+end
+
+return mainEntrance

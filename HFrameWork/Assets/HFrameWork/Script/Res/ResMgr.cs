@@ -21,6 +21,7 @@ namespace Assets.HFrameWork.Script.Res
         Sprite,
         Atlas,
         Audio,
+        TextAsset,
     }
 
     public class ResMgr :SingletonClass<ResMgr>
@@ -121,6 +122,9 @@ namespace Assets.HFrameWork.Script.Res
                 case ERes.Audio:
                     req = ab.LoadAssetAsync<AudioClip>(assetPath);
                     break;
+                case ERes.TextAsset:
+                    req = ab.LoadAssetAsync<TextAsset>(assetPath);
+                    break;
                 default:
                     req = ab.LoadAssetAsync<GameObject>(assetPath);
                     break;
@@ -198,7 +202,7 @@ namespace Assets.HFrameWork.Script.Res
                 {
                     ab = AssetsBundleMgr.Ins.LoadAssetBundle(manifestAsset.abName);
                 }
-                var asset = (T)ab.LoadAsset(manifestAsset.path);
+                var asset = ab.LoadAsset<T>(manifestAsset.path);
                 return asset;
             }
             return null;
@@ -281,6 +285,8 @@ namespace Assets.HFrameWork.Script.Res
                 {
                     ab = AssetsBundleMgr.Ins.LoadAssetBundle(manifestAsset.abName);
                 }
+                var ttt = ab.LoadAllAssets();
+
                 var asset = ab.LoadAsset(manifestAsset.path);
                 go = UnityEngine.Object.Instantiate(asset as GameObject);
             }
