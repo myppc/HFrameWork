@@ -53,7 +53,7 @@ namespace Assets.HFrameWork.Script.Res
                 case ERes.GameObject:
                     return LoadGameObject(path, name);
                 default:
-                    return LoadAssets(path, name);
+                    return LoadAssets(eRes,path, name);
             }
             return null;
         }
@@ -66,7 +66,7 @@ namespace Assets.HFrameWork.Script.Res
         /// <param name="path"></param>
         /// <param name="name"></param>
         /// <param name="finishCallback"></param>
-        public void LoadAsync<T>(ERes eRes, string path, string name, Action<T> finishCallback) where T : UnityEngine.Object
+        public void LoadAsync(ERes eRes, string path, string name, Action<UnityEngine.Object> finishCallback)
         {
             switch (eRes)
             {
@@ -74,7 +74,7 @@ namespace Assets.HFrameWork.Script.Res
                     LoadGameObjectAsync(path,name,finishCallback);
                     break;
                 default:
-                    LoadAssetsAsync<T>(eRes, path, name, finishCallback);
+                    LoadAssetsAsync(eRes, path, name, finishCallback);
                     break;
             }
         }
@@ -210,8 +210,14 @@ namespace Assets.HFrameWork.Script.Res
                         ret = UnityEditor.AssetDatabase.LoadAssetAtPath<SpriteAtlas>(manifestAsset.path);
                         break;
                     case ERes.Audio:
-                        ret = UnityEditor.AssetDatabase.LoadAssetAtPath<SpriteAtlas>(manifestAsset.path);
-
+                        ret = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>(manifestAsset.path);
+                        break;
+                    case ERes.Sprite:
+                        ret = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>(manifestAsset.path);
+                        break;
+                    case ERes.TextAsset:
+                        ret = UnityEditor.AssetDatabase.LoadAssetAtPath<TextAsset>(manifestAsset.path);
+                        break;
                 }
                 return ret;
 #endif
@@ -224,8 +230,25 @@ namespace Assets.HFrameWork.Script.Res
                 {
                     ab = AssetsBundleMgr.Ins.LoadAssetBundle(manifestAsset.abName);
                 }
-                var asset = ab.LoadAsset<T>(manifestAsset.path);
-                return asset;
+
+                UnityEngine.Object ret = null;
+                switch (eRes)
+                {
+                    case ERes.Atlas:
+                        ret = ab.LoadAsset<SpriteAtlas>(manifestAsset.path);
+                        break;
+                    case ERes.Audio:
+                        ret = ab.LoadAsset<AudioClip>(manifestAsset.path);
+                        break;
+                    case ERes.Sprite:
+                        ret = ab.LoadAsset<Sprite>(manifestAsset.path);
+                        break;
+                    case ERes.TextAsset:
+                        ret = ab.LoadAsset<TextAsset>(manifestAsset.path);
+                        break;
+                }
+         
+                return ret;
             }
             return null;
 
@@ -239,14 +262,14 @@ namespace Assets.HFrameWork.Script.Res
         /// <param name="path"></param>
         /// <param name="name"></param>
         /// <returns></returns>
-        private void LoadAssetsAsync<T>(ERes eRes,string path, string name, Action<T> finishCallback) where T : UnityEngine.Object
+        private void LoadAssetsAsync(ERes eRes,string path, string name, Action<UnityEngine.Object> finishCallback)
         {
             var manifestAsset = GetManifestAsset(path, name);
             if (AppConfig.runMode == ERunMode.Editor)
             {
 #if UNITY_EDITOR
-                //编辑器模式下生成
-                var sprite = UnityEditor.AssetDatabase.LoadAssetAtPath<T>(manifestAsset.path);
+                //编辑器模式下生成,直接调用同步方法生成
+                var sprite = LoadAssets(eRes, path, name);
                 finishCallback?.Invoke(sprite);
                 return;
 #endif
@@ -258,7 +281,7 @@ namespace Assets.HFrameWork.Script.Res
                 {
                     LoadAssetsWithAB(eRes,abData, manifestAsset.path, new Action<UnityEngine.Object>((asset) =>
                     {
-                        finishCallback?.Invoke((T)asset);
+                        finishCallback?.Invoke(asset);
                     }));
                 });
 
@@ -324,12 +347,12 @@ namespace Assets.HFrameWork.Script.Res
         /// <param name="path"></param>
         /// <param name="name"></param>
         /// <param name="finishCallback"></param>
-        private void LoadGameObjectAsync<T>(string path, string name, Action<T> finishCallback) where T : UnityEngine.Object
+        private void LoadGameObjectAsync(string path, string name, Action<UnityEngine.Object> finishCallback)
         {
             UnityEngine.Object go = GoPoolManager.Ins.CreateGoFromCache(path, name);
             if (go != null)
             {
-                finishCallback?.Invoke((T)go);
+                finishCallback?.Invoke(go);
                 return;
             }
 
@@ -340,7 +363,7 @@ namespace Assets.HFrameWork.Script.Res
                 //编辑器模式下生成
                 var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(manifestAsset.path);
                 go = UnityEngine.Object.Instantiate(asset as GameObject);
-                finishCallback?.Invoke((T)go);
+                finishCallback?.Invoke(go);
 #endif
             }
             else
@@ -350,9 +373,9 @@ namespace Assets.HFrameWork.Script.Res
                 {
                     LoadAssetsWithAB(ERes.GameObject,abData, manifestAsset.path,new Action<UnityEngine.Object>((asset) =>
                     {
-                        var go = UnityEngine.GameObject.Instantiate(asset as GameObject);
-                        GoPoolManager.Ins.AddTag(go, path, name);
-                        finishCallback?.Invoke(go as T);
+                        var ret = UnityEngine.GameObject.Instantiate(asset as GameObject);
+                        GoPoolManager.Ins.AddTag(ret, path, name);
+                        finishCallback?.Invoke(ret);
                     }));
                 });
 
