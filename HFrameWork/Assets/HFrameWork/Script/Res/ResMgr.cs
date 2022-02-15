@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.U2D;
 
 namespace Assets.HFrameWork.Script.Res
 {
@@ -45,14 +46,14 @@ namespace Assets.HFrameWork.Script.Res
         /// <param name="path"></param>
         /// <param name="name"></param>
         /// <returns></returns>
-        public T Load<T>(ERes eRes,string path,string name) where T:UnityEngine.Object
+        public UnityEngine.Object Load(ERes eRes,string path,string name)
         {
             switch (eRes)
             {
                 case ERes.GameObject:
-                    return (T)LoadGameObject(path, name);
+                    return LoadGameObject(path, name);
                 default:
-                    return LoadAssets<T>(path, name);
+                    return LoadAssets(path, name);
             }
             return null;
         }
@@ -195,15 +196,24 @@ namespace Assets.HFrameWork.Script.Res
         /// <param name="path"></param>
         /// <param name="name"></param>
         /// <returns></returns>
-        private T LoadAssets<T>(string path, string name) where T: UnityEngine.Object
+        private UnityEngine.Object LoadAssets(ERes eRes, string path, string name)
         {
             var manifestAsset = GetManifestAsset(path, name);
             if (AppConfig.runMode == ERunMode.Editor)
             {
 #if UNITY_EDITOR
                 //编辑器模式下生成
-                var sprite = UnityEditor.AssetDatabase.LoadAssetAtPath<T>(manifestAsset.path);
-                return sprite;
+                UnityEngine.Object ret = null;
+                switch (eRes)
+                {
+                    case ERes.Atlas:
+                        ret = UnityEditor.AssetDatabase.LoadAssetAtPath<SpriteAtlas>(manifestAsset.path);
+                        break;
+                    case ERes.Audio:
+                        ret = UnityEditor.AssetDatabase.LoadAssetAtPath<SpriteAtlas>(manifestAsset.path);
+
+                }
+                return ret;
 #endif
 
             }
