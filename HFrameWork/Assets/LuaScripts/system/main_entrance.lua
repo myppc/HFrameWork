@@ -8,27 +8,27 @@ local mainEntrance = {}
 
 --- 设置全局
 function mainEntrance.set_global()
-    gUnity = require("system/code_hints/code_hints_unityengine")
+    gUnity = require("system/code_hints/code_hints_unityengine") -- +
     gUnity = CS.UnityEngine
 
-    gCSharp = require("system/code_hints/code_hints_lua_bridge")
+    gCSharp = require("system/code_hints/code_hints_lua_bridge") -- +
     gCSharp = CS.LuaCallCSharpHelper
 
     --gPath = CS.System.IO.Path
-    gHelper = require('system/helper')
+    gHelper = require('system/helper') -- +
 
-    local log = require('system/log')
+    local log = require('system/log') -- +
     gLog = log.print
     gLogGroup = log.print_group
     gError = log.print_error
 
-    gJson = require("system/json")
+    gJson = require("system/json") -- +
 
-    gClass = require("system/class_helper")
-    gMgrs = require('system/mgrs')
-    gData = require("system/data_center")
-    gCfg = require("mgrs/cfg/cfg_mgr")
-    gColor = require("system/color")
+    gClass = require("system/class_helper") -- + 
+    --gMgrs = require('system/mgrs') --
+    --gData = require("system/data_center") --
+    --gCfg = require("mgrs/cfg/cfg_mgr") --
+    gColor = require("system/color") -- +
     gUtf8 = require("system/extension/utf8")
 end
 
@@ -120,8 +120,13 @@ function mainEntrance.run()
     -- 屏蔽全局
     mainEntrance.lock_global()
 
+    local ins = CS.ResMgr.Ins;
+    ins.Load(CS.ERes.GameObject, "mode1", "box.prefab");
+
+    ---------------------------------
+    --暂时关闭
     -- 开始游戏
-    mainEntrance.start_game()
+    --mainEntrance.start_game()
 end
 
 --- 注销回调

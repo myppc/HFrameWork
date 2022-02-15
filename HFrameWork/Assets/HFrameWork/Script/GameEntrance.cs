@@ -37,7 +37,6 @@ public class GameEntrance : MonoBehaviour
     /// </summary>
     public void StartEntrance()
     {
-        ResMgr.Ins.Load<GameObject>(ERes.GameObject, "mode1", "box.prefab");
 
         // 初始化Lua虚拟机
         env = new LuaEnv();
@@ -46,10 +45,20 @@ public class GameEntrance : MonoBehaviour
 
         // 自定义加载路径
         env.AddLoader(LuaABMgr.Ins.LuaLoader);
-
-        AssetsBundleMgr.Ins.LoadAssetBundle(AppConfig.LUA_AB_NAME, (name, ab) => {
+        //编辑器模式下直接运行
+        if (AppConfig.runMode == ERunMode.Editor)
+        {
             CallLuaMain("run");
-        });
+        }
+        else
+        {
+            //包模式下需要加载luaAB
+            AssetsBundleMgr.Ins.LoadAssetBundle(AppConfig.LUA_AB_NAME, (name, ab) =>
+            {
+                CallLuaMain("run");
+            });
+        }
+
     }
 
     /// <summary>

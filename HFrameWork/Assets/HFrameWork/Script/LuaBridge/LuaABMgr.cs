@@ -117,9 +117,16 @@ namespace HFrameWork
                 return bytes;
             }
 
-            // 拼接路径
-            string path = Path.Combine(AppConfig.LUA_PATH, $"{filePath}.lua");
+            //处理lua文件中require
+            if (!filePath.Contains(".lua"))
+            {
+                filePath = $"{filePath}.lua";
+            }
+            var fileName = Path.GetFileName(filePath);
 
+        var module = AppConfig.manifest.GetModule(AppConfig.LUA_MODULE);
+            var asset = module.GetAsset(fileName);
+            var path = asset.path;
             // 读取文件内容
             string content = File.ReadAllText(path);
 

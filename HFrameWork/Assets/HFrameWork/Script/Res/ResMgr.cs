@@ -84,9 +84,10 @@ namespace Assets.HFrameWork.Script.Res
         {
             switch (AppConfig.runMode)
             {
-                case ERunMode.Local:
+                case ERunMode.Editor:
                     AppConfig.manifest = CreateLoacalManifest();
                     break;
+                case ERunMode.Local:
                 case ERunMode.Package:
                     AppConfig.manifest = LoadPackageManifest();
                     break;
@@ -172,6 +173,17 @@ namespace Assets.HFrameWork.Script.Res
                 // 记录资源
                 moduleData.AddAsset(fileName, new ManifestAsset("", uPath));
             });
+
+            FileHelper.PairLuaScript(AppConfig.LUA_PATH, (fullPath, uPath, fileName) => {
+                if (!manifest.modules.TryGetValue(AppConfig.LUA_MODULE, out ManifestModule moduleData))
+                {
+                    moduleData = new ManifestModule(new Dictionary<string, ManifestAB>(), new Dictionary<string, ManifestAsset>());
+                    manifest.modules.Add(AppConfig.LUA_MODULE, moduleData);
+                }
+                //记录lua资源的全路径，后续可通过文件名寻找
+                moduleData.AddAsset(fileName, new ManifestAsset("", fullPath));
+            });
+
 #endif
             return manifest;
         }
