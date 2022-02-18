@@ -29,13 +29,13 @@ namespace Assets.HFrameWork.Script.Res
     public class ResMgr :SingletonClass<ResMgr>
     {
         #region 私有变量
-
+        private Dictionary<string, GameObject> preGoDict;
         #endregion
 
         #region 构造方法
         public ResMgr()
-        { 
-
+        {
+            preGoDict = new Dictionary<string, GameObject>();
         }
         #endregion
 
@@ -58,7 +58,7 @@ namespace Assets.HFrameWork.Script.Res
             }
             return null;
         }
-
+ 
         /// <summary>
         /// 异步加载资源
         /// </summary>
@@ -95,6 +95,15 @@ namespace Assets.HFrameWork.Script.Res
                     break;
             }
         }
+
+        /// <summary>
+        /// 清理预加载的prefab
+        /// </summary>
+        public void ClearPreGoCache()
+        {
+            preGoDict.Clear();
+        }
+
         #endregion
 
         #region 私有方法
@@ -319,27 +328,34 @@ namespace Assets.HFrameWork.Script.Res
             }
 
             var manifestAsset =  GetManifestAsset(path, name);
-            if (AppConfig.runMode == ERunMode.Editor)
+            if (preGoDict.TryGetValue(manifestAsset.path, out var preGo))
             {
-#if UNITY_EDITOR
-                //编辑器模式下生成
-                var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(manifestAsset.path);
-                go = UnityEngine.Object.Instantiate(asset as GameObject);
-#endif
+                go = GameObject.Instantiate<GameObject>(preGo);
             }
-            else
+
+            if (go == null)
             {
-                var ab = AssetsBundleMgr.Ins.GetBundle(manifestAsset.abName);
-                if (ab == null)
+                if (AppConfig.runMode == ERunMode.Editor)
                 {
-                    ab = AssetsBundleMgr.Ins.LoadAssetBundle(manifestAsset.abName);
+#if UNITY_EDITOR
+                    //编辑器模式下生成
+                    var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(manifestAsset.path);
+                    preGoDict.Add(manifestAsset.path, asset as GameObject);
+                    go = UnityEngine.Object.Instantiate(asset as GameObject);
+#endif
                 }
-                var ttt = ab.LoadAllAssets();
-
-                var asset = ab.LoadAsset(manifestAsset.path);
-                go = UnityEngine.Object.Instantiate(asset as GameObject);
+                else
+                {
+                    var ab = AssetsBundleMgr.Ins.GetBundle(manifestAsset.abName);
+                    if (ab == null)
+                    {
+                        ab = AssetsBundleMgr.Ins.LoadAssetBundle(manifestAsset.abName);
+                    }
+                    var asset = ab.LoadAsset(manifestAsset.path);
+                    preGoDict.Add(manifestAsset.path, asset as GameObject);
+                    go = UnityEngine.Object.Instantiate(asset as GameObject);
+                }
             }
-
             GoPoolManager.Ins.AddTag(go, path, name);
             return go;
         }
@@ -364,14 +380,26 @@ namespace Assets.HFrameWork.Script.Res
                 }
             }
             var manifestAsset = GetManifestAsset(path, name);
+
+            //如果有预生成 的，直接先预生成
+            if (preGoDict.TryGetValue(manifestAsset.path, out var preGo))
+            {
+                go = GameObject.Instantiate<GameObject>(preGo);
+                GoPoolManager.Ins.AddTag(go as GameObject, path, name);
+                finishCallback?.Invoke(go);
+                return;
+            }
+
             if (AppConfig.runMode == ERunMode.Editor)
             {
 #if UNITY_EDITOR
                 //编辑器模式下生成
                 var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(manifestAsset.path);
                 go = UnityEngine.Object.Instantiate(asset as GameObject);
+                preGoDict.Add(manifestAsset.path, asset);
                 GoPoolManager.Ins.AddTag(go as GameObject, path, name);
                 finishCallback?.Invoke(go);
+                return;
 #endif
             }
             else
@@ -383,6 +411,11 @@ namespace Assets.HFrameWork.Script.Res
                     {
                         var ret = UnityEngine.GameObject.Instantiate(asset as GameObject);
                         GoPoolManager.Ins.AddTag(ret, path, name);
+                        if (!preGoDict.ContainsKey(manifestAsset.path))
+                        {
+                            preGoDict.Add(manifestAsset.path, ret);
+                        }
+
                         finishCallback?.Invoke(ret);
                     }));
                 });

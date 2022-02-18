@@ -1,4 +1,5 @@
 ﻿
+using Assets.HFrameWork.Script.Res;
 using Cysharp.Threading.Tasks;
 using HFrameWork.Script.Pool;
 using System;
@@ -99,6 +100,7 @@ namespace HFrameWork.Script.SceneMgr
                 }
                 else
                 {
+                    ResMgr.Ins.ClearPreGoCache();
                     //清理场景缓存和当前场景的临时缓存,并且将栈里的场景信息弹出，直到栈顶为当前场景方可停止
                     GoPoolManager.Ins.ClearSceneCache(curSceneName);
                     for (var i = sortList.Count - 1; i >= index; i--)
