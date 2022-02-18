@@ -1,0 +1,797 @@
+
+
+
+
+
+
+local uiEnum = require('mgrs/ui/ui_enum')
+local uiCfg = require('mgrs/ui/ui_cfg')
+
+local uiMgr = {
+isEnable = true,            
+
+mainNode = nil,             
+uiNode = nil,               
+uiNodeTemplate = nil,       
+canvas = nil,               
+uiCamera = nil,             
+uiCover = nil,              
+
+sceneNode = nil,            
+sceneCanvas = nil,          
+sceneCover = nil,           
+sceneCamera = nil,          
+sceneCameraCtrller = nil,   
+
+cfg = nil,                  
+eUI = nil,                  
+eNodes = nil,               
+
+opQueue = {},               
+currOp = nil,               
+
+uiStack = {},               
+uiFixedStack = {},          
+uiSystemStack = {},         
+}
+
+
+local eOp = {
+show = 1,       
+close = 2,      
+}
+
+
+local eProperty = {
+profile = "profile",
+sub = "sub",
+}
+
+
+local arrayNodes = {
+uiEnum.eNodes.module,
+uiEnum.eNodes.fixed,
+uiEnum.eNodes.top,
+uiEnum.eNodes.system,
+}
+
+
+local nodesCfg = {
+[uiEnum.eNodes.module] = {
+stack = uiMgr.uiStack,         
+isAutoClear = true,             
+isTopCheck = true,              
+},
+[uiEnum.eNodes.fixed] = {
+stack = uiMgr.uiFixedStack,    
+isAutoClear = false,            
+isTopCheck = false,              
+},
+[uiEnum.eNodes.top] = {
+stack = uiMgr.uiStack,         
+isAutoClear = true,             
+isTopCheck = true,              
+},
+[uiEnum.eNodes.system] = {
+stack = uiMgr.uiSystemStack,   
+isAutoClear = false,            
+isTopCheck = true,              
+},
+}
+
+
+
+
+local function next_op()
+
+uiMgr.currOp = nil
+
+
+uiMgr.check_op()
+end
+
+
+
+
+local function get_node_data(uiKey)
+
+local node = uiCfg[uiKey].node
+local nodeCfg = nodesCfg[node]
+
+
+if not nodeCfg then
+gError(string.format("[ui_mgr][尝试通过ui '%s' 访问未配置的节点 '%s'.]", uiKey, node))
+end
+
+return nodeCfg
+end
+
+
+
+
+
+local function set_cover(coverData, uiIns)
+
+if not coverData.isHas then
+
+uiMgr.uiCover.gameObject:SetActive(false)
+
+
+uiMgr.uiCover:SetParent(uiMgr.mainNode, false)
+return
+end
+
+
+local img = uiMgr.uiCover:GetComponent("Image")
+local color = coverData.color
+color.a = coverData.alpha
+img.color = color
+
+
+uiMgr.uiCover:SetParent(uiIns.mainNode.parent, false)
+
+
+local idx = uiIns.mainNode:GetSiblingIndex()
+uiMgr.uiCover:SetSiblingIndex(idx)
+
+
+img.raycastTarget = not coverData.isClickThrough
+
+
+local btn = uiMgr.uiCover:GetComponent("Button")
+btn:ClearEvent()
+
+
+if not img.raycastTarget and coverData.isClickClose then
+
+btn:AddEvent(function ()
+
+uiIns:CloseSelf()
+end)
+end
+
+
+uiMgr.uiCover.gameObject:SetActive(true)
+
+return true
+end
+
+
+local function refresh_cover()
+local dicCheck = {}
+
+
+for i = #arrayNodes, 1, -1 do
+
+local eNode = arrayNodes[i]
+local nodeCfg = nodesCfg[eNode]
+
+
+if dicCheck[nodeCfg.stack] then
+
+else
+
+dicCheck[nodeCfg.stack] = 1
+
+
+for t = #nodeCfg.stack, 1, -1 do
+
+local uiData = nodeCfg.stack[t]
+local coverData = uiCfg[uiData.key].cover
+
+
+if set_cover(coverData, uiData.ins) then
+return
+end
+end
+end
+end
+
+end
+
+
+local function destroy_res(uiRes)
+for i, res in pairs(uiRes) do
+
+if not gHelper.is_nil(res) then
+gHelper.destroy_node(res)
+end
+end
+end
+
+
+
+
+
+local function close_ui_with_data(data, stack, idx)
+
+for i = #stack, idx + 1, -1 do
+
+local uiData = stack[i]
+local uiCfg = uiCfg[uiData.key]
+
+
+if uiCfg.parent == data.key then
+
+close_ui_with_data(uiData, stack, i)
+end
+end
+
+
+data.ins.isUIClose = true
+data.ins:OnClose()
+
+
+destroy_res(data.ins.uiRes)
+
+
+table.remove(stack, idx)
+end
+
+
+
+local function set_property_bar(uiData)
+
+local cfg = uiCfg[uiData.key]
+
+
+local cfgProperty = cfg.property
+if cfgProperty then
+local ins = gMgrs.ui.find_ui(gMgrs.ui.eUI.propertyBar).ins
+
+
+if cfgProperty.type == eProperty.profile then
+
+ins:ShowProfileView()
+elseif cfgProperty.type == eProperty.sub then
+local backHandler = nil
+if cfgProperty.backHandler then
+backHandler = function()
+cfgProperty.backHandler(uiData.key)
+end
+end
+
+
+ins:ShowSubView(cfgProperty.name, backHandler)
+end
+
+
+ins:RefreshPropertiesWithCfg(cfgProperty.properties)
+
+
+ins:SetBtnRecharge(cfgProperty.btnRecharge)
+end
+end
+
+
+
+local function set_main_fixed_ui(uiData)
+
+local cfg = uiCfg[uiData.key]
+
+
+if cfg.node ~= gMgrs.ui.eNodes.module then
+return
+end
+
+
+local mainFixedUI = gMgrs.ui.find_ui(gMgrs.ui.eUI.mainFixed)
+
+if mainFixedUI then
+
+
+local isVisible = cfg.mainFixedUI
+
+mainFixedUI.ins:SetVisible(isVisible)
+end
+end
+
+
+local function set_fixed_ui(uiData)
+
+set_property_bar(uiData)
+
+
+set_main_fixed_ui(uiData)
+end
+
+
+
+
+local function set_visible(stack, isCallShow)
+local cfg = nil
+
+
+for t = #stack, 1, -1 do
+
+local uiData = stack[t]
+
+
+if t == #stack then
+
+cfg = uiCfg[uiData.key]
+
+
+uiData.ins.mainNode.gameObject:SetActive(true)
+
+
+if isCallShow then
+
+uiData.ins:OnShow()
+
+
+set_fixed_ui(uiData)
+end
+
+else
+
+if cfg.isClearOthers then
+
+close_ui_with_data(uiData, stack, t)
+
+elseif cfg.isHideOthers then    
+uiData.ins.mainNode.gameObject:SetActive(false)
+end
+end
+end
+end
+
+
+
+local function close_ui_handler(opData)
+
+local uiData, stack, idx = uiMgr.find_ui(opData.key)
+
+
+if uiData == nil then
+
+gError(string.format("[ui_mgr][尝试关闭一个不存在的ui '%s'.]", opData.key))
+
+
+next_op()
+
+return
+end
+
+
+close_ui_with_data(uiData, stack, idx)
+
+
+set_visible(stack, true)
+
+
+refresh_cover()
+
+
+next_op()
+end
+
+
+
+
+local function on_loaded(uiData, res)
+
+if uiData.ins.isUIClose then
+
+destroy_res(res)
+
+
+next_op()
+
+return
+end
+
+
+uiData.ins.uiRes = res
+uiData.ins.mainNode = res[1]
+
+
+local nodeName = uiCfg[uiData.key].node
+local uiNode = uiMgr.uiNode:Find(nodeName)
+
+
+if not uiNode then
+gError(string.format("[ui_mgr][尝试访问不存在的ui节点 '%s'.]", nodeName))
+
+
+next_op()
+
+return
+end
+
+
+uiData.ins.mainNode:SetParent(uiNode, false)
+
+
+local stack = get_node_data(uiData.key).stack
+
+
+set_visible(stack)
+
+
+refresh_cover()
+
+
+uiData.ins.isUILoading = false
+
+
+gMgrs.cover.hide_cover(gMgrs.cover.eCover.uiLoading)
+
+
+set_fixed_ui(uiData)
+
+
+uiData.ins:OnGetUIs()
+uiData.ins:OnLoaded()
+
+
+next_op()
+end
+
+
+
+local function load_resources(uiData)
+
+local arrayRes = uiData.ins:OnGetUIResources()
+
+
+gMgrs.cover.show_cover(gMgrs.cover.eCover.uiLoading)
+
+
+local count = 0
+local res = {}
+for i, data in pairs(arrayRes) do
+local t = i
+gMgrs.res.load_asset_async(data.module, data.name, function (obj)
+
+count = count + 1
+
+
+res[t] = obj.transform
+
+
+if count == #arrayRes then
+
+on_loaded(uiData, res)
+end
+end)
+end
+end
+
+
+
+local function show_ui_handler(opData)
+
+local lastUIData, stack, idx = uiMgr.find_ui(opData.key)
+
+
+if lastUIData ~= nil then
+
+close_ui_with_data(lastUIData, stack, idx)
+end
+
+
+local data = {
+ins = uiCfg[opData.key].getIns(),  
+key = opData.key,
+args = opData.args,
+}
+table.insert(stack, data)
+
+
+data.ins.uiKey = opData.key
+data.ins.uiArgs = opData.args or {}
+
+
+data.ins.isUILoading = true
+
+
+data.ins:OnInit()
+
+
+gLogGroup(string.format("[ui_mgr][加载ui'%s'资源]", opData.key))
+load_resources(data)
+end
+
+
+
+local function execute_op(opData)
+
+local switch = {
+[eOp.show] = show_ui_handler,
+[eOp.close] = close_ui_handler,
+}
+
+
+switch[opData.op](opData)
+end
+
+
+local function create_nodes()
+
+for i, eNode in pairs(arrayNodes) do
+
+local node = gUnity.Object.Instantiate(uiMgr.uiNodeTemplate).transform
+
+
+node.name = eNode
+
+
+node.gameObject:SetActive(true)
+
+
+node:SetParent(uiMgr.uiNode, false)
+end
+end
+
+
+
+
+function uiMgr.init()
+
+uiMgr.canvas = gUnity.GameObject.Find("UICanvas"):GetComponent("Canvas")
+uiMgr.mainNode = uiMgr.canvas.transform
+uiMgr.uiNode = uiMgr.mainNode:Find("Nodes")
+uiMgr.uiNodeTemplate = uiMgr.uiNode:Find("TempleteNode")
+uiMgr.uiCamera = uiMgr.mainNode:Find("UICamera"):GetComponent("Camera")
+uiMgr.uiCover = uiMgr.mainNode:Find("UICover")
+
+uiMgr.sceneCanvas = gUnity.GameObject.Find("SceneCanvas"):GetComponent("Canvas")
+local sceneCanvasNode = uiMgr.sceneCanvas.transform
+uiMgr.sceneNode = sceneCanvasNode:Find("Nodes")
+uiMgr.sceneCamera = sceneCanvasNode:Find("SceneCamera"):GetComponent("Camera")
+uiMgr.sceneCameraCtrller = uiMgr.sceneCamera:GetComponent("CameraCtrller")
+uiMgr.sceneCover = sceneCanvasNode:Find("SceneCover")
+
+
+uiMgr.cfg = uiCfg
+
+
+uiMgr.eUI = uiEnum.eUI
+uiMgr.eNodes = uiEnum.eNodes
+
+
+create_nodes()
+end
+
+
+function uiMgr.check_op()
+
+if not uiMgr.isEnable then
+return
+end
+
+
+if uiMgr.currOp then
+return
+end
+
+
+if #uiMgr.opQueue == 0 then
+return
+end
+
+
+uiMgr.currOp = table.remove(uiMgr.opQueue, 1)
+
+
+execute_op(uiMgr.currOp)
+end
+
+
+
+
+function uiMgr.show_ui(uiKey, args)
+
+table.insert(uiMgr.opQueue, {
+op = eOp.show,
+key = uiKey,
+args = args,
+})
+
+
+uiMgr.check_op()
+end
+
+
+
+function uiMgr.close_ui(uiKey)
+
+table.insert(uiMgr.opQueue, {
+op = eOp.close,
+key = uiKey,
+args = nil,
+})
+
+
+uiMgr.check_op()
+end
+
+
+function uiMgr.set_enabled(isEnable)
+
+local isCheck = isEnable and not uiMgr.isEnable
+
+
+uiMgr.isEnable = isEnable
+
+
+if isCheck then
+
+uiMgr.check_op()
+end
+end
+
+
+
+
+function uiMgr.find_ui(uiKey)
+
+local stack = get_node_data(uiKey).stack
+
+
+for i, ui_data in pairs(stack) do
+
+if ui_data.key == uiKey then
+return ui_data, stack, i
+end
+end
+
+return nil, stack, -1
+end
+
+
+
+
+function uiMgr.try_show_ui(uiKey)
+
+local uiData = gMgrs.ui.find_ui(uiKey)
+if uiData == nil then
+
+gMgrs.ui.show_ui(uiKey)
+end
+
+return uiData
+end
+
+
+
+
+function uiMgr.get_top_ui(eNode)
+
+if not eNode then
+
+for i = #arrayNodes, 1, -1 do
+eNode = arrayNodes[i]
+
+
+local res = uiMgr.get_top_ui(eNode)
+if res then
+return res
+end
+end
+else
+local nodeCfg = nodesCfg[eNode]
+
+
+if nodeCfg.isTopCheck then
+
+if #nodeCfg.stack > 0 then
+
+return nodeCfg.stack[#nodeCfg.stack]
+end
+end
+end
+
+return nil
+end
+
+
+
+
+function uiMgr.check_is_top(uiKey)
+
+local eNode = uiCfg[uiKey].node
+
+
+local topUI = uiMgr.get_top_ui(eNode)
+if topUI then
+return topUI.key == uiKey
+end
+
+return false
+end
+
+
+
+function uiMgr.auto_clear(isForceClear)
+local dicStack = {}
+
+
+uiMgr.uiCover:SetParent(uiMgr.mainNode, false)
+
+
+for i = #arrayNodes, 1, -1 do
+
+local eNode = arrayNodes[i]
+local cfg = nodesCfg[eNode]
+
+
+if isForceClear or cfg.isAutoClear then
+
+if dicStack[cfg.stack] == nil then
+
+dicStack[cfg.stack] = 1
+
+
+for t = #cfg.stack, 1, -1 do
+local data = cfg.stack[t]
+
+
+data.ins.isUIClose = true
+data.ins:OnClose()
+
+
+destroy_res(data.ins.uiRes)
+end
+
+
+cfg.stack = {}
+end
+end
+end
+
+
+uiMgr.opQueue = {}
+end
+
+
+function uiMgr.clear_all()
+uiMgr.auto_clear(true)
+end
+
+
+function uiMgr.init_scene_camera(boundsObj, size, initPos, callback)
+initPos = initPos or gUnity.Vector2.zero
+
+uiMgr.sceneCameraCtrller:Init(boundsObj, size, initPos, callback)
+end
+
+
+function uiMgr.zoom_scene_camera(size, isAnim)
+uiMgr.sceneCameraCtrller:Zoom(size, isAnim)
+end
+
+
+function uiMgr.set_scene_camera_pos(pos, isAnim)
+pos = pos or gUnity.Vector2.zero
+
+uiMgr.sceneCameraCtrller:LookAt(pos, isAnim)
+end
+
+
+function uiMgr.set_scene_camera_3d_pos(pos, isAnim)
+pos = pos or gUnity.Vector3.zero
+
+uiMgr.sceneCameraCtrller:LookAt3DPos(pos, isAnim)
+end
+
+
+
+
+function uiMgr.add_scene_camera_callback(callback, interval)
+uiMgr.sceneCameraCtrller:AddCallback(callback, interval)
+end
+
+
+
+function uiMgr.remove_scene_camera_callback(callback)
+uiMgr.sceneCameraCtrller:RemoveCallback(callback)
+end
+
+
+function uiMgr.clear_scene_camera_callback()
+uiMgr.sceneCameraCtrller:ClearCallback()
+end
+
+return uiMgr

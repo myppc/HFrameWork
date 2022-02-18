@@ -1,0 +1,10 @@
+local pool_type = 
+{
+TEMP = 0,
+STATIC = 1,
+DYNAMIC = 2,
+SCENE = 3,
+
+}
+
+return pool_type

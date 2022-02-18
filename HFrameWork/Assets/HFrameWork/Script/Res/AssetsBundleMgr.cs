@@ -8,13 +8,6 @@ using UnityEngine;
 
 namespace Assets.HFrameWork.Script.Res
 {
-    public struct ABAsync
-    {
-        public string abName;
-        public List<ABLoader> loaderList;
-        public Action<string, AssetBundle> finishCallBack;
-    }
-
     /// <summary>
     /// 管理AB资源包
     /// </summary>

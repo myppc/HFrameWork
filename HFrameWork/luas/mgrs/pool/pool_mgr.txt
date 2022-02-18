@@ -1,0 +1,69 @@
+
+
+
+
+
+
+local pool_mgr = {}
+
+
+
+function pool_mgr.try_get(key)
+return gCSharp.TryGet(key)
+end
+
+
+
+
+function pool_mgr.try_get_asset(module, assetName)
+return gCSharp.TryGetAsset(module, assetName)
+end
+
+
+
+
+function pool_mgr.get_key(module, assetName)
+return module.."#"..assetName
+end
+
+
+
+
+function pool_mgr.recycle(trans, customKey)
+gCSharp.Recycle(trans, customKey)
+end
+
+
+
+
+function pool_mgr.set_capacity(key, capacity)
+gCSharp.SetCapacity(key, capacity)
+end
+
+
+
+
+
+function pool_mgr.set_asset_capacity(module, assetName, capacity)
+gCSharp.SetAssetCapacity(module, assetName, capacity)
+end
+
+
+
+function pool_mgr.clear(key)
+gCSharp.Clear(key)
+end
+
+
+
+
+function pool_mgr.clear_asset(module, assetName)
+gCSharp.ClearAsset(module, assetName)
+end
+
+
+function pool_mgr.clear_all()
+gCSharp.ClearAll()
+end
+
+return pool_mgr

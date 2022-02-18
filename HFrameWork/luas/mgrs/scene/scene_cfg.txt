@@ -1,0 +1,35 @@
+
+
+
+
+
+
+local sceneCfg = {
+
+eScene = {
+main = "Main",
+world = "World",
+},
+}
+
+
+sceneCfg.cfg = {
+[sceneCfg.eScene.main] = {
+module = "MainCity",
+name = "MainScene",
+isClearOthers = true,      
+getIns = function()
+return require("modules/scenes/main_scene"):new()
+end,
+},
+[sceneCfg.eScene.world] = {
+module = "World",
+name = "WorldScene",
+isClearOthers = true,      
+getIns = function()
+return require("modules/scenes/world_scene"):new()
+end,
+},
+}
+
+return sceneCfg

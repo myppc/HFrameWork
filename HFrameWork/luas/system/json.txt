@@ -1,0 +1,25 @@
+
+
+
+
+
+
+local rapidjson = require('rapidjson')
+
+local json = {}
+
+
+
+
+function json.encode(obj)
+return rapidjson.encode(obj)
+end
+
+
+
+
+function json.decode(jsonStr)
+return rapidjson.decode(jsonStr)
+end
+
+return json

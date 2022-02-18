@@ -5,6 +5,8 @@ namespace HFrameWork
 {
     public class ObjectCacheInfo : MonoBehaviour
     {
-        public CacheInfo cacheInfo;
+        public string name;
+        public string path;
+        public string key;
     }
 }

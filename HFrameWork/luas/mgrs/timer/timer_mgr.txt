@@ -1,0 +1,317 @@
+
+
+
+
+
+
+local timerMgr = {
+dicTimer = {
+unscaledTimers = {  
+
+
+
+
+
+
+
+
+
+
+]
+},
+scaledTimers = {  
+
+},
+},
+}
+
+
+
+
+
+local function check_next_loop(data)
+
+if data.loopInterval == nil or data.loopInterval <= 0 then
+return false
+end
+
+
+if data.loopNum == nil or data.loopNum <= 0 then
+return true
+end
+
+
+if data.callbackCount > data.loopNum then
+return false
+end
+
+return true
+end
+
+
+
+
+local function check_timer(dic, deltaTime)
+local listRemove = {}
+local listCallback = {} 
+
+
+for key, data in pairs(dic) do
+
+data.timeCount = data.timeCount + deltaTime
+
+
+local targetTime = data.delay
+if data.callbackCount > 0 then
+targetTime = data.loopInterval
+end
+
+
+while(data.timeCount >= targetTime) do
+
+data.timeCount = data.timeCount - targetTime
+
+
+data.callbackCount = data.callbackCount + 1
+
+
+table.insert(listCallback, {
+callback = data.callback,
+count = data.callbackCount
+})
+
+
+if not check_next_loop(data) then
+
+table.insert(listRemove, key)
+break
+end
+end
+end
+
+
+for i, v in pairs(listRemove) do
+dic[v] = nil
+end
+
+
+for i, v in pairs(listCallback) do
+v.callback(v.count)
+end
+end
+
+
+local function on_update()
+
+check_timer(timerMgr.dicTimer.scaledTimers, gUnity.Time.deltaTime)
+end
+
+
+local function on_fixed_update()
+
+check_timer(timerMgr.dicTimer.unscaledTimers, gUnity.Time.fixedUnscaledDeltaTime)
+end
+
+
+
+
+local function get_dic(isUnscaled)
+local dic = {}
+if isUnscaled then
+dic = timerMgr.dicTimer.unscaledTimers
+else
+dic = timerMgr.dicTimer.scaledTimers
+end
+
+return dic
+end
+
+
+
+
+local function check_has(key)
+local dic = timerMgr.dicTimer.unscaledTimers
+
+
+if dic[key] then
+gError(string.format("已经有键名为%s的计时器了", key))
+return true, dic
+end
+
+dic = timerMgr.dicTimer.scaledTimers
+
+
+if dic[key] then
+gError(string.format("已经有键名为%s的计时器了", key))
+return true, dic
+end
+
+return false, nil
+end
+
+
+
+
+
+local function timer_creator(key, dic)
+return {
+key = key,
+
+close = function ()
+
+timerMgr.clear(key)
+end,
+
+checkEnabled = function()
+return dic[key] ~= nil
+end,
+
+callNow = function ()
+local data = dic[key]
+if data then
+
+data.timeCount = 0
+
+
+data.callbackCount = data.callbackCount + 1
+data.callback(data.callbackCount)
+
+
+if not check_next_loop(data) then
+
+dic[key] = nil
+end
+end
+end,
+}
+end
+
+
+
+
+function timerMgr.init()
+
+gMgrs.unityUpdate.reg_update(on_update)
+gMgrs.unityUpdate.reg_fixedupdate(on_fixed_update)
+end
+
+
+
+
+
+
+
+function timerMgr.use(key, isUnscaled, delay, callback)
+
+if callback == nil then
+gError("[use] [计时器回调不能为空]")
+return
+end
+
+
+if delay == nil or delay < 0 then
+gError(string.format("[use_loop] [循环延迟必须非空且大于等于0.当前传入值为:'%s'.]", delay))
+return
+end
+
+
+if check_has(key) then
+return
+end
+
+
+if delay == 0 then
+callback(1)
+return
+end
+
+
+local dic = get_dic(isUnscaled)
+
+
+dic[key] = {
+isUnscaled = isUnscaled,
+callback = callback,
+delay = delay,
+timeCount = 0,
+callbackCount = 0,
+}
+
+
+return timer_creator(key, dic)
+end
+
+
+
+
+
+
+
+
+
+function timerMgr.use_loop(key, isUnscaled, delay, loopInterval, loopNum, callback)
+
+if callback == nil then
+gError("[use_loop] [计时器回调不能为空]")
+return
+end
+
+
+if delay == nil or delay < 0 then
+gError(string.format("[use_loop] [循环延迟必须非空且大于等于0.当前传入值为:'%s'.]", delay))
+return
+end
+
+
+if loopInterval == nil or loopInterval <= 0 then
+gError(string.format("[use_loop] [循环计时器间隙必须非空且大于0.当前传入值为:'%s'.]", loopInterval))
+return
+end
+
+
+if check_has(key) then
+return
+end
+
+
+local dic = get_dic(isUnscaled)
+
+
+local data = {
+isUnscaled = isUnscaled,
+callback = callback,
+delay = delay,
+loopInterval = loopInterval,
+loopNum = loopNum,
+timeCount = 0,
+callbackCount = 0,
+}
+
+
+if delay == 0 then
+data.callbackCount = 1
+data.callback(data.callbackCount)
+end
+
+
+dic[key] = data
+
+
+return timer_creator(key, dic)
+end
+
+
+function timerMgr.clear(key)
+
+timerMgr.dicTimer.scaledTimers[key] = nil
+timerMgr.dicTimer.unscaledTimers[key] = nil
+end
+
+
+function timerMgr.clear_all()
+
+timerMgr.dicTimer.scaledTimers = {}
+timerMgr.dicTimer.unscaledTimers = {}
+end
+
+return timerMgr

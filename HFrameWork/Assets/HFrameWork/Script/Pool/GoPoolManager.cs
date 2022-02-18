@@ -8,18 +8,19 @@ using UnityEngine;
 /// 对象
 /// </summary>
 
-namespace HFrameWork
+namespace HFrameWork.Script.Pool
 {
 
     /// <summary>
     /// 对象池类型
     /// </summary>
     public enum PoolType
-    { 
+    {
+        TEMP,//该场景零时对象池，退出场景时销毁
         STATIC,//静态池，永久不销毁
         DYNAMIC,//动态池，动态添加，永久不销毁
         SCENE,//该场景对象池，每次在推出场景时销毁，在载入时自动加载
-        TEMP,//该场景零时对象池，退出场景时销毁
+        
     }
 
     /// <summary>
@@ -28,20 +29,25 @@ namespace HFrameWork
     public struct CacheInfo
     {
         public string key;
-        public PoolType poolType;
-        public int cacheCount;
-        public string sceneName;
+        public List<SaveInfo> saveInfos;
         public string path;
         public string assetName;
     }
 
+    public struct SaveInfo
+    {
+        public PoolType poolType;
+        public int cacheCount;
+        public string sceneName;
+    }
+
+
     public class GoPoolManager:SingletonClass<GoPoolManager>
     {
-
+        private string curSceneName = "DEFAULT";
         private GameObject poolRoot;
-        private Dictionary<PoolType ,Transform> poolDict;
-        public Dictionary<string, CacheInfo> cacheInfoDict;
-        public Dictionary<string, List<GameObject>> GoDict;
+        private Dictionary<string, CacheInfo> cacheInfoDict;
+        private Dictionary<string, List<GameObject>> GoDict;
 
         /// <summary>
         /// 池子基础初始化
@@ -50,7 +56,6 @@ namespace HFrameWork
         {
             cacheInfoDict = new Dictionary<string, CacheInfo>();
             GoDict = new Dictionary<string, List<GameObject>>();
-            poolDict = new Dictionary<PoolType, Transform>();
             InitPoolGo();
             return true;
         }
@@ -58,31 +63,12 @@ namespace HFrameWork
         /// <summary>
         /// 初始化对象池
         /// </summary>
-        public void InitPoolGo()
+        private void InitPoolGo()
         {
             poolRoot = new GameObject();
             poolRoot.name = "RootPool";
             GameObject.DontDestroyOnLoad(poolRoot);
-            var staticPool = new GameObject();
-            staticPool.name = "Static";
-            staticPool.transform.SetParent(poolRoot.transform, false);
-            var dynamicPool = new GameObject();
-            dynamicPool.name = "Dynamic";
-            dynamicPool.transform.SetParent(poolRoot.transform, false);
-
-            var scenePool = new GameObject();
-            scenePool.name = "Scene";
-            scenePool.transform.SetParent(poolRoot.transform, false);
-
-            var tempPool = new GameObject();
-            tempPool.name = "Temp";
-            tempPool.transform.SetParent(poolRoot.transform, false);
-
-
-            poolDict.Add(PoolType.STATIC ,staticPool.transform);
-            poolDict.Add(PoolType.DYNAMIC, dynamicPool.transform);
-            poolDict.Add(PoolType.SCENE, scenePool.transform);
-            poolDict.Add(PoolType.TEMP, tempPool.transform);
+         
 
         }
 
@@ -93,41 +79,56 @@ namespace HFrameWork
         /// <param name="name">prefabName</param>
         /// <param name="poolType">缓存类型</param>
         /// <param name="cacheCount">缓存个数</param>
-        public void RegisterCacheInfo(string path,string name,PoolType poolType  = PoolType.TEMP,int cacheCount  = 20,string sceneName = "DEFAULT")
+        public void RegisterCacheInfo(string path,string name,PoolType poolType  = PoolType.TEMP,int cacheCount  = 20,string sceneName = "")
         {
+            sceneName = sceneName != "" ? sceneName : curSceneName;
             poolType = poolType == PoolType.STATIC ? PoolType.DYNAMIC : poolType;
             var key = string.Format("{0}/{1}", path, name);
-            CacheInfo cacheInfo;
-            cacheInfo.key = key;
-            cacheInfo.poolType = poolType;
-            cacheInfo.cacheCount = cacheCount;
-            cacheInfo.sceneName = sceneName;
-            cacheInfo.path = path;
-            cacheInfo.assetName = name;
-            if (cacheInfoDict.ContainsKey(key))
+            if (!cacheInfoDict.ContainsKey(key))
             {
-                cacheInfoDict.Remove(key);
+                CacheInfo addCache;
+                addCache.saveInfos = new List<SaveInfo>();
+                addCache.key = key;
+                addCache.assetName = name;
+                addCache.path = path;
+                cacheInfoDict.Add(key, addCache);
             }
-            cacheInfoDict.Add(key,cacheInfo);
+            //如果缓存信息中有这个场景的信息了，那么替换成新的
+            var cacheInfo = cacheInfoDict[key];
+            var index = cacheInfo.saveInfos.FindIndex((item) => {
+                return item.sceneName == sceneName;
+            });
+            if (index != -1)
+            {
+                cacheInfo.saveInfos.RemoveAt(index);
+            }
 
+            SaveInfo saveInfo;
+            saveInfo.poolType = poolType;
+            saveInfo.cacheCount = cacheCount;
+            saveInfo.sceneName = sceneName;
+            cacheInfo.saveInfos.Add(saveInfo);
         }
 
         /// <summary>
         /// 根据key来清理对象池
         /// </summary>
         /// <param name="key"></param>
-        public void ClearCacheByKey(string key)
+        private void ClearCacheByKey(string key,int holdCount = 0)
         {
             if (!GoDict.ContainsKey(key))
             {
                 return;
             }
             var list = GoDict[key];
-            foreach (var item in list)
+            var removeCount = Math.Max( list.Count - holdCount,0);
+            for (var i = 0; i < removeCount; i++)
             {
+                var item = list[0];
+                list.RemoveAt(0);
                 GameObject.Destroy(item);
             }
-            list.Clear();
+
         }
 
 
@@ -175,17 +176,29 @@ namespace HFrameWork
                 GameObject.Destroy(go);
                 return;
             }
-            var key = string.Format("{0}/{1}", info.cacheInfo.path, info.cacheInfo.sceneName);
+            var key = string.Format("{0}/{1}", info.path, info.name);
             if (!GoDict.ContainsKey(key))
             {
                 GoDict.Add(key,new List<GameObject>());
             }
             var list = GoDict[key];
+            //判断当前场景是否需要缓存这个对象
+            var index = cacheInfoDict[key].saveInfos.FindIndex((item)=> {
+                return curSceneName == item.sceneName;
+            });
+            //若当前场景不需要缓存该对象，就直接删除
+            if (index == -1)
+            {
+                GameObject.Destroy(go);
+                return;
+            }
+            var maxCount = cacheInfoDict[key].saveInfos[index].cacheCount;
+
             //判断缓存是否饱和，如果没有饱和则添加对象到对象池，否则销毁对象
-            if (list.Count < info.cacheInfo.cacheCount)
+            if (list.Count < maxCount)
             {
                 list.Add(go);
-                Transform parent = poolDict[info.cacheInfo.poolType];
+                Transform parent = poolRoot.transform;
                 go.transform.SetParent(parent, false);
                 go.SetActive(false);
             }
@@ -199,16 +212,36 @@ namespace HFrameWork
         /// 清理当前场景缓存
         /// </summary>
         /// <param name="sceneName"></param>
-        public void ClearSceneCache(string sceneName,bool onlyTemp = false)
+        public void ClearSceneCache(string sceneName = "",bool onlyTemp = false)
         {
-            foreach(var item in cacheInfoDict)
+            sceneName = sceneName != "" ? sceneName : curSceneName;
+            foreach (var item in cacheInfoDict)
             {
                 var key = item.Key;
                 var cacheInfo = item.Value;
-                if (cacheInfo.sceneName == sceneName && ((cacheInfo.poolType == PoolType.TEMP && !onlyTemp) || cacheInfo.poolType == PoolType.SCENE))
+                var maxCacheCount = 0;
+                var isRemove = cacheInfo.saveInfos.FindIndex((item) => {
+                    return (item.sceneName == sceneName && (item.poolType == PoolType.TEMP || (item.poolType == PoolType.SCENE && !onlyTemp) )); 
+                });
+                //这一类资源没有缓存在该场景下
+                if (isRemove == -1)
                 {
-                    ClearCacheByKey(key);
+                    continue;
                 }
+                foreach (var saveInfo in cacheInfo.saveInfos)
+                {
+                    //找出其他场景下常驻的最大个数
+                    if (saveInfo.sceneName != sceneName)
+                    {
+                        if ((saveInfo.poolType == PoolType.DYNAMIC || saveInfo.poolType == PoolType.STATIC) || (!onlyTemp && saveInfo.poolType == PoolType.SCENE))
+                        {
+                            maxCacheCount = Math.Max(saveInfo.cacheCount, maxCacheCount);
+                        }
+                    }
+
+                }
+
+                ClearCacheByKey(key, maxCacheCount);
             }
         }
 
@@ -218,23 +251,30 @@ namespace HFrameWork
         /// <param name="sceneName"></param>
         public void LoadCacheByScene(string sceneName)
         {
+            curSceneName = sceneName;
             foreach (var item in cacheInfoDict)
             {
                 var cacheInfo = item.Value;
-                if (cacheInfo.sceneName == sceneName && cacheInfo.poolType == PoolType.SCENE)
+                var loadItemIndex = cacheInfo.saveInfos.FindIndex((item) => {
+                    return (item.sceneName == sceneName && item.poolType == PoolType.SCENE);
+                });
+                if (loadItemIndex != -1)
                 {
                     if (!GoDict.ContainsKey(cacheInfo.key))
                     {
                         GoDict.Add(cacheInfo.key, new List<GameObject>());
                     }
                     var list = GoDict[cacheInfo.key];
-                    var count = Mathf.Max(cacheInfo.cacheCount - list.Count, 0);
+                    var count = Mathf.Max(cacheInfo.saveInfos[loadItemIndex].cacheCount - list.Count, 0);
+                    var recoverylist = new List<GameObject>();
                     for (var i = 0; i < count; i++)
                     {
-                        var go = ResMgr.Ins.Load<GameObject>(ERes.GameObject, cacheInfo.path, cacheInfo.assetName);
-                        RecoveryGo(go);
+                        ResMgr.Ins.LoadAsync(ERes.GameObject, cacheInfo.path, cacheInfo.assetName,(go)=> {
+                            RecoveryGo(go as GameObject);
+                        },true);
                     }
                 }
+
             }
         }
 
@@ -250,22 +290,14 @@ namespace HFrameWork
             if(cacheInfoDict.ContainsKey(key))
             {
                 var objCacheInfo = go.AddComponent<ObjectCacheInfo>();
-                objCacheInfo.cacheInfo = cacheInfoDict[key];
+                objCacheInfo.key = key;
+                objCacheInfo.name = name;
+                objCacheInfo.path = path;
             }
         }
 
         #region 私有方法
-        /// <summary>
-        /// 直接new出一个对象，并添加信息
-        /// </summary>
-        private GameObject CreateGo(string path, string name)
-        {
-            var key = string.Format("{0}/{1}", path, name);
-            GameObject ret = GameObject.Instantiate(Resources.Load<GameObject>(key));
-            var objCacheInfo = ret.AddComponent<ObjectCacheInfo>();
-            objCacheInfo.cacheInfo = cacheInfoDict[key];
-            return ret;
-        }
+
         #endregion
     }
 }

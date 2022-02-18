@@ -1,0 +1,37 @@
+
+
+
+
+
+
+local baseScene = gClass.declare("baseScene")
+
+
+
+
+function baseScene:Ctor()
+
+end
+
+
+
+
+function baseScene:OnInit()
+
+self.sceneKey = nil             
+self.sceneArgs = {}             
+self.isSceneLoading = true      
+self.isSceneUnloading = false   
+end
+
+
+function baseScene:OnLoaded()
+
+end
+
+
+function baseScene:OnClose()
+
+end
+
+return baseScene

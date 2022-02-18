@@ -1,0 +1,399 @@
+
+
+
+
+
+
+local baseUI = gClass.declare("baseUI")
+
+
+function baseUI:Ctor()
+self.uiKey = nil             
+self.isUILoading = false     
+self.isUIClose = false       
+self.mainNode = nil          
+self.uiArgs = {}             
+self.uiGroup = {}            
+self.uiRes = {}              
+self.subViews = {}           
+self.subViewData = nil       
+self.subViewIdx = -1         
+
+self._netHandlers = {}       
+self._netCallbackCache = {}  
+end
+
+
+
+
+function baseUI:OnInit()
+
+self:RegNet()
+end
+
+
+function baseUI:OnGetUIResources()
+local arrayRes = {
+
+}
+
+return arrayRes
+end
+
+
+function baseUI:OnSetNet()
+return {}
+end
+
+
+function baseUI:OnLoaded()
+
+self:DispatchNet()
+end
+
+
+function baseUI:OnGetUIs()
+
+end
+
+
+function baseUI:OnShow()
+end
+
+
+function baseUI:OnClose()
+
+self:UnRegNet()
+
+
+self:ClearSubView()
+end
+
+
+function baseUI:OnSetSubView()
+return nil
+
+
+
+
+
+
+
+
+
+
+
+
+]
+end
+
+
+
+
+
+
+function baseUI:ShowSubView(idx, args)
+if not self.subViewData then
+self.subViewData = self:OnSetSubView()
+if not self.subViewData then
+return
+end
+end
+
+
+if self.subViewData.isChangeDestroy then
+
+for i, v in pairs(self.subViews) do
+gHelper.destroy_node(v.mainNode)
+end
+else
+
+for i, v in pairs(self.subViews) do
+v.mainNode.gameObject:SetActive(false)
+end
+end
+
+
+if self.subViewData.isChangeClearIns then
+
+self.subViews = {}
+end
+
+
+self.subViewIdx = idx
+local ins = self.subViews[self.subViewIdx]
+if ins == nil then
+
+ins = self.subViewData.subViewInsGetter(self.subViewIdx)
+
+
+self:LoadSubView(ins, self.subViewData.parentNode)
+
+
+ins.uiArgs = args
+ins:OnInit()
+ins:OnGetUIs()
+ins:OnLoaded()
+
+
+self.subViews[self.subViewIdx] = ins
+else
+
+ins.mainNode.gameObject:SetActive(true)
+
+
+ins:OnShow()
+end
+end
+
+
+function baseUI:LoadSubView(ins, parentNode)
+
+local listRes = ins:OnGetUIResources()
+local res = {}
+for i, v in pairs(listRes) do
+
+res[i] = gMgrs.res.load_asset(v.module, v.name).transform
+end
+
+
+ins.mainNode = res[1]
+ins.uiRes = res
+
+
+ins.mainNode:SetParent(parentNode, false)
+end
+
+
+function baseUI:ClearSubView()
+for i, v in pairs(self.subViews) do
+
+v:OnClose()
+
+
+gHelper.destroy_node(v.mainNode)
+end
+
+self.subViews = {}
+end
+
+
+
+
+function baseUI:CacheOrCallback(serviceData, handler)
+
+if self.isUILoading then
+
+table.insert(self._netCallbackCache, {
+handler = handler,
+args = serviceData,
+})
+return
+end
+
+
+handler(serviceData)
+end
+
+
+function baseUI:RegNet()
+
+local ptcs = self:OnSetNet()
+
+
+local initNets = {}
+
+
+for i, data in pairs(ptcs) do
+
+if data.callback then
+
+
+local handler = function(serviceData)
+self:CacheOrCallback(serviceData, data.callback)
+end
+
+
+local errorHandler = function(serviceData)
+self:CacheOrCallback(serviceData, data.errorCallback)
+end
+
+
+self._netHandlers[data.ptcIns.protocol] = {
+ins = data.ptcIns,
+handler = handler,
+errorHandler = errorHandler,
+}
+
+
+data.ptcIns:Reg(tostring(self), handler, errorHandler)
+
+local lastHandler = "none"
+if i > 1 then
+local dic = ptcs[i - 1].ptcIns.handlers
+for key, v in pairs(dic) do
+lastHandler = v.handler
+end
+end
+
+
+if data.isInitReq then
+
+table.insert(initNets, {
+ins = data.ptcIns,
+args = data.args or {},
+})
+end
+end
+end
+
+
+for i, v in pairs(initNets) do
+if v.ins.ptcType == "http" then
+v.ins:Send(table.unpack(v.args))
+else
+v.ins:Send(v.args)
+end
+end
+end
+
+
+function baseUI:UnRegNet()
+
+for ptc, v in pairs(self._netHandlers) do
+
+v.ins:UnReg(tostring(self))
+end
+
+
+self._netHandlers = {}
+end
+
+
+function baseUI:CloseSelf()
+gMgrs.ui.close_ui(self.uiKey)
+end
+
+
+function baseUI:CheckIsTop()
+return gMgrs.ui.check_is_top(self.uiKey)
+end
+
+
+function baseUI:DispatchNet()
+for i, v in pairs(self._netCallbackCache) do
+v.handler(v.args)
+end
+self._netCallbackCache = {}
+end
+
+
+
+
+function baseUI:GetComp(path, compName)
+return self.mainNode:Find(path):GetComponent(compName)
+end
+
+
+
+function baseUI:GetTrans(path)
+return self.mainNode:Find(path)
+end
+
+
+
+function baseUI:GetObj(path)
+return self.mainNode:Find(path).gameObject
+end
+
+
+
+
+
+function baseUI:GetBtn(path, handler, isAnim)
+if isAnim == nil then
+isAnim = true
+end
+
+local btn = self.mainNode:Find(path):GetComponent("Button")
+btn:AddEvent(handler, isAnim)
+
+return btn
+end
+
+
+
+function baseUI:GetText(path)
+return self.mainNode:Find(path):GetComponent("Text")
+end
+
+
+
+function baseUI:GetTextPro(path)
+return self.mainNode:Find(path):GetComponent("TextMeshProUGUI")
+end
+
+
+
+function baseUI:GetImage(path)
+return self.mainNode:Find(path):GetComponent("Image")
+end
+
+
+
+function baseUI:GetRectTrans(path)
+return self.mainNode:Find(path):GetComponent("RectTransform")
+end
+
+
+
+
+
+function baseUI:GetInput(path, handlerChanged, handlerEnd)
+local input = self.mainNode:Find(path):GetComponent("InputField")
+input:AddEvent(handlerChanged, handlerEnd)
+
+return input
+end
+
+
+
+
+function baseUI:GetToggle(path, handlerChanged)
+local toggle = self.mainNode:Find(path):GetComponent("Toggle")
+toggle:AddEvent(handlerChanged)
+
+return toggle
+end
+
+
+
+
+function baseUI:GetSlider(path, handlerChanged)
+local slider = self.mainNode:Find(path):GetComponent("Slider")
+slider:AddEvent(handlerChanged)
+
+return slider
+end
+
+
+
+
+function baseUI:GetScroll(path, handlerChanged)
+local scroll = self.mainNode:Find(path):GetComponent("ScrollRect")
+scroll:AddEvent(handlerChanged)
+
+return scroll
+end
+
+
+
+
+function baseUI:GetInfiniteScroll(path, handlerChanged)
+local scroll = self.mainNode:Find(path):GetComponent("InfiniteScroll")
+scroll:AddEvent(handlerChanged)
+
+return scroll
+end
+
+return baseUI

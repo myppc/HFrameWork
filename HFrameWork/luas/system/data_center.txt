@@ -1,0 +1,54 @@
+
+
+
+
+
+
+local dataCenter = {
+player = require("modules/data_center/player_data"):new(),
+bag = require("modules/data_center/bag_data"):new(),
+hero = require("modules/data_center/hero_data"):new(),
+master = require("modules/data_center/master_data"):new(),
+audio = require("modules/data_center/audio_data"):new(),
+world = require("modules/data_center/world_data"):new(),
+}
+
+
+function dataCenter.set_net(listNet)
+listNet = listNet or {}
+
+for i, v in pairs(listNet) do
+v.ptcIns:Reg("dataCenter", v.callback, v.errorCallback)
+end
+end
+
+
+function dataCenter.clear_net(listNet)
+listNet = listNet or {}
+
+for i, v in pairs(listNet) do
+v.ptcIns:UnReg("dataCenter")
+end
+end
+
+
+function dataCenter.init()
+for i, v in pairs(dataCenter) do
+if type(v) ~= "function" then
+v:OnInit()
+dataCenter.set_net(v:OnSetNet())
+end
+end
+end
+
+
+function dataCenter.clear()
+for i, v in pairs(dataCenter) do
+if type(v) ~= "function" then
+v:OnClear()
+dataCenter.clear_net(v:OnSetNet())
+end
+end
+end
+
+return dataCenter

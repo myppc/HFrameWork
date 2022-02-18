@@ -1,0 +1,207 @@
+
+
+
+
+
+
+local uiEnum = require('mgrs/ui/ui_enum')
+local eUI = uiEnum.eUI
+local eNodes = uiEnum.eNodes
+
+
+
+
+local coverNone = {
+isHas = false,              
+}
+
+
+local coverDefault = {
+isHas = true,               
+color = gUnity.Color.black, 
+alpha = 0.3,                
+isClickThrough = false,     
+isClickClose = false,       
+}
+
+
+
+
+local eProperty = {
+profile = "profile",
+sub = "sub",
+}
+
+
+local propertyCloseUI = function(uiKey)
+gMgrs.ui.close_ui(uiKey)
+end
+
+
+local propertyPopScene = function(uiKey)
+
+end
+
+
+local propertiesDefault = {
+{id = 20010001, handler = nil},
+{id = 20030014, handler = nil},
+{id = 20010000, handler = nil},
+}
+
+
+
+local uiCfg = {
+[eUI.update] = {        
+node = eNodes.module,   
+parent = nil,           
+isClearOthers = true,   
+isHideOthers = false,   
+cover = coverNone,      
+getIns = function()     
+local uiType = require("base/update/update_ui")
+return uiType:new()
+end,
+},
+[eUI.sysDialog] = {     
+node = eNodes.system,   
+parent = nil,           
+isClearOthers = false,  
+isHideOthers = false,   
+cover = coverDefault,   
+getIns = function()     
+local uiType = require("base/sys_dialog/sys_dialog_ui")
+return uiType:new()
+end,
+},
+[eUI.login] = {         
+node = eNodes.module,   
+parent = nil,           
+isClearOthers = true,   
+isHideOthers = false,   
+cover = coverNone,      
+getIns = function()     
+local uiType = require("modules/login/login_ui")
+return uiType:new()
+end,
+},
+[eUI.chooseServer] = {     
+node = eNodes.top,   
+parent = eUI.login,           
+isClearOthers = false,  
+isHideOthers = false,   
+cover = coverDefault,   
+getIns = function()     
+local uiType = require("modules/choose_server/choose_server_ui")
+return uiType:new()
+end,
+},
+[eUI.tips] = {     
+node = eNodes.system,   
+parent = nil,           
+isClearOthers = false,  
+isHideOthers = false,   
+cover = coverNone,      
+getIns = function()     
+local uiType = require("base/tips/tips_ui")
+return uiType:new()
+end,
+},
+[eUI.mainCity] = {     
+node = eNodes.module,   
+parent = nil,           
+isClearOthers = true,  
+isHideOthers = false,   
+cover = coverNone,      
+getIns = function()     
+local uiType = require("modules/main_city/main_city_ui")
+return uiType:new()
+end,
+property = {type = eProperty.profile, properties = propertiesDefault, btnRecharge = true},
+mainFixedUI = true,
+},
+[eUI.propertyBar] = {     
+node = eNodes.fixed,   
+parent = nil,           
+isClearOthers = false,  
+isHideOthers = false,   
+cover = coverNone,      
+getIns = function()     
+local uiType = require("modules/property_bar/property_bar_ui")
+return uiType:new()
+end,
+},
+[eUI.playerInfo] = {     
+node = eNodes.top,   
+parent = nil,           
+isClearOthers = false,  
+isHideOthers = false,   
+cover = coverDefault,   
+getIns = function()     
+local uiType = require("modules/player_info/player_info_ui")
+return uiType:new()
+end,
+},
+[eUI.mainFixed] = {     
+node = eNodes.fixed,   
+parent = nil,           
+isClearOthers = false,  
+isHideOthers = false,   
+cover = coverNone,   
+getIns = function()     
+local uiType = require("modules/main_fixed/main_fixed_ui")
+return uiType:new()
+end,
+},
+[eUI.world] = {     
+node = eNodes.module,   
+parent = nil,           
+isClearOthers = true,  
+isHideOthers = false,   
+cover = coverNone,   
+getIns = function()     
+local uiType = require("modules/world/world_ui")
+return uiType:new()
+end,
+property = {type = eProperty.profile, properties = propertiesDefault, btnRecharge = true},
+mainFixedUI = true,
+},
+[eUI.bag] = {     
+node = eNodes.module,   
+parent = nil,           
+isClearOthers = false,  
+isHideOthers = true,   
+cover = coverNone,   
+getIns = function()     
+local uiType = require("modules/bag/bag_ui")
+return uiType:new()
+end,
+property = {type = eProperty.sub, name = "行囊", backHandler = propertyCloseUI, properties = propertiesDefault},
+},
+[eUI.hero] = {     
+node = eNodes.module,   
+parent = nil,           
+isClearOthers = false,  
+isHideOthers = true,   
+cover = coverNone,   
+getIns = function()     
+local uiType = require("modules/hero/hero_ui")
+return uiType:new()
+end,
+property = {type = eProperty.sub, name = "武将", backHandler = propertyCloseUI, properties = propertiesDefault},
+},
+[eUI.heroDetails] = {     
+node = eNodes.module,   
+parent = eUI.hero,           
+isClearOthers = false,  
+isHideOthers = true,   
+cover = coverNone,   
+getIns = function()     
+local uiType = require("modules/hero/hero_details_ui")
+return uiType:new()
+end,
+property = {type = eProperty.sub, name = "武将详情", backHandler = propertyCloseUI, properties = propertiesDefault},
+},
+}
+
+return uiCfg

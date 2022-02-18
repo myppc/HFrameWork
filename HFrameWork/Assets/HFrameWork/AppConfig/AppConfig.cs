@@ -55,7 +55,7 @@ public static class AppConfig
     /// <summary>
     /// 运行模式
     /// </summary>
-    public static ERunMode runMode = ERunMode.Editor;
+    public static ERunMode runMode = ERunMode.Local;
 
     /// <summary>
     /// 加载AB包方式
@@ -165,6 +165,9 @@ public static class AppConfig
     /// lua代码预处理备份路径
     /// </summary>
     public static readonly string LUA_PRE_BACKUP_PATH = Application.dataPath.Replace("Assets", "luas");
+
+    //版本号
+    public static string versionStr;
 
     #endregion
 

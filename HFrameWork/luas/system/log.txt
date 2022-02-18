@@ -1,0 +1,32 @@
+
+
+
+
+
+
+local log = {
+}
+
+
+
+function log.print(content)
+print(string.format("%s\n%s", content, debug.traceback()))
+end
+
+
+
+function log.print_group(...)
+local array = {}
+for i, v in pairs({ ... }) do
+table.insert(array, tostring(v))
+end
+print(string.format("%s\n%s", table.concat(array, " "), debug.traceback()))
+end
+
+
+
+function log.print_error(content)
+error(content)
+end
+
+return log

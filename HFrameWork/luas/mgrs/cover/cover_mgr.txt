@@ -1,0 +1,324 @@
+
+
+
+
+
+
+local coverCfg = require("mgrs/cover/cover_cfg")
+
+local coverMgr = {
+dicCover = {},          
+coverRoot = nil,        
+coverTemplete = nil,    
+eCover = coverCfg.eCover,              
+isDebug = true,         
+}
+
+local cfg = {
+
+exItemName = "ExItem",
+}
+
+
+
+
+
+
+local function get_timer_key(eCover)
+return "_CoverMgr_"..eCover
+end
+
+
+
+local function get_cover_node(eCover)
+if not coverMgr.coverRoot then
+
+coverMgr.coverRoot = gMgrs.ui.mainNode:Find("Covers")
+coverMgr.coverTemplete = coverMgr.coverRoot:Find("TempleteCover")
+end
+
+
+local node = coverMgr.coverRoot:Find(eCover)
+
+
+if not node then
+
+node = gUnity.Object.Instantiate(coverMgr.coverTemplete)
+
+
+node.name = eCover
+
+
+node:SetParent(coverMgr.coverRoot, false)
+end
+
+return node
+end
+
+
+
+
+local function set_cover_msg(cover, msg)
+
+local transText = cover:Find("TextMsg")
+
+
+if coverMgr.isDebug then
+
+transText:GetComponent("Text").text = msg
+transText:GetComponent("Animator").speed = math.random(90, 110) * 0.01
+transText.gameObject:SetActive(true)
+else
+
+transText.gameObject:SetActive(false)
+end
+end
+
+
+local function hide_ex_child(objExItem, cCfg)
+
+objExItem:SetActive(false)
+
+
+if cCfg.callback then
+cCfg.callback(objExItem.transform, false)
+end
+end
+
+
+
+
+
+local function set_ex_child_delay(cover, obj, cCfg, eCover)
+
+if cCfg.showDelay and cCfg.showDelay > 0 then
+
+obj:SetActive(false)
+
+
+gMgrs.timer.use(get_timer_key(eCover), true, cCfg.showDelay, function ()
+
+if not cover.gameObject.activeSelf then
+
+hide_ex_child(obj, cCfg)
+return
+end
+
+
+obj:SetActive(true)
+
+
+if cCfg.callback then
+cCfg.callback(obj.transform, true)
+end
+end)
+
+else
+
+obj:SetActive(true)
+
+
+if cCfg.callback then
+cCfg.callback(obj.transform, true)
+end
+end
+end
+
+
+local function on_ex_child_loaded(eCover, cover, cCfg, obj)
+
+obj.name = cfg.exItemName
+
+
+obj.transform:SetParent(cover, false)
+
+
+if not cover.gameObject.activeSelf then
+
+hide_ex_child(obj, cCfg)
+return
+end
+
+
+set_ex_child_delay(cover, obj, cCfg, eCover)
+end
+
+
+
+
+local function add_ex_child(cover, eCover)
+
+local cCfg = coverCfg.exChild[eCover]
+
+
+if not cCfg then
+return
+end
+
+
+local trans = cover:Find(cfg.exItemName)
+if trans ~= nil then
+
+set_ex_child_delay(cover, trans.gameObject, cCfg, eCover)
+return
+end
+
+
+if cCfg.isAsync then
+gMgrs.res.load_asset_async(cCfg.module, cCfg.assetName, function (obj)
+
+on_ex_child_loaded(eCover, cover, cCfg, obj)
+end)
+else
+
+local obj = gMgrs.res.load_asset(cCfg.module, cCfg.assetName)
+
+
+on_ex_child_loaded(eCover, cover, cCfg, obj)
+end
+end
+
+
+local function try_hide_ex_child(cover, eCover)
+
+local cCfg = coverCfg.exChild[eCover]
+
+
+if not cCfg then
+return
+end
+
+
+local exItem = cover:Find(cfg.exItemName)
+if not exItem then
+return
+end
+
+
+hide_ex_child(exItem.gameObject, cCfg)
+end
+
+
+
+local function clear_timer(eCover)
+
+local cCfg = coverCfg.exChild[eCover]
+
+
+if not cCfg then
+return
+end
+
+
+if cCfg.showDelay and cCfg.showDelay > 0 then
+
+gMgrs.timer.clear(get_timer_key(eCover))
+end
+end
+
+
+
+
+
+function coverMgr.show_cover(eCover)
+
+local lastNum = coverMgr.dicCover[eCover]
+
+
+coverMgr.dicCover[eCover] = 1
+
+
+if not lastNum then
+
+local cover = get_cover_node(eCover)
+cover.gameObject:SetActive(true)
+
+
+add_ex_child(cover, eCover)
+
+
+set_cover_msg(cover, eCover)
+end
+end
+
+
+
+function coverMgr.hide_cover(eCover)
+
+local lastNum = coverMgr.dicCover[eCover]
+
+
+if lastNum then
+
+local cover = get_cover_node(eCover)
+cover.gameObject:SetActive(false)
+
+
+try_hide_ex_child(cover, eCover)
+
+
+clear_timer(eCover)
+
+
+coverMgr.dicCover[eCover] = nil
+end
+end
+
+
+
+function coverMgr.add_cover_count(eCover)
+
+local lastNum = coverMgr.dicCover[eCover]
+
+
+if not lastNum then
+
+lastNum = 0
+
+
+local cover = get_cover_node(eCover)
+cover.gameObject:SetActive(true)
+
+
+add_ex_child(cover, eCover)
+
+
+set_cover_msg(cover, eCover)
+end
+
+
+coverMgr.dicCover[eCover] = lastNum + 1
+end
+
+
+
+function coverMgr.reduce_cover_count(eCover)
+
+local lastNum = coverMgr.dicCover[eCover]
+
+
+if lastNum then
+
+if lastNum == 1 then
+
+local cover = get_cover_node(eCover)
+cover.gameObject:SetActive(false)
+
+
+try_hide_ex_child(cover, eCover)
+
+
+clear_timer(eCover)
+
+
+coverMgr.dicCover[eCover] = nil
+
+return
+end
+
+
+coverMgr.dicCover[eCover] = lastNum - 1
+end
+end
+
+return coverMgr

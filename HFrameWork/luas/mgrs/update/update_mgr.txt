@@ -1,0 +1,66 @@
+
+
+
+
+
+
+local appCfg = require("system/app_cfg")
+
+local updateMgr = {
+isLog = true,                       
+manifest = nil,                     
+
+serviceMappingFName = "ServiceMapping.json",    
+versionFName = "version.json",      
+manifestFName = "manifest.json",    
+
+resPath = "",                       
+versionPath = "",                   
+manifestPath = "",                  
+
+platformStr = nil,                  
+versionStr = nil,                   
+}
+
+
+
+
+
+
+
+function updateMgr.init()
+
+appCfg.packKey = gCSharp.GetPackKey()
+
+
+appCfg.set_run_mode(gCSharp.GetRunMode())
+
+
+local mappingStr = gCSharp.GetServiceMappingStr()
+if mappingStr and mappingStr ~= "" then
+local mappingTbl = gJson.decode(mappingStr)
+
+
+local newCfg = mappingTbl[appCfg.packKey]
+if newCfg then
+newCfg.resHost = gCSharp.GetResServiceHost()
+newCfg.resPort = gCSharp.GetResServicePort()
+
+
+appCfg.update_cfg(newCfg)
+end
+end
+
+
+updateMgr.platformStr = gCSharp.GetPlatformString()
+
+
+updateMgr.versionStr = gCSharp.GetVersionStr()
+
+
+updateMgr.resPath = gCSharp.GetResPath(updateMgr.platformStr)
+updateMgr.versionPath = gCSharp.GetResPath(updateMgr.platformStr, updateMgr.versionFName)
+updateMgr.manifestPath = gCSharp.GetResPath(updateMgr.platformStr, updateMgr.manifestFName)
+end
+
+return updateMgr

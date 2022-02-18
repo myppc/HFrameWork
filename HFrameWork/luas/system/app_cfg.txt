@@ -1,0 +1,111 @@
+
+
+
+
+
+
+local appCfg = {}
+
+
+appCfg.packKey = ""
+
+
+appCfg.eOs = {
+win = 2,
+ios = 8,
+android = 11,
+}
+
+
+appCfg.os = appCfg.eOs.win
+
+
+appCfg.enum = {
+develop = "develop",
+release = "release",
+}
+
+
+appCfg.currTarget = appCfg.enum.develop
+
+
+appCfg.cfgs = {
+
+[appCfg.enum.develop] = {
+
+resHost = "", 
+resPort = 80,
+
+loginServer = "http://192.168.0.118:8888/?type=login&name=%s&password=%s",
+
+getServer = "http://192.168.0.118:8888/?type=getversion&version=%s&username=%s&time=%s",
+
+registerServer = "http://192.168.0.118:8888/?type=register&name=%s&password=%s",
+
+roleServer = "http://192.168.0.118:8888/role?cmd=get&token=%s&time=%s",
+
+guide = false,
+
+cheat = false,
+
+channelId = 1,
+
+subChannelId = 1,
+}
+}
+
+
+appCfg.eRunMode =
+{
+editorMode = 0,
+localMode = 1,
+packageMode = 2,
+}
+
+
+appCfg.runMode = nil
+
+
+appCfg.version = nil
+
+
+
+
+function appCfg.get_cfg()
+return appCfg.cfgs[appCfg.currTarget]
+end
+
+
+function appCfg.update_cfg(newCfg)
+if not newCfg then
+return
+end
+
+
+local cfg = appCfg.get_cfg()
+
+
+for k, v in pairs(newCfg) do
+
+cfg[k] = v
+end
+end
+
+
+
+function appCfg.check(target)
+return appCfg.currTarget == target
+end
+
+
+
+function appCfg.set_run_mode(runModeVal)
+for i, v in pairs(appCfg.eRunMode) do
+if v == runModeVal then
+appCfg.runMode = v
+return
+end
+end
+end
+
+return appCfg

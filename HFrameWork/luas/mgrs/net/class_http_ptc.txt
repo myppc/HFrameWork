@@ -1,0 +1,113 @@
+
+
+
+
+
+
+local clsPtcBase = require("mgrs/net/class_ptc_base")
+local clsHttpPtc = gClass.declare("clsHttpPtc", clsPtcBase)
+
+
+
+
+
+
+
+
+function clsHttpPtc:Ctor(url, isPost, isCache, handler)
+self.isPost = isPost
+self.base.Ctor(self, url, isCache, handler)
+
+self.ptcType = "http"
+end
+
+
+
+
+
+
+local function get_data_and_args(...)
+local data
+local args
+
+
+for i, v in pairs({ ... }) do
+if i == 1 then
+data = v
+else
+table.insert(args, v)
+end
+end
+
+return data, args
+end
+
+
+
+
+
+function clsHttpPtc:Send(...)
+
+if self.isPost then
+
+local data, args = get_data_and_args(...)
+
+
+local url = string.format(self.protocol, table.unpack(args))
+
+
+gMgrs.net.http_post_async(url, data,
+function (data)
+self:OnRec(data)
+end,
+function (data)
+self:OnError(data)
+end)
+
+else
+
+local url = string.format(self.protocol, ...)
+
+gMgrs.net.http_get_async(url,
+function (data)
+self:OnRec(data)
+end,
+function (data)
+self:OnError(data)
+end)
+end
+end
+
+
+
+function clsHttpPtc:SendSync(...)
+local resData
+
+
+if self.isPost then
+
+local data, args = get_data_and_args(...)
+
+
+local url = string.format(self.protocol, table.unpack(args))
+
+
+resData = gMgrs.net.http_post(url, data, function (data)
+self:OnError(data)
+end)
+
+else
+
+local url = string.format(self.protocol, ...)
+
+
+resData = gMgrs.net.http_get(url, function (data)
+self:OnError(data)
+end)
+end
+
+
+self:OnRec(resData)
+end
+
+return clsHttpPtc

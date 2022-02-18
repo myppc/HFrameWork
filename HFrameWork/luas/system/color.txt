@@ -1,0 +1,28 @@
+
+
+
+
+
+
+local color = {}
+
+
+color.text = {
+green = gUnity.Color(0.1686, 0.8156, 0.3372),
+yellow = gUnity.Color(0.9490, 0.8705, 0.3490),
+darkYellow = gUnity.Color(0.7843, 0.5803, 0.3411),
+red = gUnity.Color(0.9411, 0.2156, 0.3176),
+}
+
+
+color.quality = {
+gUnity.Color.white,                     
+gUnity.Color(0.082, 0.898, 0.212),      
+gUnity.Color(0.055, 0.53, 0.808, 1),    
+gUnity.Color(0.745, 0.212, 0.996, 1),   
+gUnity.Color(0.867, 0.773, 0.231, 1),   
+gUnity.Color(0.957, 0.067, 0.035, 1),   
+gUnity.Color(0.855, 0.675, 0.02, 1),    
+}
+
+return color

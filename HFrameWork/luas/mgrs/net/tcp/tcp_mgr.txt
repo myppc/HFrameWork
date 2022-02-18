@@ -1,0 +1,141 @@
+
+
+
+
+
+
+local tcpMgr = {
+
+eTcp = {
+logic = "logic",    
+},
+
+
+dic = {},
+}
+
+
+tcpMgr.mapping = {
+[tcpMgr.eTcp.logic] = {
+address = nil,
+port = nil,
+classPath = "mgrs/net/tcp/class_logic_tcp",
+isEncrypt = true,   
+}
+}
+
+
+
+
+
+function tcpMgr.set_address(eTcp, address, port)
+
+local data = tcpMgr.mapping[eTcp]
+
+
+if not data then
+gError(string.format("[TCP] 尝试设置没有的配置. %s", eTcp))
+
+return
+end
+
+
+data.address = address
+data.port = port
+end
+
+
+
+
+
+function tcpMgr.connect(eTcp, callback, errorCallback)
+
+if tcpMgr.dic[eTcp] ~= nil then
+gError(string.format("[TCP] 尝试建立已经存在的tcp连接. %s", eTcp))
+
+return
+end
+
+
+local data = tcpMgr.mapping[eTcp]
+local tcpIns = require(data.classPath):new(data.address, data.port, data.isEncrypt, true, callback, function (errorMsg)
+
+tcpMgr.dic[eTcp] = nil
+
+
+if errorCallback then
+errorCallback(errorMsg)
+end
+end)
+
+
+tcpMgr.dic[eTcp] = tcpIns
+end
+
+
+
+
+
+function tcpMgr.send(eTcp, protocol, msg)
+
+local data = tcpMgr.dic[eTcp]
+
+
+if not data then
+gError(string.format("[TCP] 尝试向没建立的连接[%s]发送数据.", eTcp))
+
+return
+end
+
+
+data:Send(protocol, msg)
+end
+
+
+
+
+
+function tcpMgr.disconnect(eTcp, callback, isRemoveData)
+
+local data = tcpMgr.dic[eTcp]
+
+
+if not data then
+gError(string.format("[TCP] 尝试向没建立的连接[%s]发送数据.", eTcp))
+
+return
+end
+
+
+data:Disconnect(function ()
+
+if isRemoveData then
+tcpMgr.remove_data(eTcp)
+end
+
+
+if callback then
+callback()
+end
+end)
+end
+
+
+
+function tcpMgr.remove_data(eTcp)
+tcpMgr.dic[eTcp] = nil
+end
+
+
+function tcpMgr.clear()
+
+for i, v in pairs(tcpMgr.dic) do
+
+v:Disconnect()
+end
+
+
+tcpMgr.dic = {}
+end
+
+return tcpMgr

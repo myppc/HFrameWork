@@ -39,7 +39,7 @@ public class ABPacker
 
         //生成buildList
         var buildList = LoadBuildList(moduleDict);
-        Build(param, buildList, moduleDict, dir);
+        Build(param, buildList, moduleDict, dir,false);
         // 工程内部目录移出到外部目录
         FileHelper.MergeDirTo(AppConfig.LUA_PRE_PATH, AppConfig.LUA_PRE_BACKUP_PATH, true);
 
@@ -202,13 +202,23 @@ public class ABPacker
     /// <param name="buildList"></param>
     /// <param name="moduleDict"></param>
     /// <param name="dir"></param>
-    static void Build(BundleBuildParameters param , List<AssetBundleBuild> buildList, Dictionary<string, Dictionary<string, Dictionary<string, AssetsInfo>>> moduleDict, string dir)
+    static void Build(BundleBuildParameters param , List<AssetBundleBuild> buildList, Dictionary<string, Dictionary<string, Dictionary<string, AssetsInfo>>> moduleDict, string dir,bool onlyLua)
     {
         var content = new BundleBuildContent(buildList);
         ReturnCode exitCode = ContentPipeline.BuildAssetBundles(param, content, out IBundleBuildResults result);
         if (exitCode == ReturnCode.Success)
         {
-            var manifestData = new Manifest(new List<int>() { 0, 0, 0 });
+            Manifest manifestData = null;
+            if (onlyLua && File.Exists(dir + "/manifest.json"))
+            {
+                var manifestText = FileHelper.ReadFile(dir + "/manifest.json");
+                manifestData = JsonConvert.DeserializeObject<Manifest>(manifestText);
+                manifestData.RemoveModule(AppConfig.LUA_MODULE);
+            }
+            else
+            {
+                manifestData = new Manifest(new List<int>() { 0, 0, 0 });
+            }
             foreach (var item in result.BundleInfos)
             {
                 var abName = item.Key;
@@ -246,7 +256,7 @@ public class ABPacker
         moduleDict = AddLuaAssetsInfo(moduleDict);
         //生成buildList
         var buildList = LoadBuildList(moduleDict);
-        Build(param,buildList,moduleDict,dir);
+        Build(param,buildList,moduleDict,dir,true);
         // 工程内部目录移出到外部目录
         FileHelper.MergeDirTo(AppConfig.LUA_PRE_PATH, AppConfig.LUA_PRE_BACKUP_PATH, true);
     }

@@ -1,0 +1,207 @@
+
+
+
+
+
+
+local appCfg = require("system/app_cfg")
+
+local netMgr = {
+isLog = true,       
+delayTime = 0,      
+}
+
+
+netMgr.enum = {
+entry = "entry",
+res = "res",
+logic = "logic",
+}
+
+
+
+
+
+
+function netMgr.init()
+gCSharp.InitNetMgr(netMgr.isLog, netMgr.delayTime)
+end
+
+
+
+
+
+function netMgr.combine_path(eType, ...)
+
+local cfg = appCfg.get_cfg()
+
+local finalUrl = ""
+
+
+local host = cfg[eType.."Host"]
+local port = cfg[eType.."Port"]
+
+
+local list = {...}
+table.insert(list, 1, gCSharp.FormatStr(host, port))
+finalUrl = table.concat(list, "/")
+
+return finalUrl
+end
+
+
+
+
+
+
+
+function netMgr.http_get(url, errorCallback, listHeader, contentType)
+local resStr = gCSharp.HttpGet(url, errorCallback, listHeader, contentType)
+return netMgr.post_callback(resStr)
+end
+
+
+
+
+
+
+
+function netMgr.http_get_async(url, callback, errorCallback, listHeader, contentType)
+
+gMgrs.cover.add_cover_count(gMgrs.cover.eCover.net)
+
+
+local innerCallback = function(resStr)
+
+gMgrs.cover.reduce_cover_count(gMgrs.cover.eCover.net)
+
+
+local finalData = netMgr.post_callback(resStr)
+callback(finalData)
+end
+
+
+local innerErrorCallback = function(errorMsg)
+
+gMgrs.cover.reduce_cover_count(gMgrs.cover.eCover.net)
+
+
+if errorCallback then
+errorCallback(errorMsg)
+else
+
+error(errorMsg)
+end
+end
+
+
+gCSharp.HttpGetAsync(url, innerCallback, innerErrorCallback, listHeader, contentType)
+end
+
+
+
+
+
+
+
+
+function netMgr.http_post(url, jsonData, errorCallback, listHeader, contentType)
+local resStr = gCSharp.HttpPost(url, jsonData, errorCallback, listHeader, contentType)
+return netMgr.post_callback(resStr)
+end
+
+
+
+
+
+
+
+
+function netMgr.http_post_async(url, jsonData, callback, errorCallback, listHeader, contentType)
+
+gMgrs.cover.add_cover_count(gMgrs.cover.eCover.net)
+
+
+local innerCallback = function(resStr)
+
+gMgrs.cover.reduce_cover_count(gMgrs.cover.eCover.net)
+
+
+local finalData = netMgr.post_callback(resStr)
+callback(finalData)
+end
+
+
+local innerErrorCallback = function(errorMsg)
+
+gMgrs.cover.reduce_cover_count(gMgrs.cover.eCover.net)
+
+
+if errorCallback then
+errorCallback(errorMsg)
+else
+
+error(errorMsg)
+end
+end
+
+gCSharp.HttpPostAsync(url, jsonData, innerCallback, innerErrorCallback, listHeader, contentType)
+end
+
+
+
+
+
+
+
+
+function netMgr.http_save_file(url, savePath, errorCallback, listHeader, contentType)
+return gCSharp.HttpSaveFile(url, savePath, errorCallback, listHeader, contentType)
+end
+
+
+
+
+
+
+
+
+
+function netMgr.http_save_file_async(url, savePath, callback, errorCallback, progressCallback, listHeader, contentType)
+
+gMgrs.cover.add_cover_count(gMgrs.cover.eCover.net)
+
+
+local innerCallback = function(resStr)
+
+gMgrs.cover.reduce_cover_count(gMgrs.cover.eCover.net)
+
+
+callback(resStr)
+end
+
+
+local innerErrorCallback = function(errorMsg)
+
+gMgrs.cover.reduce_cover_count(gMgrs.cover.eCover.net)
+
+
+if errorCallback then
+errorCallback(errorMsg)
+else
+
+error(errorMsg)
+end
+end
+
+gCSharp.HttpSaveFileAsync(url, savePath, innerCallback, innerErrorCallback, progressCallback, listHeader, contentType)
+end
+
+
+
+
+function netMgr.post_callback(resStr)
+return gJson.decode(resStr)
+end
+
+return netMgr

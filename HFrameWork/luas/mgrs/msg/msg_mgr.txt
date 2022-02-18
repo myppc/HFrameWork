@@ -1,0 +1,183 @@
+
+
+
+
+
+
+local msgMgr = {
+
+eMsg = {
+net = "net",
+sceneLoading = "sceneLoading",
+},
+
+
+dicData = {
+
+
+
+
+
+
+]
+},
+}
+
+
+
+
+
+
+function msgMgr.reg(eMsg, group, handler, key)
+
+if string.is_nil(eMsg) then
+gError("[msg_mgr] 注册消息,eMsg不能为空");
+return
+end
+if string.is_nil(group) then
+gError("[msg_mgr] 注册消息,group不能为空");
+return
+end
+if string.is_nil(handler) then
+gError("[msg_mgr] 注册消息,handler不能为空");
+return
+end
+
+
+if not key then
+key = tostring(handler)
+end
+
+
+local msgData = msgMgr.dicData[eMsg]
+if not msgData then
+msgData = {}
+msgMgr.dicData[eMsg] = msgData
+end
+
+
+local groupData = msgData[group]
+if not groupData then
+groupData = {}
+msgData[group] = groupData
+end
+
+
+if groupData[key] then
+gError(string.format("[msg_mgr] 尝试注册一个已存在的key'%s'的消息.", key))
+return
+end
+
+
+groupData[key] = handler
+end
+
+
+
+
+
+function msgMgr.un_reg(eMsg, group, keyOrHandler)
+
+if string.is_nil(eMsg) then
+gError("[msg_mgr] 注销消息,eMsg不能为空");
+return
+end
+if string.is_nil(group) then
+gError("[msg_mgr] 注销消息,group不能为空");
+return
+end
+if string.is_nil(keyOrHandler) then
+gError("[msg_mgr] 注销消息,keyOrHandler不能为空");
+return
+end
+
+
+local msgData = msgMgr.dicData[eMsg]
+if not msgData then
+return
+end
+
+
+local groupData = msgData[group]
+if not groupData then
+return
+end
+
+
+groupData[keyOrHandler] = nil
+end
+
+
+
+
+
+function msgMgr.send(eMsg, group, args)
+
+if string.is_nil(eMsg) then
+gError("[msg_mgr] 发送消息,eMsg不能为空");
+return
+end
+if string.is_nil(group) then
+gError("[msg_mgr] 发送消息,group不能为空");
+return
+end
+
+
+local msgData = msgMgr.dicData[eMsg]
+if not msgData then
+return
+end
+
+
+local groupData = msgData[group]
+if not groupData then
+return
+end
+
+
+for key, handler in pairs(groupData) do
+if handler then
+
+handler(args)
+end
+end
+end
+
+
+
+function msgMgr.clear_enum(eMsg)
+if not eMsg then
+return
+end
+
+
+local msgData = msgMgr.dicData[eMsg]
+
+
+msgData = {}
+end
+
+
+
+
+function msgMgr.clear_group(eMsg, group)
+if not eMsg or not group then
+return
+end
+
+
+local msgData = msgMgr.dicData[eMsg]
+if not msgData then
+return
+end
+
+
+msgData[group] = {}
+end
+
+
+function msgMgr.clear_all()
+msgMgr.dicData = {}
+end
+
+return msgMgr

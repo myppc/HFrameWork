@@ -1,0 +1,39 @@
+
+
+
+
+
+
+
+
+
+
+function string.split(str, splitStr)
+
+if string.find(str, splitStr) == nil then
+return { str }
+end
+
+local result = {}
+
+
+local pat = string.format("([^%s]+)", splitStr)
+
+
+local pairFunc = string.gmatch(str, pat)
+
+
+for val in pairFunc do
+
+table.insert(result, val)
+end
+
+return result
+end
+
+
+function string.is_nil(str)
+return str == nil or str == ""
+end
+
+return string

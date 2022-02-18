@@ -83,6 +83,18 @@ namespace Assets.HFrameWork.Script.SBP
             }
         }
 
+        /// <summary>
+        /// 移除module相关数据
+        /// </summary>
+        /// <param name="moduleName"></param>
+        public void RemoveModule(string moduleName)
+        {
+            if (modules.TryGetValue(moduleName, out ManifestModule mData))
+            {
+                modules.Remove(moduleName);
+            }
+        }
+
         #endregion
 
         #region 其他方法

@@ -1,0 +1,124 @@
+
+
+
+
+
+
+local clsPtcBase = gClass.declare("clsPtcBase")
+
+
+
+
+
+
+
+
+function clsPtcBase:Ctor(ptc, isCache, handler, errorHandler)
+self.protocol = ptc                 
+self.isCache = isCache              
+self.cache = nil                    
+self.handlers = {}                  
+self.handler = handler              
+self.errorHandler = nil             
+self.ptcType = ""                   
+end
+
+
+
+
+
+function clsPtcBase:Send(args)
+
+end
+
+
+
+function clsPtcBase:OnRec(data)
+
+if self.isCache then
+
+self.cache = data
+end
+
+
+if self.handler then
+self.handler(data)
+end
+for key, v in pairs(self.handlers) do
+if v.handler then
+v.handler(data)
+end
+end
+end
+
+
+function clsPtcBase:OnError(data)
+
+local isDispatcher = false
+
+
+if self.errorHandler then
+self.errorHandler(data)
+isDispatcher = true
+end
+for key, v in pairs(self.handlers) do
+if v.errorHandler then
+v.errorHandler(data)
+isDispatcher = true
+end
+end
+
+
+if not isDispatcher then
+
+gError(data)
+end
+end
+
+
+
+
+
+function clsPtcBase:Reg(key, handler, errorHandler)
+
+if handler == nil then
+gError(string.format("不可向协议'%s'注册空方法", self.protocol))
+return
+end
+
+
+self.handlers[key] = {
+handler = handler,
+errorHandler = errorHandler,
+}
+end
+
+
+
+function clsPtcBase:UnReg(key)
+
+if key == nil then
+gError(string.format("不可向协议'%s'注销空键名. 如需全部注销请调用'ClearReg()'方法.", self.protocol))
+return
+end
+
+
+self.handlers[key] = nil
+end
+
+
+function clsPtcBase:ClearReg()
+self.handlers = {}
+end
+
+
+function clsPtcBase:ClearCache()
+self.cache = nil
+end
+
+
+function clsPtcBase:GetData()
+return self.cache
+end
+
+return clsPtcBase

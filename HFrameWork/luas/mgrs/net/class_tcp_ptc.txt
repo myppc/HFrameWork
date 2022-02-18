@@ -1,0 +1,145 @@
+
+
+
+
+
+
+local tcpMgr = require("mgrs/net/tcp/tcp_mgr")
+local clsPtcBase = require("mgrs/net/class_ptc_base")
+local clsTcpPtc = gClass.declare("clsTcpPtc", clsPtcBase)
+
+
+
+
+
+
+
+function clsTcpPtc:Ctor(ptc, isCache, handler)
+self.base.Ctor(self, ptc, isCache, handler)
+
+self.ptcType = "tcp"
+self.isMultiData = false    
+self.multiKey = nil         
+self.multiFlagOverKey = nil 
+self.multiDic = false       
+self.dicKeyNumber = false   
+self.multiData = {}         
+self.isRecMultiData = false 
+
+
+gMgrs.msg.reg(gMgrs.msg.eMsg.net, ptc + 1, function (data) self:OnRecData(data) end)
+end
+
+
+
+
+local function get_code_str(code)
+
+return code
+end
+
+
+function clsTcpPtc:OnRecData(str)
+
+local data = gJson.decode(str)
+
+
+if data.content.code ~= nil then
+
+gLogGroup("【错误码】", data.content.code)
+
+
+local str = get_code_str(data.content.code)
+gHelper.tips(str)
+
+
+self:OnError(str)
+else
+
+if self.isMultiData then
+
+self:AddMultiData(data.content)
+else
+
+self:OnRec(data.content)
+end
+end
+end
+
+
+function clsTcpPtc:AddMultiData(data)
+
+if not self.isRecMultiData then
+
+self.multiData = {}
+
+
+self.isRecMultiData = true
+end
+
+
+local content
+if not string.is_nil(self.multiKey) then
+content = data[self.multiKey]
+else
+content = data
+end
+
+
+if self.multiDic then
+
+for i, v in pairs(content) do
+
+if self.dicKeyNumber then
+self.multiData[tonumber(i)] = v
+else
+self.multiData[i] = v
+end
+end
+else    
+
+for i, v in pairs(content) do
+table.insert(self.multiData, v)
+end
+end
+
+
+local flag = data[self.multiFlagOverKey]
+if flag == true or flag == 1 then
+
+self.isRecMultiData = false
+
+
+self:OnRec(self.multiData)
+end
+end
+
+
+
+
+
+function clsTcpPtc:Send(args)
+args = args or {}
+tcpMgr.send(tcpMgr.eTcp.logic, self.protocol, args)
+end
+
+
+
+
+
+
+function clsTcpPtc:SetMultiData(multiKey, flagOverKey, isDic, isDicKeyNumber)
+
+self.isMultiData = true
+
+
+self.multiKey = multiKey
+self.multiFlagOverKey = flagOverKey
+if isDic == nil then
+isDic = true
+end
+self.multiDic = isDic
+self.dicKeyNumber = isDicKeyNumber
+end
+
+return clsTcpPtc

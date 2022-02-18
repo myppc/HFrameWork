@@ -1,5 +1,6 @@
 ﻿
 using Cysharp.Threading.Tasks;
+using HFrameWork.Script.Pool;
 using System;
 using System.Collections.Generic;
 using System.Linq;

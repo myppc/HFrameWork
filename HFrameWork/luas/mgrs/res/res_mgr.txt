@@ -1,0 +1,110 @@
+
+
+
+
+
+
+local appCfg = require("system/app_cfg")
+
+local resMgr = {
+manifest = {        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+},
+isLog = true,       
+dicAB = {           
+
+
+
+
+
+
+},
+eRes = {            
+gameObject = 1,
+sprite = 2,
+atlas = 3,
+audio = 4,
+scene = 5,
+},
+}
+
+
+
+
+
+
+function resMgr.init()
+
+gCSharp.InitResMgr(resMgr.isLog)
+
+
+resMgr.manifest = gCSharp.GetManifest()
+end
+
+
+
+
+function resMgr.load_ab(abName)
+return gCSharp.LoadAB(abName)
+end
+
+
+
+
+
+function resMgr.load_ab_async(abName, callback, progressCallback)
+gCSharp.LoadABAsync(abName, callback, progressCallback)
+end
+
+
+
+function resMgr.unload_ab(abName)
+gCSharp.UnLoadAB(abName)
+end
+
+
+
+
+
+
+function resMgr.load_asset(module, assetName, eRes)
+eRes = eRes or gMgrs.res.eRes.gameObject
+return gCSharp.LoadAsset(module, assetName, eRes)
+end
+
+
+
+
+
+function resMgr.load_sprite(module, assetName)
+return gCSharp.LoadAsset(module, assetName, gMgrs.res.eRes.sprite)
+end
+
+
+
+
+
+
+
+function resMgr.load_asset_async(module, assetName, callback, eRes, progressCallback)
+eRes = eRes or gMgrs.res.eRes.gameObject
+gCSharp.LoadAssetAsync(module, assetName, callback, eRes, progressCallback)
+end
+
+return resMgr

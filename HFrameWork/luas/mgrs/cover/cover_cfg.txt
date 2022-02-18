@@ -1,0 +1,73 @@
+
+
+
+
+
+
+local coverCfg = {}
+
+
+coverCfg.eCover = {
+uiLoading = "UILoadingCover",   
+net = "NetCover",               
+tcp = "TcpCover",               
+sceneLoading = "SceneLoadingCover"   
+}
+
+
+coverCfg.exChild = {
+
+[coverCfg.eCover.net] = {
+showDelay = 2,                      
+module = "base",                    
+assetName = "NetCoverAnim.prefab",  
+isAsync = true,                     
+callback = nil,                     
+},
+
+[coverCfg.eCover.tcp] = {
+showDelay = 2,                      
+module = "base",                    
+assetName = "NetCoverAnim.prefab",  
+isAsync = true,                     
+callback = nil,                     
+},
+
+[coverCfg.eCover.sceneLoading] = {
+module = "SceneLoading",
+assetName = "SceneLoading.prefab",
+isAsync = false,
+callback = function (trans, isShow)
+
+local bg = trans:Find("ImgBG"):GetComponent("Image")
+
+
+local slider = trans:Find("ImgBottom/Slider"):GetComponent("Slider")
+
+
+if isShow then
+
+slider.value = 0
+
+
+local imgName = string.format("nfs_loading_beijing_%s.png", math.random(1, 11))
+bg.sprite = gMgrs.res.load_sprite("SceneLoading", imgName)
+
+
+gMgrs.msg.reg(gMgrs.msg.eMsg.sceneLoading, "progress", function (progress)
+
+slider.value = progress
+end, "1")
+
+else    
+
+slider.value = 1
+
+
+gMgrs.msg.un_reg(gMgrs.msg.eMsg.sceneLoading, "progress", "1")
+end
+end,
+},
+}
+
+return coverCfg

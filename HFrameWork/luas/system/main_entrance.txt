@@ -8,7 +8,28 @@ local mainEntrance = {}
 
 
 function mainEntrance.set_global()
+gUnity = require("system/code_hints/code_hints_unityengine") 
+gUnity = CS.UnityEngine
 
+gCSharp = require("system/code_hints/code_hints_lua_bridge") 
+gCSharp = CS.LuaCallCSharpHelper
+
+
+gHelper = require('system/helper') 
+
+local log = require('system/log') 
+gLog = log.print
+gLogGroup = log.print_group
+gError = log.print_error
+
+gJson = require("system/json") 
+
+gClass = require("system/class_helper") 
+
+
+
+gColor = require("system/color") 
+gUtf8 = require("system/extension/utf8")
 end
 
 
@@ -90,9 +111,49 @@ end
 
 
 function mainEntrance.run()
-print("=========== mainEntrance.run()")
-local rapidjson = require('rapidjson')
-print("=========== mainEntrance.run() end")
+
+mainEntrance.set_global()
+
+
+mainEntrance.set_extension()
+
+
+mainEntrance.lock_global()
+
+local pool_type = 
+{
+TEMP = 0,
+STATIC = 1,
+DYNAMIC = 2,
+SCENE = 3,
+
+}
+
+CS.LuaCallCSharpHelper.RegisterCacheInfo("mode1","box.prefab",pool_type.SCENE,5,"Test1");
+CS.LuaCallCSharpHelper.RegisterCacheInfo("mode1","box.prefab",pool_type.SCENE,10,"Test2");
+
+CS.LuaCallCSharpHelper.LoadCacheByScene("Test2");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 end
 

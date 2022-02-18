@@ -1,0 +1,25 @@
+
+
+
+
+
+
+
+
+
+
+function math.clamp(numValue, minValue, maxValue)
+if numValue < minValue then
+return minValue
+end
+if (numValue > maxValue) then
+return maxValue
+end
+return numValue
+end
+
+
+
+function math.clamp01(numValue)
+return math.clamp(numValue, 0, 1)
+end

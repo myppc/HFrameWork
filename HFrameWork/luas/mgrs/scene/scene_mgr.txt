@@ -1,0 +1,278 @@
+
+
+
+
+
+
+local sceneCfg = require("mgrs/scene/scene_cfg")
+
+local sceneMgr = {
+eScene = sceneCfg.eScene,
+baseScene = require("mgrs/scene/base_scene"),
+listScene = {},         
+currScene = nil,        
+isExecuting = false,    
+progress = 0,           
+callback = nil,         
+progressCallback = nil, 
+}
+
+local exCfg = {
+unloadSceneRate = 0.2,  
+loadABRate = 0.2,       
+loadSceneRate = 0.6,    
+}
+
+
+
+
+
+local function send_msg(progress)
+
+gMgrs.msg.send(gMgrs.msg.eMsg.sceneLoading, "progress", progress)
+end
+
+
+
+local function set_progress(progress)
+
+sceneMgr.progress = progress
+
+
+send_msg(sceneMgr.progress)
+
+
+if sceneMgr.progressCallback then
+sceneMgr.progressCallback(sceneMgr.progress)
+end
+end
+
+
+
+
+local function on_scene_loaded(eScene, cfg)
+
+local data = sceneMgr.listScene[#sceneMgr.listScene]
+
+
+data.ins.isSceneLoading = false
+sceneMgr.isExecuting = false
+
+
+sceneMgr.currScene = eScene
+
+
+if sceneMgr.callback then
+sceneMgr.callback()
+end
+
+
+data.ins:OnLoaded()
+
+
+gMgrs.cover.hide_cover(gMgrs.cover.eCover.sceneLoading)
+end
+
+
+
+local function on_ab_loaded(eScene)
+
+set_progress(exCfg.loadABRate)
+
+
+local cfg = sceneCfg.cfg[eScene]
+
+
+gCSharp.LoadScene(cfg.name,
+function ()
+on_scene_loaded(eScene, cfg)
+end,
+function(p)
+
+set_progress(exCfg.unloadSceneRate + exCfg.loadABRate + p * exCfg.loadSceneRate)
+end)
+end
+
+
+
+
+local function do_load_scene(eScene, args)
+
+sceneMgr.isExecuting = true
+
+
+local cfg = sceneCfg.cfg[eScene]
+
+
+local ins = cfg.getIns()
+ins.sceneKey = eScene
+ins.sceneArgs = args or {}
+ins.isSceneLoading = true
+ins.isSceneUnloading = false
+ins:OnInit()
+
+
+table.insert(sceneMgr.listScene, {
+eScene = eScene,
+ins = ins,
+})
+
+
+gMgrs.res.load_asset_async(cfg.module, cfg.name..".unity",
+function ()
+on_ab_loaded(eScene)
+end,
+gMgrs.res.eRes.scene,
+function (p)
+
+set_progress(exCfg.unloadSceneRate + p * exCfg.loadABRate)
+end)
+end
+
+
+
+
+local function on_scene_unloaded(eScene, args)
+
+set_progress(exCfg.unloadSceneRate)
+
+
+if sceneCfg.cfg[eScene].isClearOthers then
+
+sceneMgr.listScene = {}
+end
+
+
+do_load_scene(eScene, args)
+end
+
+
+
+
+local function do_unload_scene(callback, progressCallback)
+
+local ins = sceneMgr.listScene[#sceneMgr.listScene].ins
+
+
+sceneMgr.isExecuting = true
+ins.isSceneUnloading = true
+
+
+ins:OnClose()
+
+
+local sceneName = sceneCfg.cfg[sceneMgr.currScene].name
+
+
+gCSharp.UnloadScene(sceneName,
+function ()
+
+sceneMgr.isExecuting = false
+
+
+table.remove(sceneMgr.listScene, #sceneMgr.listScene)
+
+if callback then
+callback()
+end
+end,
+function(progress)
+if progressCallback then
+progressCallback(progress)
+end
+end)
+
+
+sceneMgr.currScene = nil
+end
+
+
+
+
+
+
+
+
+function sceneMgr.load_scene(eScene, args, callback, progressCallback)
+if string.is_nil(eScene) then
+gError(string.format("[scene_mgr] 尝试加载一个错误的场景: '%s'", eScene))
+return
+end
+
+
+if sceneMgr.isExecuting then
+gError(string.format("[scene_mgr] 不能在执行其他操作时再次加载: '%s'", eScene))
+return
+end
+
+
+if sceneMgr.currScene == eScene then
+return
+end
+
+
+sceneMgr.callback = callback
+sceneMgr.progressCallback = progressCallback
+
+
+gMgrs.ui.auto_clear()
+
+
+gMgrs.cover.show_cover(gMgrs.cover.eCover.sceneLoading)
+
+
+set_progress(0)
+
+
+if sceneMgr.currScene then
+
+do_unload_scene(
+function ()
+on_scene_unloaded(eScene, args)
+end,
+function (progress)
+
+set_progress(progress * exCfg.unloadSceneRate)
+end)
+else
+
+on_scene_unloaded(eScene, args)
+end
+end
+
+
+
+
+function sceneMgr.unload_scene(callback, progressCallback)
+
+if sceneMgr.isExecuting then
+gError("[scene_mgr] 不能在执行其他操作时卸载场景.")
+return
+end
+
+
+if #sceneMgr.listScene == 0 then
+gError("[scene_mgr] 当前没有场景可卸载.")
+return
+end
+
+
+gMgrs.ui.auto_clear()
+
+
+do_unload_scene(callback, progressCallback)
+end
+
+
+function sceneMgr.get_curr_scene()
+return sceneMgr.currScene
+end
+
+
+
+function sceneMgr.check_scene(eScene)
+local curr = sceneMgr.get_curr_scene()
+return curr == eScene
+end
+
+return sceneMgr

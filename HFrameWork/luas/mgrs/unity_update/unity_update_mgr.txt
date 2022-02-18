@@ -1,0 +1,105 @@
+
+
+
+
+
+
+local unityUpdateMgr = {
+isInit = false,
+listUpdate = {},
+listFixedUpdate = {},
+listLateUpdate = {},
+}
+
+
+function unityUpdateMgr.init()
+if unityUpdateMgr.isInit then
+return
+end
+
+
+unityUpdateMgr.isInit = true
+
+
+gCSharp.RegUpdate(unityUpdateMgr.on_update)
+gCSharp.RegLateUpdate(unityUpdateMgr.on_late_update)
+gCSharp.RegFixedUpdate(unityUpdateMgr.on_fixed_update)
+end
+
+
+function unityUpdateMgr.on_destroy()
+gCSharp.UnRegUpdate(unityUpdateMgr.on_update)
+gCSharp.UnRegLateUpdate(unityUpdateMgr.on_late_update)
+gCSharp.UnRegFixedUpdate(unityUpdateMgr.on_fixed_update)
+end
+
+
+function unityUpdateMgr.on_update()
+
+for i, v in pairs(unityUpdateMgr.listUpdate) do
+v()
+end
+end
+
+
+function unityUpdateMgr.on_late_update()
+
+for i, v in pairs(unityUpdateMgr.listLateUpdate) do
+v()
+end
+end
+
+
+function unityUpdateMgr.on_fixed_update()
+
+for i, v in pairs(unityUpdateMgr.listFixedUpdate) do
+v()
+end
+end
+
+
+function unityUpdateMgr.reg_update(callback)
+unityUpdateMgr.listUpdate[tostring(callback)] = callback
+end
+
+
+function unityUpdateMgr.unreg_update(callback)
+unityUpdateMgr.listUpdate[tostring(callback)] = nil
+end
+
+
+function unityUpdateMgr.clear_update()
+unityUpdateMgr.listUpdate = {}
+end
+
+
+function unityUpdateMgr.reg_lateupdate(callback)
+unityUpdateMgr.listLateUpdate[tostring(callback)] = callback
+end
+
+
+function unityUpdateMgr.unreg_lateupdate(callback)
+unityUpdateMgr.listLateUpdate[tostring(callback)] = nil
+end
+
+
+function unityUpdateMgr.clear_lateupdate()
+unityUpdateMgr.listLateUpdate = {}
+end
+
+
+function unityUpdateMgr.reg_fixedupdate(callback)
+unityUpdateMgr.listFixedUpdate[tostring(callback)] = callback
+end
+
+
+function unityUpdateMgr.unreg_fixedupdate(callback)
+unityUpdateMgr.listFixedUpdate[tostring(callback)] = nil
+end
+
+
+function unityUpdateMgr.clear_fixedupdate()
+unityUpdateMgr.listFixedUpdate = {}
+end
+
+return unityUpdateMgr

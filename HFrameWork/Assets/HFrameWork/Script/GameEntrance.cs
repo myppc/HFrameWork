@@ -8,6 +8,7 @@ using System.IO;
 using UnityEngine.U2D;
 using System;
 using XLua;
+using HFrameWork.Script.Pool;
 
 public class GameEntrance : MonoBehaviour
 {

@@ -120,9 +120,37 @@ function mainEntrance.run()
     -- 屏蔽全局
     mainEntrance.lock_global()
 
-    local ins = CS.ResMgr.Ins;
-    ins.Load(CS.ERes.GameObject, "mode1", "box.prefab");
+    local pool_type = 
+    {
+        TEMP = 0,--该场景零时对象池，退出场景时销毁
+        STATIC = 1,--静态池，永久不销毁
+        DYNAMIC = 2,--动态池，动态添加，永久不销毁
+        SCENE = 3,--该场景对象池，每次在推出场景时销毁，在载入时自动加载
+        
+    }
+    
+    CS.LuaCallCSharpHelper.RegisterCacheInfo("mode1","box.prefab",pool_type.SCENE,5,"Test1");
+    CS.LuaCallCSharpHelper.RegisterCacheInfo("mode1","box.prefab",pool_type.SCENE,10,"Test2");
 
+    CS.LuaCallCSharpHelper.LoadCacheByScene("Test2");
+
+
+
+
+    -- local list = {}
+    -- for i = 1,8,1 do
+    --     local go = CS.LuaCallCSharpHelper.Load(0,"mode1","box.prefab")
+    --     list[#list + 1] = go
+    -- end
+
+    -- for i = 1,6 do
+    --     CS.LuaCallCSharpHelper.UnityDestroy(list[#list])
+    --     list[#list] = nil
+    -- end
+
+
+    
+    
     ---------------------------------
     --暂时关闭
     -- 开始游戏

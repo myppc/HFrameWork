@@ -1,6 +1,7 @@
 ﻿using Assets.HFrameWork.Script.SBP;
 using Assets.HFrameWork.Script.Tool;
 using HFrameWork;
+using HFrameWork.Script.Pool;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -46,12 +47,12 @@ namespace Assets.HFrameWork.Script.Res
         /// <param name="path"></param>
         /// <param name="name"></param>
         /// <returns></returns>
-        public UnityEngine.Object Load(ERes eRes,string path,string name)
+        public UnityEngine.Object Load(ERes eRes,string path,string name,bool ignoreCache = false)
         {
             switch (eRes)
             {
                 case ERes.GameObject:
-                    return LoadGameObject(path, name);
+                    return LoadGameObject(path, name, ignoreCache);
                 default:
                     return LoadAssets(eRes,path, name);
             }
@@ -66,12 +67,12 @@ namespace Assets.HFrameWork.Script.Res
         /// <param name="path"></param>
         /// <param name="name"></param>
         /// <param name="finishCallback"></param>
-        public void LoadAsync(ERes eRes, string path, string name, Action<UnityEngine.Object> finishCallback)
+        public void LoadAsync(ERes eRes, string path, string name, Action<UnityEngine.Object> finishCallback = null,bool ignoreCache = false)
         {
             switch (eRes)
             {
                 case ERes.GameObject:
-                    LoadGameObjectAsync(path,name,finishCallback);
+                    LoadGameObjectAsync(path,name,finishCallback, ignoreCache);
                     break;
                 default:
                     LoadAssetsAsync(eRes, path, name, finishCallback);
@@ -262,7 +263,7 @@ namespace Assets.HFrameWork.Script.Res
         /// <param name="path"></param>
         /// <param name="name"></param>
         /// <returns></returns>
-        private void LoadAssetsAsync(ERes eRes,string path, string name, Action<UnityEngine.Object> finishCallback)
+        private void LoadAssetsAsync(ERes eRes,string path, string name, Action<UnityEngine.Object> finishCallback = null)
         {
             var manifestAsset = GetManifestAsset(path, name);
             if (AppConfig.runMode == ERunMode.Editor)
@@ -305,14 +306,18 @@ namespace Assets.HFrameWork.Script.Res
         /// <param name="path"></param>
         /// <param name="name"></param>
         /// <returns></returns>
-        private UnityEngine.Object LoadGameObject(string path,string name)
+        private UnityEngine.Object LoadGameObject(string path,string name, bool ignoreCache = false)
         {
-
-            var go = GoPoolManager.Ins.CreateGoFromCache(path, name);
-            if (go != null)
+            UnityEngine.GameObject go = null;
+            if (!ignoreCache)
             {
-                return go;
+                go = GoPoolManager.Ins.CreateGoFromCache(path, name);
+                if (go != null)
+                {
+                    return go;
+                }
             }
+
             var manifestAsset =  GetManifestAsset(path, name);
             if (AppConfig.runMode == ERunMode.Editor)
             {
@@ -324,7 +329,6 @@ namespace Assets.HFrameWork.Script.Res
             }
             else
             {
-
                 var ab = AssetsBundleMgr.Ins.GetBundle(manifestAsset.abName);
                 if (ab == null)
                 {
@@ -347,15 +351,18 @@ namespace Assets.HFrameWork.Script.Res
         /// <param name="path"></param>
         /// <param name="name"></param>
         /// <param name="finishCallback"></param>
-        private void LoadGameObjectAsync(string path, string name, Action<UnityEngine.Object> finishCallback)
+        private void LoadGameObjectAsync(string path, string name, Action<UnityEngine.Object> finishCallback = null, bool ignoreCache = false)
         {
-            UnityEngine.Object go = GoPoolManager.Ins.CreateGoFromCache(path, name);
-            if (go != null)
+            UnityEngine.Object go;
+            if (!ignoreCache)
             {
-                finishCallback?.Invoke(go);
-                return;
+                go = GoPoolManager.Ins.CreateGoFromCache(path, name);
+                if (go != null)
+                {
+                    finishCallback?.Invoke(go);
+                    return;
+                }
             }
-
             var manifestAsset = GetManifestAsset(path, name);
             if (AppConfig.runMode == ERunMode.Editor)
             {
@@ -363,6 +370,7 @@ namespace Assets.HFrameWork.Script.Res
                 //编辑器模式下生成
                 var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(manifestAsset.path);
                 go = UnityEngine.Object.Instantiate(asset as GameObject);
+                GoPoolManager.Ins.AddTag(go as GameObject, path, name);
                 finishCallback?.Invoke(go);
 #endif
             }

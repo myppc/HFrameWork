@@ -1,0 +1,157 @@
+
+
+
+
+
+
+local cfgMapping = require("mgrs/cfg/cfg_mapping")
+
+local cfgMgr = cfgMapping.cfgs
+
+
+
+
+
+local function list2dic(data, templete)
+
+if data[1] == nil then
+return false, data
+end
+
+local nData = {}
+
+for name, idx in pairs(templete) do
+nData[name] = data[idx]
+end
+
+return true, nData
+end
+
+
+local function get_key_cell_idx(mapping, key, startIdx, endIdx)
+
+if startIdx == endIdx then
+return startIdx
+end
+
+
+local centerIdx = math.floor((endIdx + startIdx) / 2)
+local centerIdx2 = centerIdx + 1
+
+
+local startVal1 = mapping[startIdx][1]
+
+
+local centerVal2 = mapping[centerIdx][2]
+local center2Val1 = mapping[centerIdx2][1]
+
+
+local endVal2 = mapping[endIdx][2]
+
+
+if key >= startVal1 and key <= centerVal2 then
+return get_key_cell_idx(mapping, key, startIdx, centerIdx)
+elseif key >= center2Val1 and key <= endVal2 then
+return get_key_cell_idx(mapping, key, centerIdx2, endIdx)
+end
+end
+
+
+local function get_key_idx(mapping, name, key)
+
+local cellIdx = get_key_cell_idx(mapping, key, 1, #mapping)
+
+
+if not cellIdx then
+gError(string.format("[配置表] 尝试从表'%s'中获取不存在的键值'%s'.", name, key))
+return
+end
+
+
+local cell = mapping[cellIdx]
+
+
+return key - cell[1] + cell[3]
+end
+
+
+
+
+
+local function get(cfg, name, key)
+
+local idx = get_key_idx(cfg.mapping, name, key)
+
+
+local data = cfg.data[idx]
+
+
+local isChanged, nData = list2dic(data, cfg.templete)
+
+
+if isChanged then
+
+cfg.data[idx] = nData
+end
+
+return nData
+end
+
+
+
+
+local function num(cfg)
+return cfg.num
+end
+
+
+
+
+local function pair(cfg, callback)
+
+for idx, value in pairs(cfg.data) do
+
+local isChanged, nData = list2dic(value, cfg.templete)
+
+
+if isChanged then
+
+cfg.data[idx] = nData
+end
+
+
+callback(nData)
+end
+end
+
+
+function cfgMgr.init()
+for k, v in pairs(cfgMgr) do
+if type(v) ~= "function" then
+v.value = function(key)
+key = tonumber(key)
+if key == nil then
+gError(string.format("[配置表] 尝试从表'%s'中获取空键", k, key))
+return
+end
+key = tonumber(key)
+local cfg = require(cfgMapping.path[k])
+return get(cfg, k, key)
+end
+v.num = function()
+local cfg = require(cfgMapping.path[k])
+return num(cfg)
+end
+v.pair = function(callback)
+if callback == nil then
+gError(string.format("[配置表][遍历表'%s'时传递了一个空回调方法]", k))
+return
+end
+local cfg = require(cfgMapping.path[k])
+pair(cfg, callback)
+end
+end
+end
+end
+
+return cfgMgr

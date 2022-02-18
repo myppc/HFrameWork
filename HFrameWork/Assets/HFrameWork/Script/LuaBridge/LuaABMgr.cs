@@ -163,11 +163,11 @@ namespace HFrameWork
             {
                 filePath = filePath.Replace(extension, AppConfig.LUA_NEW_EXTENSION);
             }
-
-            var txt = ResMgr.Ins.Load<TextAsset>(ERes.TextAsset, AppConfig.LUA_MODULE, filePath).text;
+            var fileName = Path.GetFileName(filePath);
+            var text = ResMgr.Ins.Load(ERes.TextAsset, AppConfig.LUA_MODULE, fileName) as TextAsset;
 
             // utf8编码
-            bytes = Encoding.UTF8.GetBytes(txt);
+            bytes = Encoding.UTF8.GetBytes(text.text);
 
             // 记录
             _dicLua.Add(filePath, bytes);

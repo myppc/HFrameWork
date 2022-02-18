@@ -15,6 +15,15 @@ namespace Assets.HFrameWork.Script.Res
     public class ABLoader
     {
         #region 静态方法
+        /// <summary>
+        /// 生成ABLoader
+        /// </summary>
+        /// <param name="abName"></param>
+        /// <returns></returns>
+        //public static ABLoader Create(string abName)
+        //{
+
+        //}
 
         #endregion
 
@@ -45,12 +54,7 @@ namespace Assets.HFrameWork.Script.Res
 
         private void OnLoadCompleted(AsyncOperation operation,string dependsName)
         {
-            AssetBundleCreateRequest request = (AssetBundleCreateRequest)operation;
-            if (request.assetBundle != null && request.isDone)
-            {
-                var ab = request.assetBundle;
-                AssetsBundleMgr.Ins.SetBundle(dependsName, ab);
-            }
+
             foreach(var depend in depends)
             {
                 if (AssetsBundleMgr.Ins.GetBundle(depend) == null)
@@ -91,10 +95,16 @@ namespace Assets.HFrameWork.Script.Res
                     continue;
                 }
                 var dependname = depend;
-                var request = AssetBundle.LoadFromFileAsync(Path.Combine(AppConfig.AB_LOAD_PATH, dependname));
-                request.completed += new Action<AsyncOperation>((operation)=> {
-                    OnLoadCompleted(operation, dependname);
-                });
+
+                var request = ABRequestMgr.Ins.TryGetRequest(dependname);
+                if (request == null)
+                {
+                    request = AssetBundle.LoadFromFileAsync(Path.Combine(AppConfig.AB_LOAD_PATH, dependname));
+                    ABRequestMgr.Ins.AddRequest(dependname, request);
+                }
+                ABRequestMgr.Ins.RegisterCompleteCallBack(dependname, OnLoadCompleted);
+
+
             }
         }
 

@@ -347,5 +347,34 @@ namespace Assets.HFrameWork.Script.Tool
             // 存储新lua
             File.WriteAllLines(savePath, newLines);
         }
+
+
+        /// <summary>
+        /// 读取文件
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        public static string ReadFile(string filePath)
+        {
+            string content = "";
+
+            // 是否没有文件
+            if (!File.Exists(filePath))
+            {
+                return content;
+            }
+
+            try
+            {
+                // 读取内容
+                content = File.ReadAllText(filePath);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[C#][UpdateMgr][ReadFile][Error to read '{filePath}' : {e.Message}]");
+            }
+
+            return content;
+        }
     }
 }
