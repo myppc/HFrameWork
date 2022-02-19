@@ -100,9 +100,12 @@ namespace HFrameWork.Script.SceneMgr
                 }
                 else
                 {
+                    //清理预加载Prefab
                     ResMgr.Ins.ClearPreGoCache();
                     //清理场景缓存和当前场景的临时缓存,并且将栈里的场景信息弹出，直到栈顶为当前场景方可停止
                     GoPoolManager.Ins.ClearSceneCache(curSceneName);
+                    //清理当前没有用到的AB包
+                    AssetsBundleMgr.Ins.UnLoadAllABCache();
                     for (var i = sortList.Count - 1; i >= index; i--)
                     {
                         var name = sortList[i];

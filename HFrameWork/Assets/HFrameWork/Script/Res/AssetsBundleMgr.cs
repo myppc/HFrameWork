@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HFrameWork.Script.Pool;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -132,6 +133,57 @@ namespace Assets.HFrameWork.Script.Res
                 return;
             }
             loaderDic.Add(abName, loader);
+        }
+
+        /// <summary>
+        /// 通过AB名字卸载指定AB
+        /// </summary>
+        /// <param name="abName"></param>
+        public void UnLoadABCacheByName(string abName)
+        {
+            if (bundleDict.TryGetValue(abName, out var abData))
+            {
+                abData.Unload(true);
+                bundleDict.Remove(abName);
+            }
+        }
+
+        /// <summary>
+        /// 卸载全部没有用到的AbCache
+        /// </summary>
+        public void UnLoadAllABCache()
+        {
+            var cacheABList = GoPoolManager.Ins.FilterCacheAssets();
+            var depensList = new List<string>();
+            //找出用到的包的所有依赖
+            foreach (var abName in cacheABList)
+            {
+                depensList = ToolFunc.FilterDepends(abName, depensList);
+            }
+            var removeList = new List<string>(); 
+            foreach (var item in bundleDict)
+            {
+                var bundleName = item.Key;
+                if (!depensList.Contains(bundleName))
+                {
+                    removeList.Add(bundleName);
+                }
+            }
+            //清理已经加载完成的
+            foreach(var removeAB in removeList)
+            {
+                UnLoadABCacheByName(removeAB);
+            }
+
+            //清理正在加载的
+            var requestList = ABRequestMgr.Ins.GetAllRequestNames();
+            foreach (var bundleName in requestList)
+            {
+                if (!depensList.Contains(bundleName))
+                {
+                    ABRequestMgr.Ins.StopRequest(bundleName);
+                }
+            }
         }
 
         #endregion

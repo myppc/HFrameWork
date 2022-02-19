@@ -85,7 +85,7 @@ namespace Assets.HFrameWork.Script.Res
             }
 
             isLoading = true;
-            depends = FilterDepends(abName);
+            depends = ToolFunc.FilterDepends(abName);
             foreach (var depend in depends)
             {
 
@@ -118,7 +118,7 @@ namespace Assets.HFrameWork.Script.Res
             {
                 return ab;
             }
-            var depends = FilterDepends(abName);
+            var depends = ToolFunc.FilterDepends(abName);
             foreach (var depend in depends)
             { 
                 ab = AssetBundle.LoadFromFile(Path.Combine(AppConfig.AB_LOAD_PATH, depend));
@@ -133,39 +133,6 @@ namespace Assets.HFrameWork.Script.Res
             isDone = true;
             return AssetsBundleMgr.Ins.GetBundle(abName);
         }
-
-
-        /// <summary>
-        /// 整理需要加载的依赖项
-        /// </summary>
-        /// <returns></returns>
-        public List<string> FilterDepends(string abName, List<string> dependsList = null)
-        {
-            if (dependsList == null)
-            {
-                dependsList = new List<string>();
-                dependsList.Add(abName);
-            }
-            var modeName = abName.Split('_')[0];
-            var module = AppConfig.manifest.GetModule(modeName);
-            if (module == null)
-            {
-                return dependsList;
-            }
-            var manifestAb = module.GetAB(abName);
-            var depends = manifestAb.dependencies;
-            foreach (var depend in depends)
-            {
-                if (!dependsList.Contains(depend))
-                {
-                    dependsList.Add(depend);
-                    dependsList = FilterDepends(depend, dependsList);
-                }
-            }
-            dependsList.Reverse();
-            return dependsList;
-        }
-
         #endregion
     }
 }

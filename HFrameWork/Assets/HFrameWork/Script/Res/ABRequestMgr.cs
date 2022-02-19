@@ -113,6 +113,28 @@ namespace Assets.HFrameWork.Script.Res
             rqInfo.onCompleteList.Add(callBack);
         }
 
+        /// <summary>
+        /// 停止正在加载的ab
+        /// </summary>
+        /// <param name="abName"></param>
+        public void StopRequest(string abName)
+        {
+            if (requestDict.TryGetValue(abName, out var rqInfo))
+            {
+                rqInfo.request.assetBundle.Unload(true);
+                requestDict.Remove(abName);
+            }
+        }
+
+        /// <summary>
+        /// 获取所有正在加载的requestList
+        /// </summary>
+        /// <returns></returns>
+        public List<string> GetAllRequestNames()
+        {
+            return requestDict.Keys.ToList<string>();
+        }
+
         #endregion
     }
 }

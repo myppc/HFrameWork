@@ -1,1 +1,268 @@
-{"version":[0,0,0],"modules":{"mode1":{"abs":{"mode1_atlas":{"hash":"e602c3ec9655d8707c73b1ecd8928455","crc":"74745C81","dependencies":["mode1_atlas","mode1_textures"],"size":2157},"mode1_mat":{"hash":"fdb6b49d6c519a56df0ae21fb4b1638e","crc":"D8046AD6","dependencies":["mode1_atlas","mode1_textures"],"size":17564},"mode1_prefabs":{"hash":"ba39ba57f8305b52a18f9f9c9e485cd2","crc":"A30EDCB","dependencies":["mode1_atlas","mode1_mat","mode1_textures"],"size":54347},"mode1_textures":{"hash":"26c0312a006068985e6e57d2c1e1f4ec","crc":"552575C4","dependencies":["mode1_atlas","mode1_textures"],"size":16020}},"assets":{"mode1UI.spriteatlas":{"abName":"mode1_atlas","path":"Assets/Modules/mode1/Atlas/mode1UI.spriteatlas"},"New Material.mat":{"abName":"mode1_mat","path":"Assets/Modules/mode1/mat/New Material.mat"},"box.prefab":{"abName":"mode1_prefabs","path":"Assets/Modules/mode1/Prefabs/box.prefab"},"Cube.prefab":{"abName":"mode1_prefabs","path":"Assets/Modules/mode1/Prefabs/Cube.prefab"},"Quad.prefab":{"abName":"mode1_prefabs","path":"Assets/Modules/mode1/Prefabs/Quad.prefab"},"box.png":{"abName":"mode1_textures","path":"Assets/Modules/mode1/Textures/Image/box.png"},"close.png":{"abName":"mode1_textures","path":"Assets/Modules/mode1/Textures/Image/close.png"}}},"mode2":{"abs":{"mode2_prefabs":{"hash":"c90ac2afa9de0fd6128b86950897c233","crc":"B203F138","dependencies":[],"size":50389}},"assets":{"Sphere.prefab":{"abName":"mode2_prefabs","path":"Assets/Modules/mode2/Prefabs/Sphere.prefab"}}},"lua":{"abs":{"lua_script":{"hash":"770165e149c0ff721b17058e78cf642f","crc":"B393BF49","dependencies":[],"size":26981}},"assets":{"cfg_mapping.txt":{"abName":"lua_script","path":"Assets/Resources/luas/mgrs/cfg/cfg_mapping.txt"},"cfg_mgr.txt":{"abName":"lua_script","path":"Assets/Resources/luas/mgrs/cfg/cfg_mgr.txt"},"cover_cfg.txt":{"abName":"lua_script","path":"Assets/Resources/luas/mgrs/cover/cover_cfg.txt"},"cover_mgr.txt":{"abName":"lua_script","path":"Assets/Resources/luas/mgrs/cover/cover_mgr.txt"},"msg_mgr.txt":{"abName":"lua_script","path":"Assets/Resources/luas/mgrs/msg/msg_mgr.txt"},"class_http_ptc.txt":{"abName":"lua_script","path":"Assets/Resources/luas/mgrs/net/class_http_ptc.txt"},"class_ptc_base.txt":{"abName":"lua_script","path":"Assets/Resources/luas/mgrs/net/class_ptc_base.txt"},"class_tcp_ptc.txt":{"abName":"lua_script","path":"Assets/Resources/luas/mgrs/net/class_tcp_ptc.txt"},"net_mgr.txt":{"abName":"lua_script","path":"Assets/Resources/luas/mgrs/net/net_mgr.txt"},"class_logic_tcp.txt":{"abName":"lua_script","path":"Assets/Resources/luas/mgrs/net/tcp/class_logic_tcp.txt"},"class_tcp_base.txt":{"abName":"lua_script","path":"Assets/Resources/luas/mgrs/net/tcp/class_tcp_base.txt"},"tcp_mgr.txt":{"abName":"lua_script","path":"Assets/Resources/luas/mgrs/net/tcp/tcp_mgr.txt"},"pool_mgr.txt":{"abName":"lua_script","path":"Assets/Resources/luas/mgrs/pool/pool_mgr.txt"},"pool_type.txt":{"abName":"lua_script","path":"Assets/Resources/luas/mgrs/pool/pool_type.txt"},"res_mgr.txt":{"abName":"lua_script","path":"Assets/Resources/luas/mgrs/res/res_mgr.txt"},"base_scene.txt":{"abName":"lua_script","path":"Assets/Resources/luas/mgrs/scene/base_scene.txt"},"scene_cfg.txt":{"abName":"lua_script","path":"Assets/Resources/luas/mgrs/scene/scene_cfg.txt"},"scene_mgr.txt":{"abName":"lua_script","path":"Assets/Resources/luas/mgrs/scene/scene_mgr.txt"},"timer_mgr.txt":{"abName":"lua_script","path":"Assets/Resources/luas/mgrs/timer/timer_mgr.txt"},"base_ui.txt":{"abName":"lua_script","path":"Assets/Resources/luas/mgrs/ui/base_ui.txt"},"ui_cfg.txt":{"abName":"lua_script","path":"Assets/Resources/luas/mgrs/ui/ui_cfg.txt"},"ui_enum.txt":{"abName":"lua_script","path":"Assets/Resources/luas/mgrs/ui/ui_enum.txt"},"ui_mgr.txt":{"abName":"lua_script","path":"Assets/Resources/luas/mgrs/ui/ui_mgr.txt"},"unity_update_mgr.txt":{"abName":"lua_script","path":"Assets/Resources/luas/mgrs/unity_update/unity_update_mgr.txt"},"update_mgr.txt":{"abName":"lua_script","path":"Assets/Resources/luas/mgrs/update/update_mgr.txt"},"app_cfg.txt":{"abName":"lua_script","path":"Assets/Resources/luas/system/app_cfg.txt"},"class_helper.txt":{"abName":"lua_script","path":"Assets/Resources/luas/system/class_helper.txt"},"color.txt":{"abName":"lua_script","path":"Assets/Resources/luas/system/color.txt"},"data_center.txt":{"abName":"lua_script","path":"Assets/Resources/luas/system/data_center.txt"},"helper.txt":{"abName":"lua_script","path":"Assets/Resources/luas/system/helper.txt"},"json.txt":{"abName":"lua_script","path":"Assets/Resources/luas/system/json.txt"},"log.txt":{"abName":"lua_script","path":"Assets/Resources/luas/system/log.txt"},"main_entrance.txt":{"abName":"lua_script","path":"Assets/Resources/luas/system/main_entrance.txt"},"mgrs.txt":{"abName":"lua_script","path":"Assets/Resources/luas/system/mgrs.txt"},"code_hints_lua_bridge.txt":{"abName":"lua_script","path":"Assets/Resources/luas/system/code_hints/code_hints_lua_bridge.txt"},"code_hints_unityengine.txt":{"abName":"lua_script","path":"Assets/Resources/luas/system/code_hints/code_hints_unityengine.txt"},"math_ex.txt":{"abName":"lua_script","path":"Assets/Resources/luas/system/extension/math_ex.txt"},"string_ex.txt":{"abName":"lua_script","path":"Assets/Resources/luas/system/extension/string_ex.txt"},"table_ex.txt":{"abName":"lua_script","path":"Assets/Resources/luas/system/extension/table_ex.txt"},"utf8.txt":{"abName":"lua_script","path":"Assets/Resources/luas/system/extension/utf8.txt"}}}}}
+{
+    "version": [
+        0,
+        0,
+        0
+    ],
+    "modules": {
+        "mode1": {
+            "abs": {
+                "mode1_atlas": {
+                    "hash": "e602c3ec9655d8707c73b1ecd8928455",
+                    "crc": "74745C81",
+                    "dependencies": [
+                        "mode1_atlas",
+                        "mode1_textures"
+                    ],
+                    "size": 2157
+                },
+                "mode1_mat": {
+                    "hash": "fdb6b49d6c519a56df0ae21fb4b1638e",
+                    "crc": "D8046AD6",
+                    "dependencies": [
+                        "mode1_atlas",
+                        "mode1_textures"
+                    ],
+                    "size": 17564
+                },
+                "mode1_prefabs": {
+                    "hash": "ba39ba57f8305b52a18f9f9c9e485cd2",
+                    "crc": "A30EDCB",
+                    "dependencies": [
+                        "mode1_atlas",
+                        "mode1_mat",
+                        "mode1_textures"
+                    ],
+                    "size": 54347
+                },
+                "mode1_textures": {
+                    "hash": "26c0312a006068985e6e57d2c1e1f4ec",
+                    "crc": "552575C4",
+                    "dependencies": [
+                        "mode1_atlas",
+                        "mode1_textures"
+                    ],
+                    "size": 16020
+                }
+            },
+            "assets": {
+                "mode1UI.spriteatlas": {
+                    "abName": "mode1_atlas",
+                    "path": "Assets/Modules/mode1/Atlas/mode1UI.spriteatlas"
+                },
+                "New Material.mat": {
+                    "abName": "mode1_mat",
+                    "path": "Assets/Modules/mode1/mat/New Material.mat"
+                },
+                "box.prefab": {
+                    "abName": "mode1_prefabs",
+                    "path": "Assets/Modules/mode1/Prefabs/box.prefab"
+                },
+                "Cube.prefab": {
+                    "abName": "mode1_prefabs",
+                    "path": "Assets/Modules/mode1/Prefabs/Cube.prefab"
+                },
+                "Quad.prefab": {
+                    "abName": "mode1_prefabs",
+                    "path": "Assets/Modules/mode1/Prefabs/Quad.prefab"
+                },
+                "box.png": {
+                    "abName": "mode1_textures",
+                    "path": "Assets/Modules/mode1/Textures/Image/box.png"
+                },
+                "close.png": {
+                    "abName": "mode1_textures",
+                    "path": "Assets/Modules/mode1/Textures/Image/close.png"
+                }
+            }
+        },
+        "mode2": {
+            "abs": {
+                "mode2_prefabs": {
+                    "hash": "c90ac2afa9de0fd6128b86950897c233",
+                    "crc": "B203F138",
+                    "dependencies": [],
+                    "size": 50389
+                }
+            },
+            "assets": {
+                "Sphere.prefab": {
+                    "abName": "mode2_prefabs",
+                    "path": "Assets/Modules/mode2/Prefabs/Sphere.prefab"
+                }
+            }
+        },
+        "lua": {
+            "abs": {
+                "lua_script": {
+                    "hash": "770165e149c0ff721b17058e78cf642f",
+                    "crc": "B393BF49",
+                    "dependencies": [],
+                    "size": 26981
+                }
+            },
+            "assets": {
+                "cfg_mapping.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/mgrs/cfg/cfg_mapping.txt"
+                },
+                "cfg_mgr.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/mgrs/cfg/cfg_mgr.txt"
+                },
+                "cover_cfg.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/mgrs/cover/cover_cfg.txt"
+                },
+                "cover_mgr.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/mgrs/cover/cover_mgr.txt"
+                },
+                "msg_mgr.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/mgrs/msg/msg_mgr.txt"
+                },
+                "class_http_ptc.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/mgrs/net/class_http_ptc.txt"
+                },
+                "class_ptc_base.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/mgrs/net/class_ptc_base.txt"
+                },
+                "class_tcp_ptc.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/mgrs/net/class_tcp_ptc.txt"
+                },
+                "net_mgr.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/mgrs/net/net_mgr.txt"
+                },
+                "class_logic_tcp.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/mgrs/net/tcp/class_logic_tcp.txt"
+                },
+                "class_tcp_base.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/mgrs/net/tcp/class_tcp_base.txt"
+                },
+                "tcp_mgr.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/mgrs/net/tcp/tcp_mgr.txt"
+                },
+                "pool_mgr.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/mgrs/pool/pool_mgr.txt"
+                },
+                "pool_type.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/mgrs/pool/pool_type.txt"
+                },
+                "res_mgr.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/mgrs/res/res_mgr.txt"
+                },
+                "base_scene.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/mgrs/scene/base_scene.txt"
+                },
+                "scene_cfg.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/mgrs/scene/scene_cfg.txt"
+                },
+                "scene_mgr.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/mgrs/scene/scene_mgr.txt"
+                },
+                "timer_mgr.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/mgrs/timer/timer_mgr.txt"
+                },
+                "base_ui.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/mgrs/ui/base_ui.txt"
+                },
+                "ui_cfg.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/mgrs/ui/ui_cfg.txt"
+                },
+                "ui_enum.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/mgrs/ui/ui_enum.txt"
+                },
+                "ui_mgr.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/mgrs/ui/ui_mgr.txt"
+                },
+                "unity_update_mgr.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/mgrs/unity_update/unity_update_mgr.txt"
+                },
+                "update_mgr.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/mgrs/update/update_mgr.txt"
+                },
+                "app_cfg.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/system/app_cfg.txt"
+                },
+                "class_helper.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/system/class_helper.txt"
+                },
+                "color.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/system/color.txt"
+                },
+                "data_center.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/system/data_center.txt"
+                },
+                "helper.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/system/helper.txt"
+                },
+                "json.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/system/json.txt"
+                },
+                "log.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/system/log.txt"
+                },
+                "main_entrance.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/system/main_entrance.txt"
+                },
+                "mgrs.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/system/mgrs.txt"
+                },
+                "code_hints_lua_bridge.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/system/code_hints/code_hints_lua_bridge.txt"
+                },
+                "code_hints_unityengine.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/system/code_hints/code_hints_unityengine.txt"
+                },
+                "math_ex.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/system/extension/math_ex.txt"
+                },
+                "string_ex.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/system/extension/string_ex.txt"
+                },
+                "table_ex.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/system/extension/table_ex.txt"
+                },
+                "utf8.txt": {
+                    "abName": "lua_script",
+                    "path": "Assets/Resources/luas/system/extension/utf8.txt"
+                }
+            }
+        }
+    }
+}

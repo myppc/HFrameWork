@@ -2,6 +2,7 @@
 using HFrameWork.Script.SceneMgr;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -61,18 +62,6 @@ namespace HFrameWork.Script.Pool
         }
 
         /// <summary>
-        /// 初始化对象池
-        /// </summary>
-        private void InitPoolGo()
-        {
-            poolRoot = new GameObject();
-            poolRoot.name = "RootPool";
-            GameObject.DontDestroyOnLoad(poolRoot);
-         
-
-        }
-
-        /// <summary>
         /// 注册对象池信息
         /// </summary>
         /// <param name="path">路径</param>
@@ -111,28 +100,6 @@ namespace HFrameWork.Script.Pool
         }
 
         /// <summary>
-        /// 根据key来清理对象池
-        /// </summary>
-        /// <param name="key"></param>
-        private void ClearCacheByKey(string key,int holdCount = 0)
-        {
-            if (!GoDict.ContainsKey(key))
-            {
-                return;
-            }
-            var list = GoDict[key];
-            var removeCount = Math.Max( list.Count - holdCount,0);
-            for (var i = 0; i < removeCount; i++)
-            {
-                var item = list[0];
-                list.RemoveAt(0);
-                GameObject.Destroy(item);
-            }
-
-        }
-
-
-        /// <summary>
         /// 通过对象池获取对象
         /// </summary>
         /// <param name="path"></param>
@@ -160,8 +127,6 @@ namespace HFrameWork.Script.Pool
             }
             return null;
         }
-
-
 
         /// <summary>
         /// 回收对象
@@ -296,8 +261,64 @@ namespace HFrameWork.Script.Pool
             }
         }
 
-        #region 私有方法
+        /// <summary>
+        /// 遍历当前所有在Cache中缓存的对象用到的AB包
+        /// </summary>
+        /// <returns></returns>
+        public List<string> FilterCacheAssets()
+        {
+            var abDict = new Dictionary<string,bool>();
+            foreach (var item in GoDict)
+            {
+                var goList = item.Value;
+                if (goList.Count <= 0)
+                {
+                    continue;
+                }
+                var go = goList[0];
+                var cacheInfo = go.GetComponent<ObjectCacheInfo>();
+                //cacheInfo.path
+                var maniestAsset = ToolFunc.GetManifestAsset(cacheInfo.path, cacheInfo.name);
+                if (!abDict.ContainsKey(maniestAsset.abName))
+                {
+                    abDict.Add(maniestAsset.abName, true);
+                }
+            }
+            var keys = abDict.Keys.ToList<string>();
+            return keys;
+        }
 
+        #region 私有方法
+        /// <summary>
+        /// 初始化对象池
+        /// </summary>
+        private void InitPoolGo()
+        {
+            poolRoot = new GameObject();
+            poolRoot.name = "RootPool";
+            GameObject.DontDestroyOnLoad(poolRoot);
+        }
+
+        /// <summary>
+        /// 根据key来清理对象池
+        /// </summary>
+        /// <param name="key"></param>
+        private void ClearCacheByKey(string key, int holdCount = 0)
+        {
+            if (!GoDict.ContainsKey(key))
+            {
+                return;
+            }
+            var list = GoDict[key];
+            var removeCount = Math.Max(list.Count - holdCount, 0);
+            for (var i = 0; i < removeCount; i++)
+            {
+                var item = list[0];
+                list.RemoveAt(0);
+                GameObject.Destroy(item);
+            }
+
+        }
         #endregion
     }
 }
