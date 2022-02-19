@@ -32,12 +32,9 @@ namespace Assets.HFrameWork.Script.Res
         private AssetBundleCreateRequest abr;
         private Action<string,AssetBundle> onFinish;
         private List<string> depends;
-        ///是否正在加载当前ab
-        private bool isLoading = false;
         #endregion
 
         #region 公有变量
-        public bool isDone;
         #endregion
 
 
@@ -62,8 +59,6 @@ namespace Assets.HFrameWork.Script.Res
                     return;
                 }
             }
-            isDone = true;
-            isLoading = false;
             onFinish?.Invoke(abName,AssetsBundleMgr.Ins.GetBundle(abName));
         }
 
@@ -77,23 +72,16 @@ namespace Assets.HFrameWork.Script.Res
         public void LoadAsync(Action<string,AssetBundle> finishCallBack)
         {
             onFinish = finishCallBack;
-            var ab = AssetsBundleMgr.Ins.GetBundle(abName);
-            if (ab != null)
-            {
-                finishCallBack?.Invoke(abName,ab);
-                return;
-            }
-
-            isLoading = true;
             depends = ToolFunc.FilterDepends(abName);
+            bool allDone = true;
             foreach (var depend in depends)
             {
-
                 var dependData = AssetsBundleMgr.Ins.GetBundle(depend);
                 if (dependData != null)
                 {
                     continue;
                 }
+                allDone = false;
                 var dependname = depend;
 
                 var request = ABRequestMgr.Ins.TryGetRequest(dependname);
@@ -103,8 +91,10 @@ namespace Assets.HFrameWork.Script.Res
                     ABRequestMgr.Ins.AddRequest(dependname, request);
                 }
                 ABRequestMgr.Ins.RegisterCompleteCallBack(dependname, OnLoadCompleted);
-
-
+            }
+            if (allDone)
+            {
+                finishCallBack?.Invoke(abName, AssetsBundleMgr.Ins.GetBundle(abName));
             }
         }
 
@@ -113,24 +103,13 @@ namespace Assets.HFrameWork.Script.Res
         /// </summary>
         public AssetBundle Load()
         {
-            var ab = AssetsBundleMgr.Ins.GetBundle(abName);
-            if (ab != null)
-            {
-                return ab;
-            }
+            AssetBundle ab = null;
             var depends = ToolFunc.FilterDepends(abName);
             foreach (var depend in depends)
             { 
                 ab = AssetBundle.LoadFromFile(Path.Combine(AppConfig.AB_LOAD_PATH, depend));
-                if (depend == "lua_script")
-                {
-                    var names = ab.GetAllAssetNames();
-                    var allAssets = ab.LoadAllAssets();
-                    var asset = ab.LoadAsset(names[0]);
-                }
                 AssetsBundleMgr.Ins.SetBundle(depend, ab);
             }
-            isDone = true;
             return AssetsBundleMgr.Ins.GetBundle(abName);
         }
         #endregion

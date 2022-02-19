@@ -10,9 +10,15 @@ using System;
 using XLua;
 using HFrameWork.Script.Pool;
 
-public class GameEntrance : MonoBehaviour
+public class GameEntrance : SingletonScript<GameEntrance>
 {
     public LuaEnv env;
+
+    private void Awake()
+    {
+        DontDestroyOnLoad(this.gameObject);
+    }
+
     // Start is called before the first frame update
     void Start()
     {

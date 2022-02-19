@@ -69,7 +69,7 @@ namespace Assets.HFrameWork.Script.Res
         /// <param name="abName"></param>
         public AssetBundle LoadAssetBundle(string abName)
         {
-            var ab = GetBundle(abName);
+            var ab = MakeSureAB(abName);
             if (ab != null)
             {
                 return ab;
@@ -86,7 +86,7 @@ namespace Assets.HFrameWork.Script.Res
         /// <param name="finishCallback"></param>
         public void LoadAssetBundle(string abName, Action<string, AssetBundle> finishCallback)
         {
-            var ab = GetBundle(abName);
+            var ab = MakeSureAB(abName);
             if (ab != null)
             {
                 finishCallback?.Invoke(abName, ab);
@@ -184,6 +184,22 @@ namespace Assets.HFrameWork.Script.Res
                     ABRequestMgr.Ins.StopRequest(bundleName);
                 }
             }
+        }
+
+        /// <summary>
+        /// 确保指定AB包加载完成且依赖也加载完成
+        /// </summary>
+        public AssetBundle MakeSureAB(string abName)
+        {
+            var dependList = ToolFunc.FilterDepends(abName);
+            foreach (var depend in dependList)
+            {
+                if (GetBundle(depend) == null)
+                {
+                    return null;
+                }
+            }
+            return GetBundle(abName);
         }
 
         #endregion

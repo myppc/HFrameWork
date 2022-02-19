@@ -234,7 +234,7 @@ namespace Assets.HFrameWork.Script.Res
             }
             else
             {
-                var ab = AssetsBundleMgr.Ins.GetBundle(manifestAsset.abName);
+                var ab = AssetsBundleMgr.Ins.MakeSureAB(manifestAsset.abName);
                 if (ab == null)
                 {
                     ab = AssetsBundleMgr.Ins.LoadAssetBundle(manifestAsset.abName);
@@ -294,7 +294,7 @@ namespace Assets.HFrameWork.Script.Res
                     }));
                 });
 
-                var ab = AssetsBundleMgr.Ins.GetBundle(manifestAsset.abName);
+                var ab = AssetsBundleMgr.Ins.MakeSureAB(manifestAsset.abName);
                 if (ab == null)
                 {
                     //AB包未加载完成，先加载AB包
@@ -345,7 +345,7 @@ namespace Assets.HFrameWork.Script.Res
                 }
                 else
                 {
-                    var ab = AssetsBundleMgr.Ins.GetBundle(manifestAsset.abName);
+                    var ab = AssetsBundleMgr.Ins.MakeSureAB(manifestAsset.abName);
                     if (ab == null)
                     {
                         ab = AssetsBundleMgr.Ins.LoadAssetBundle(manifestAsset.abName);
@@ -419,7 +419,7 @@ namespace Assets.HFrameWork.Script.Res
                     }));
                 });
 
-                var ab = AssetsBundleMgr.Ins.GetBundle(manifestAsset.abName);
+                var ab = AssetsBundleMgr.Ins.MakeSureAB(manifestAsset.abName);
                 if (ab == null)
                 {
                     //AB包未加载完成，先加载AB包

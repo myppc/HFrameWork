@@ -5,11 +5,9 @@ SceneMgr :
 			ResMgr +
 	2.卸载当前场景缓存资源 +
 	3.卸载当前场景临时缓存资源 +
+	4.卸载AB包资源 +
 
 ResMgr:
-	依赖：
-		AssetsBundleMgr +
-
 	1.加载manifest +
 		Editor 生成本地manifest +
 		Package 加载manifest文件 +
@@ -24,12 +22,13 @@ ResMgr:
 			异步 +
 
 AssetsBundleMgr:
-	1.通过AB包加载资源 -
+	1.通过AB包加载资源 +
 		1.ABLoader +
 			1.加载AB包 +
 			2.加载依赖项 +
-		2.卸载AB包 -
+		2.卸载AB包 +
 	2.加载本地资源 +
+	3.加载Asset时确认依赖的AB包全部加载完成 +
 
 AppConfig：
 	1.持有manifest +
@@ -40,6 +39,13 @@ ABPacker : +
 	2.反序列化manifest.json +
 	3.生成AB包 +
 	4.生成lua代码AB +
+	5.仅打包LUA代码 +
+
+GoPoolManager：
+	1.根据缓存设置类型不同进行GameObject缓存 +
+	2.切换场景清理零时对象池和场景对象池 +
+	3.切换场景时加载SCENE类型的缓存 +
+	4.切换场景时保证最有释放方案 +
 
 XLua 
 	集成XLua +
