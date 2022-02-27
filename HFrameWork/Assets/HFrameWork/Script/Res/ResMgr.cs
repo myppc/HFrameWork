@@ -56,7 +56,6 @@ namespace Assets.HFrameWork.Script.Res
                 default:
                     return LoadAssets(eRes,path, name);
             }
-            return null;
         }
  
         /// <summary>
@@ -259,7 +258,6 @@ namespace Assets.HFrameWork.Script.Res
          
                 return ret;
             }
-            return null;
 
         }
 

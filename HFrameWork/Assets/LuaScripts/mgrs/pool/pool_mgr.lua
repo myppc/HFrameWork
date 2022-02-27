@@ -6,64 +6,44 @@
 
 local pool_mgr = {}
 
---- 尝试获得资源
----@param key: 键名
-function pool_mgr.try_get(key)
-    return gCSharp.TryGet(key)
+---初始化对象缓存池
+function pool_mgr:pool_init()
+    gCSharp.PoolInit();
 end
 
---- 通过模块名和资源名尝试获得资源
----@param module: 模块名
----@param assetName: 资源名
-function pool_mgr.try_get_asset(module, assetName)
-    return gCSharp.TryGetAsset(module, assetName)
+---注册缓存信息
+function pool_mgr:register_cache_info(path,name,poolType,cacheCount,sceneName)
+    gCSharp.RegisterCacheInfo(path,name,poolType,cacheCount,sceneName)
 end
 
---- 通过模块名和资源名获得键
----@param module: 模块名
----@param assetName: 资源名
-function pool_mgr.get_key(module, assetName)
-    return module.."#"..assetName
+---通过对象池获取对象
+function pool_mgr:create_go_from_cache(path,name)
+    gCSharp.CreateGoFromCache(path,name)
 end
 
---- 回收
----@param trans: 节点
----@param customKey: 自定义键
-function pool_mgr.recycle(trans, customKey)
-    gCSharp.Recycle(trans, customKey)
+---回收对象
+function pool_mgr:recovery_go(go)
+    gCSharp.RecoveryGo(go)
 end
 
---- 设置容量
----@param key: 键名
----@param capacity: 容量
-function pool_mgr.set_capacity(key, capacity)
-    gCSharp.SetCapacity(key, capacity)
+---清理当前场景缓存
+function pool_mgr:clear_scene_cache(sceneName,onlyTemp)
+    gCSharp.ClearSceneCache(sceneName,onlyTemp)
 end
 
---- 通过模块名和资源名设置容量
----@param module: 模块名
----@param assetName: 资源名
----@param capacity: 容量
-function pool_mgr.set_asset_capacity(module, assetName, capacity)
-    gCSharp.SetAssetCapacity(module, assetName, capacity)
+---加载指定场景需要缓存的对象
+function pool_mgr:load_cache_by_scene(sceneName)
+    gCSharp.LoadCacheByScene(sceneName)
 end
 
---- 清空对应键的对象池
----@param key: 键名
-function pool_mgr.clear(key)
-    gCSharp.Clear(key)
+---为GameObject 打上标签，方便后续回收
+function pool_mgr:add_tag(go,path,name)
+    gCSharp.AddTag(go,path,name)
 end
 
---- 清空对应资源的对象池
----@param module: 模块名
----@param assetName: 资源名
-function pool_mgr.clear_asset(module, assetName)
-    gCSharp.ClearAsset(module, assetName)
-end
-
---- 清除全部的对象池
-function pool_mgr.clear_all()
-    gCSharp.ClearAll()
+---遍历当前所有在Cache中缓存的对象用到的AB包
+function pool_mgr:filter_cache_assets()
+    return gCSharp.FilterCacheAssets()
 end
 
 return pool_mgr

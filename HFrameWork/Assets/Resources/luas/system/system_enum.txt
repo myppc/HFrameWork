@@ -1,0 +1,21 @@
+local system_enum = 
+{
+
+ERes = 
+{
+GameObject = 0,
+Sprite = 1,
+Atlas = 2,
+Audio = 3,
+TextAsset = 4,
+},
+
+EUIType = 
+{
+Normal = 1, 
+Pop = 2,    
+Top = 3,    
+}
+
+}
+return system_enum

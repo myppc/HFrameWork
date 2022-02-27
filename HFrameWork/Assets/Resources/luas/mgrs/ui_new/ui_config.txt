@@ -1,0 +1,19 @@
+local base_ui = require("mgrs/ui/base_ui")
+
+local ui_key = 
+{
+BASE_UI = "base_ui",
+}
+
+local ui_config =
+{
+[ui_key.BASE_UI] = 
+{
+background = true,  
+click_close = true, 
+ui_class = base_ui, 
+ui_type = gEnum.EUIType.Normal, 
+}
+}
+
+return ui_config,ui_key

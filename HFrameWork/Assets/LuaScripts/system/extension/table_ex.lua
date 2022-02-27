@@ -151,3 +151,20 @@ function table.find(tbl, val)
 
     return false
 end
+
+function table.deepcopy(tb)
+    if tb == nil then
+        return nil -- 参见注1
+    end
+    local copy = {}
+    for k, v in pairs(tb) do
+        if type(v) == 'table' then
+            copy[k] = table.deepcopy(v)
+        else
+            copy[k] = v
+        end
+    end
+    -- local meta = table.deepCopy(getmetatable(tb))
+    setmetatable(copy, table.deepcopy(getmetatable(tb)))
+    return copy
+end

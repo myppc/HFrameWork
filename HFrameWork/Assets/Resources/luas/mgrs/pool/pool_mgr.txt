@@ -1,0 +1,49 @@
+
+
+
+
+
+
+local pool_mgr = {}
+
+
+function pool_mgr:pool_init()
+gCSharp.PoolInit();
+end
+
+
+function pool_mgr:register_cache_info(path,name,poolType,cacheCount,sceneName)
+gCSharp.RegisterCacheInfo(path,name,poolType,cacheCount,sceneName)
+end
+
+
+function pool_mgr:create_go_from_cache(path,name)
+gCSharp.CreateGoFromCache(path,name)
+end
+
+
+function pool_mgr:recovery_go(go)
+gCSharp.RecoveryGo(go)
+end
+
+
+function pool_mgr:clear_scene_cache(sceneName,onlyTemp)
+gCSharp.ClearSceneCache(sceneName,onlyTemp)
+end
+
+
+function pool_mgr:load_cache_by_scene(sceneName)
+gCSharp.LoadCacheByScene(sceneName)
+end
+
+
+function pool_mgr:add_tag(go,path,name)
+gCSharp.AddTag(go,path,name)
+end
+
+
+function pool_mgr:filter_cache_assets()
+return gCSharp.FilterCacheAssets()
+end
+
+return pool_mgr

@@ -4,6 +4,17 @@
 --- DateTime: 2021/8/13 13:10
 ---
 
+local component_map = 
+{
+    img = "Image",
+    rt = "RectTransform",
+    atr = "Animator",
+    t = "Text",
+    scr = "ScrollView",
+    iscr = "InfiniteScroll",
+    btn = "Button",
+}
+
 local helper = {}
 
 --- 是否是空物体节点
@@ -74,13 +85,52 @@ function helper.pair_child_node(node, callback, isForwardPair)
     end
 end
 
---- 销毁子节点
----@param node: 节点
----@param isRecycle: 是否回收
-function helper.destroy_children(node, isRecycle)
-    helper.pair_child_node(node, function (cell)
-        helper.destroy_node(cell, isRecycle)
-    end, false)
+---comment 获取node下所有子节点
+---@param node any
+---@param list any
+function helper.get_child(node,list)
+    if list == nil then
+        list = {}
+    end
+
+    local childCount = node.transfrom.childCount
+    for i=  0,childCount -1 do
+        local child = node.transfrom:GetChild(i).gameObject
+        list[child.name] = child
+        helper.get_child(child,list)
+    end
+    return list;
 end
+
+---comment 遍历直接点，并获取组件
+---@param node any
+---@param list any
+---@return any
+function helper.filter_child(node,list)
+    if list == nil then
+        list = {}
+    end
+
+    local childCount = node.transfrom.childCount
+    for i=  0,childCount -1 do
+        local child = node.transfrom:GetChild(i).gameObject
+        local namelist = string.split(child.name,"#")
+        if #namelist > 1 then
+            local add = {}
+            add.go = child
+            for index = 2,#namelist do
+                local add_str = namelist[index];
+                if component_map[add_str] ~= nil then
+                    local component = child.GetComponent(component_map[add_str])
+                    add[component_map[add_str]] = component
+                end
+            end
+            list[namelist[1]] = add
+        end
+        helper.filter_child(child,list)
+    end
+    return list;
+end
+
 
 return helper

@@ -1,0 +1,123 @@
+
+
+
+
+
+
+local component_map = 
+{
+img = "Image",
+rt = "RectTransform",
+atr = "Animator",
+t = "Text",
+scr = "ScrollView",
+iscr = "InfiniteScroll",
+btn = "Button",
+}
+
+local helper = {}
+
+
+function helper.is_nil(obj)
+return obj == nil or obj:Equals(nil)
+end
+
+
+function helper.value_2_size_str(value)
+local array = {"B", "KB", "MB", "GB", "TB"}
+
+local uVal = 1
+
+
+for i = #array, 1, -1 do
+
+uVal = 1024 ^ (i - 1)
+
+
+if value >= uVal then
+return string.format("%.2f", value / uVal) .. array[i]
+end
+end
+
+return value .. array[1]
+end
+
+
+
+
+
+
+function helper.refresh_ui(rectTrans, isGetComp)
+local comp = rectTrans
+
+
+if isGetComp then
+comp = rectTrans:GetComponent("RectTransform")
+end
+
+gUnity.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(comp)
+end
+
+
+
+
+
+function helper.pair_child_node(node, callback, isForwardPair)
+if isForwardPair == nil then
+isForwardPair = true
+end
+
+local startIdx = 0
+local endIdx = node.childCount - 1
+local dir = 1
+
+
+if not isForwardPair then
+startIdx = endIdx
+endIdx = 0
+dir = -1
+end
+
+
+for i = startIdx, endIdx, dir do
+local t = i + 1
+callback(node:GetChild(i), t)
+end
+end
+
+function helper.filter_child(node,list)
+if list == nil then
+list = {}
+end
+
+local childCount = node.transfrom.childCount
+for i=  0,childCount -1 do
+local child = node.transfrom:GetChild(i).gameObject
+local namelist = string.split(child.name,"#")
+if #namelist > 1 then
+local add = {}
+add.go = child
+for index = 2,#namelist do
+local add_str = namelist[index];
+if component_map[add_str] ~= nil then
+local component = child.GetComponent(component_map[add_str])
+add[component_map[add_str]] = component
+end
+end
+list[#list + 1] = add
+end
+helper.filter_child(child,list)
+end
+return list;
+end
+
+
+
+
+function helper.destroy_children(node, isRecycle)
+helper.pair_child_node(node, function (cell)
+helper.destroy_node(cell, isRecycle)
+end, false)
+end
+
+return helper

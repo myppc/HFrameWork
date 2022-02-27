@@ -4,32 +4,35 @@
 --- DateTime: 2021/9/10 12:08
 ---
 
-local sceneCfg = {
+local scene1 = require("scene1")
+local scene2 = require("scene2")
+
+
+local scene_key = {
     --- 场景枚举
-    eScene = {
-        main = "Main",
-        world = "World",
-    },
+    BASE_SCENE = "BASE_SCENE",
+    SCENE1 = "SCENE1",
+    SCENE2 = "SCENE2",
+
+
 }
 
 --- 配置
-sceneCfg.cfg = {
-    [sceneCfg.eScene.main] = {
-        module = "MainCity",
-        name = "MainScene",
-        isClearOthers = true,      -- 是否清除其他的场景(即清除栈)
-        getIns = function()
-            return require("modules/scenes/main_scene"):new()
-        end,
+local scene_config = {
+    [scene_key.SCENE1] = {
+        module = "mode1", --模块名
+        name = "Scene1", --场景名
+        scene_class = scene1, --场景对象
+        isloading = true, --是否使用loading 场景
+        allow_pop = false, -- 是否允许pop该场景
     },
-    [sceneCfg.eScene.world] = {
-        module = "World",
-        name = "WorldScene",
-        isClearOthers = true,      -- 是否清除其他的场景(即清除栈)
-        getIns = function()
-            return require("modules/scenes/world_scene"):new()
-        end,
+    [scene_key.SCENE2] = {
+        module = "mode1",
+        name = "Scene2",
+        scene_class = scene2,
+        isloading = true,
+        allow_pop = true,
     },
 }
 
-return sceneCfg
+return scene_config,scene_key

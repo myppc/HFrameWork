@@ -25,11 +25,14 @@ function mainEntrance.set_global()
     gJson = require("system/json") -- +
 
     gClass = require("system/class_helper") -- + 
-    --gMgrs = require('system/mgrs') --
+    gMgrs = require('system/mgrs') --
     --gData = require("system/data_center") --
     --gCfg = require("mgrs/cfg/cfg_mgr") --
     gColor = require("system/color") -- +
     gUtf8 = require("system/extension/utf8")
+    gEnum = require("system/system_enum")
+    gUICfg,gUIKey = require("mgrs/ui_new/ui_config")
+    gSceneCfg,gSceneKey = require("mgrs/scene/scene_config")
 end
 
 --- 设置扩展
@@ -54,7 +57,7 @@ end
 --- 开始游戏
 function mainEntrance.start_game()
     -- 初始化网络管理器
-    gMgrs.net.init()
+    --gMgrs.net.init()
 
     -- 初始化unity更新管理器
     gMgrs.unityUpdate.init()
@@ -63,23 +66,23 @@ function mainEntrance.start_game()
     gMgrs.timer.init()
 
     -- 初始化更新管理器
-    gMgrs.update.init()
+    --gMgrs.update.init()
 
     -- 初始化资源管理器
-    gMgrs.res.init()
+    --gMgrs.res.init()
 
     -- 初始化协议
-    local protocol = require("modules/protocol/protocol")
-    protocol.init()
+    --local protocol = require("modules/protocol/protocol")
+    --protocol.init()
 
     -- 初始化数据管理器
-    gData.init()
+    --gData.init()
 
     -- 初始化ui管理器
-    gMgrs.ui.init()
+    --gMgrs.ui.init()
 
     -- 初始化配置表
-    gCfg.init()
+    --gCfg.init()
 
     -- 进入热更新流程
     mainEntrance.start_update()
@@ -119,68 +122,35 @@ function mainEntrance.run()
 
     -- 屏蔽全局
     mainEntrance.lock_global()
-
-    local pool_type = 
-    {
-        TEMP = 0,--该场景零时对象池，退出场景时销毁
-        STATIC = 1,--静态池，永久不销毁
-        DYNAMIC = 2,--动态池，动态添加，永久不销毁
-        SCENE = 3,--该场景对象池，每次在推出场景时销毁，在载入时自动加载
-        
-    }
     
-    CS.LuaCallCSharpHelper.RegisterCacheInfo("mode1","box.prefab",pool_type.SCENE,5,"Test1");
-    CS.LuaCallCSharpHelper.RegisterCacheInfo("mode1","box.prefab",pool_type.SCENE,10,"Test2");
-
-    CS.LuaCallCSharpHelper.LoadCacheByScene("Test2");
-
-
-
-
-    -- local list = {}
-    -- for i = 1,8,1 do
-    --     local go = CS.LuaCallCSharpHelper.Load(0,"mode1","box.prefab")
-    --     list[#list + 1] = go
-    -- end
-
-    -- for i = 1,6 do
-    --     CS.LuaCallCSharpHelper.UnityDestroy(list[#list])
-    --     list[#list] = nil
-    -- end
-
-
-    
-    
-    ---------------------------------
-    --暂时关闭
     -- 开始游戏
-    --mainEntrance.start_game()
+    mainEntrance.start_game()
 end
 
 --- 注销回调
 ---@param callback: 回调
 function mainEntrance.on_destroy()
-    -- 关闭tcp
-    local tcpMgr = require("mgrs/net/tcp/tcp_mgr")
-    tcpMgr.clear()
+    -- -- 关闭tcp
+    -- local tcpMgr = require("mgrs/net/tcp/tcp_mgr")
+    -- tcpMgr.clear()
 
-    -- 清空所有消息
-    gMgrs.msg.clear_all()
+    -- -- 清空所有消息
+    -- gMgrs.msg.clear_all()
 end
 
 --- 执行注销
 function mainEntrance.destroy()
-    -- 销毁回调
-    mainEntrance.on_destroy()
+    -- -- 销毁回调
+    -- mainEntrance.on_destroy()
 
-    -- 销毁所有UI
-    gMgrs.ui.clear_all()
+    -- -- 销毁所有UI
+    -- gMgrs.ui.clear_all()
 
-    -- 关闭场景
-    gMgrs.scene.unload_scene(function ()
-        -- 重新加载游戏
-        gCSharp.ReloadEntrance()
-    end)
+    -- -- 关闭场景
+    -- gMgrs.scene.unload_scene(function ()
+    --     -- 重新加载游戏
+    --     gCSharp.ReloadEntrance()
+    -- end)
 end
 
 return mainEntrance

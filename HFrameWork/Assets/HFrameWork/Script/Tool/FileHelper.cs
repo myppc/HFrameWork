@@ -65,8 +65,6 @@ namespace Assets.HFrameWork.Script.Tool
             //fullPath, uPath, fileName
 
             var info = new DirectoryInfo(path);
-            DirectoryInfo dirInfo;
-
             var files = info.GetFiles("*", SearchOption.AllDirectories);
             foreach (var file in files) ///模块列表
             {
@@ -375,6 +373,50 @@ namespace Assets.HFrameWork.Script.Tool
             }
 
             return content;
+        }
+
+        /// <summary>
+        /// 保存文件
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="content"></param>
+        public static bool SaveFile(string filePath, string content)
+        {
+            // 确保有目录
+            string dir = Path.GetDirectoryName(filePath);
+            MakeSureHasDir(dir);
+
+            // 是否没有该文件
+            if (!File.Exists(filePath))
+            {
+                try
+                {
+                    // 创建文件
+                    var fs = File.Create(filePath);
+                    fs.Dispose();
+                    fs.Close();
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"[C#][UpdateMgr][SaveFile][Error to save '{filePath}': {e.Message}]");
+
+                    return false;
+                }
+            }
+
+            try
+            {
+                // 写入内容
+                File.WriteAllText(filePath, content);
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[C#][UpdateMgr][SaveVersionFile][Error: {e.Message}]");
+
+                return false;
+            }
         }
     }
 }

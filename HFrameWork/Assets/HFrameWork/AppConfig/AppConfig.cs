@@ -55,7 +55,7 @@ public static class AppConfig
     /// <summary>
     /// 运行模式
     /// </summary>
-    public static ERunMode runMode = ERunMode.Local;
+    public static ERunMode runMode = ERunMode.Editor;
 
     /// <summary>
     /// 加载AB包方式

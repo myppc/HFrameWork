@@ -1,0 +1,40 @@
+
+
+
+
+
+
+local reg_mgr = {}
+
+
+function res_mgr:get_manifest()
+return gCSharp.GetManifest()
+end
+
+
+function res_mgr:get_version_str()
+return gCSharp.GetVersionStr();
+end
+
+
+function res_mgr:load(eres,module,asset_name)
+return gCSharp.Load(eres,module,asset_name)
+end
+
+
+function res_mgr:load_async(eres,module,asset_name,callback)
+return gCSharp.LoadAsync(eres,module,asset_name,callback)
+end
+
+
+function res_mgr:load_manifest()
+gCSharp.LoadManifest()
+end
+
+
+function res_mgr:clear_pre_go_cache()
+gCSharp.ClearPreGoCache()
+end
+
+
+return res_mgr

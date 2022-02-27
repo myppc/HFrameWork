@@ -5,7 +5,7 @@ namespace HFrameWork
 {
     public class ObjectCacheInfo : MonoBehaviour
     {
-        public string name;
+        public string assetName;
         public string path;
         public string key;
     }

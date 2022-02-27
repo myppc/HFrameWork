@@ -1,0 +1,77 @@
+local base_ui = gClass.declare("base_ui")
+
+
+function base_ui:Ctor()
+self.param = {} 
+self.go = nil; 
+self.child = {}
+end
+
+
+function base_ui:get_resource_config()
+return {
+mode = "",
+asset = "",
+ui_key = gUIKey.base_ui,
+}
+end
+
+function base_ui:_set_param(params)
+self.param = params;
+end
+
+
+function base_ui:_init()
+local ui_info = self:get_resource_config()
+gMgrs.res:load_async(gEnum.ERes.GameObject,ui_info.mode,ui_info.asset_name,function(go)
+self:_loaded(go)
+end)
+end
+
+
+function base_ui:_loaded(go)
+self.go = go
+go:SetActive(false)
+self.child = gHelper.filter_child(go)
+self:on_loaded()
+self:on_register_event()
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function base_ui:on_loaded()
+end
+
+function base_ui:on_register_event()
+end
+
+function base_ui:on_update()
+end
+
+function base_ui:on_show()
+end
+
+function base_ui:release_register_event()
+end
+
+function base_ui:on_hide()
+end
+
+function base_ui:on_destroy()
+end
+

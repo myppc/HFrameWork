@@ -12,24 +12,11 @@ using UnityEngine.SceneManagement;
 
 namespace HFrameWork.Script.SceneMgr
 {
-    public struct SceneInfo
-    {
-        public string sceneName;
-        public List<object> args;
-    }
-
     public class SceneMgr:SingletonClass<SceneMgr>
     {
-        // 场景信息列表
-        private Dictionary <string, SceneInfo> sceneInfoDict;
-        private List<string> sortList;
+        private static string LoadingName = "LOADING_SCENE";
 
-
-        public SceneMgr()
-        {
-            sortList = new List<string>();
-            sceneInfoDict = new Dictionary<string, SceneInfo>();
-        }
+        private string curSceneName = null;
 
         /// <summary>
         /// 加载场景
@@ -40,16 +27,14 @@ namespace HFrameWork.Script.SceneMgr
         /// <returns></returns>
         private async UniTask LoadScene(string sceneName, Action finish = null, Action<float> progressCallback = null)
         {
-
-            var succ = sceneInfoDict.TryGetValue(sceneName, out SceneInfo sceneInfo);
-            AsyncOperation ao = SceneManager.LoadSceneAsync(sceneInfo.sceneName, LoadSceneMode.Additive);
+            AsyncOperation ao = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
             while (!ao.isDone)
             {
                 progressCallback?.Invoke(ao.progress);
                 await UniTask.WaitForEndOfFrame();
             }
 
-            SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneInfo.sceneName));
+            SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneName));
             progressCallback?.Invoke(ao.progress);
             finish?.Invoke();
         }
@@ -65,7 +50,7 @@ namespace HFrameWork.Script.SceneMgr
         {
             // 卸载
             AsyncOperation ao = SceneManager.UnloadSceneAsync(name);
-
+            
             while (!ao.isDone)
             {
                 // 回调
@@ -80,23 +65,23 @@ namespace HFrameWork.Script.SceneMgr
         }
 
         #region 公共方法
-        public void OpenScene(string sceneName, List<object> args = null,Action finish = null, Action<float> progressCallback = null)
-        {
 
-            var index = sortList.FindIndex((item)=> {
-                return item == sceneName;
-            });
-            //当前场景没有存在栈里
-            if (index != -1)
+        /// <summary>
+        /// 打开场景
+        /// </summary>
+        /// <param name="sceneName"></param>
+        /// <param name="finish"></param>
+        /// <param name="progressCallback"></param>
+        public void OpenScene(string sceneName,Action finish = null, Action<float> progressCallback = null)
+        {
+            //如果是切换到Loadscene，就先不清理资源
+            if (sceneName != LoadingName)
             {
-                var curSceneName = sortList.Last();
-                //如果需要打开的场景和当前场景一样
-                if (index == sortList.Count - 1)
+                //如果需要打开的场景和当前场景一样，就只清理池子中的临时缓存
+                if (curSceneName == sceneName)
                 {
                     //只清理临时缓存
                     GoPoolManager.Ins.ClearSceneCache(curSceneName, true);
-                    sceneInfoDict.TryGetValue(sceneName, out SceneInfo sceneInfo);
-                    sceneInfo.args = args;
                 }
                 else
                 {
@@ -106,35 +91,15 @@ namespace HFrameWork.Script.SceneMgr
                     GoPoolManager.Ins.ClearSceneCache(curSceneName);
                     //清理当前没有用到的AB包
                     AssetsBundleMgr.Ins.UnLoadAllABCache();
-                    for (var i = sortList.Count - 1; i >= index; i--)
-                    {
-                        var name = sortList[i];
-                        sortList.RemoveAt(i);
-                        sceneInfoDict.Remove(name);
-                    }
-                    //将场景信息压入栈
-                    sortList.Add(sceneName);
-                    SceneInfo info;
-                    info.sceneName = sceneName;
-                    info.args = args;
-                    sceneInfoDict.Add(sceneName, info);
-                    //加载场景缓存
-                    GoPoolManager.Ins.LoadCacheByScene(sceneName);
-
                 }
-                UnloadScene(curSceneName);
             }
-            else 
+            UnloadScene(curSceneName);
+            if (sceneName != LoadingName)
             {
-                //栈内没有相关信息
-                sortList.Add(sceneName);
-                SceneInfo info;
-                info.sceneName = sceneName;
-                info.args = args;
-                sceneInfoDict.Add(sceneName, info);
-                //加载场景缓存
-                GoPoolManager.Ins.LoadCacheByScene(sceneName);
+                curSceneName = sceneName;
             }
+            //加载场景缓存
+            GoPoolManager.Ins.LoadCacheByScene(sceneName);
             LoadScene(sceneName, finish, progressCallback);
         }
 

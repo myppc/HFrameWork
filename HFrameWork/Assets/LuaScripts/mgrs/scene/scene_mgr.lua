@@ -3,276 +3,177 @@
 --- Created by LeeroyLin.
 --- DateTime: 2021/9/10 12:07
 ---
+local loading_scene = require("loading_scene")
 
-local sceneCfg = require("mgrs/scene/scene_cfg")
+local LOADING_SCENE = "LOADING_SCENE";
 
-local sceneMgr = {
-    eScene = sceneCfg.eScene,-- 场景枚举
-    baseScene = require("mgrs/scene/base_scene"),
-    listScene = {},         -- 存放场景信息 {eScene,ins}
-    currScene = nil,        -- 当前激活的场景 加载中会返回nil
-    isExecuting = false,    -- 是否正在执行操作
-    progress = 0,           -- 当前进度
-    callback = nil,         -- 操作完毕回调
-    progressCallback = nil, -- 进度回调
-}
+local scene_mgr = {}
+-- function scene_mgr:open_scene(sceneName,args,finish, progressCallback )
+--     gCSharp.OpenScene(sceneName,args,finish, progressCallback)
+-- end
 
-local exCfg = {
-    unloadSceneRate = 0.2,  -- 卸载场景占总进度比
-    loadABRate = 0.2,       -- 加载ab占总进度比
-    loadSceneRate = 0.6,    -- 加载场景占总进度比
-}
-
---- ==================== 私有方法 ====================
-
---- 发送消息
----@param progress: 进度
-local function send_msg(progress)
-    -- 发送消息
-    gMgrs.msg.send(gMgrs.msg.eMsg.sceneLoading, "progress", progress)
+function scene_mgr:init()
+    self.scene_stack = {}
 end
 
---- 设置进度值
----@param progress: 进度值
-local function set_progress(progress)
-    -- 设置进度值
-    sceneMgr.progress = progress
 
-    -- 发送消息
-    send_msg(sceneMgr.progress)
+--#region 公有方法
 
-    -- 进度回调
-    if sceneMgr.progressCallback then
-        sceneMgr.progressCallback(sceneMgr.progress)
-    end
-end
-
---- 场景加载完毕回调
----@param eScene: 场景枚举
----@param cfg: 场景配置
-local function on_scene_loaded(eScene, cfg)
-    -- 获得信息
-    local data = sceneMgr.listScene[#sceneMgr.listScene]
-
-    -- 标记
-    data.ins.isSceneLoading = false
-    sceneMgr.isExecuting = false
-
-    -- 设置当前场景
-    sceneMgr.currScene = eScene
-
-    -- 回调
-    if sceneMgr.callback then
-        sceneMgr.callback()
-    end
-
-    -- 实例回调
-    data.ins:OnLoaded()
-
-    -- 关闭遮罩
-    gMgrs.cover.hide_cover(gMgrs.cover.eCover.sceneLoading)
-end
-
---- ab加载完毕后回调
----@param eScene: 场景枚举
-local function on_ab_loaded(eScene)
-    -- 设置进度
-    set_progress(exCfg.loadABRate)
-
-    -- 获得场景配置
-    local cfg = sceneCfg.cfg[eScene]
-
-    -- 加载场景
-    gCSharp.LoadScene(cfg.name,
-            function ()
-                on_scene_loaded(eScene, cfg)
-            end,
-            function(p)
-                -- 设置进度
-                set_progress(exCfg.unloadSceneRate + exCfg.loadABRate + p * exCfg.loadSceneRate)
-            end)
-end
-
---- 执行加载场景
----@param eScene: 场景枚举
----@param args: 参数
-local function do_load_scene(eScene, args)
-    -- 标记
-    sceneMgr.isExecuting = true
-
-    -- 获得配置
-    local cfg = sceneCfg.cfg[eScene]
-
-    -- 创建实例
-    local ins = cfg.getIns()
-    ins.sceneKey = eScene
-    ins.sceneArgs = args or {}
-    ins.isSceneLoading = true
-    ins.isSceneUnloading = false
-    ins:OnInit()
-
-    -- 记录实例
-    table.insert(sceneMgr.listScene, {
-        eScene = eScene,
-        ins = ins,
-    })
-
-    -- 加载ab
-    gMgrs.res.load_asset_async(cfg.module, cfg.name..".unity",
-            function ()
-                on_ab_loaded(eScene)
-            end,
-            gMgrs.res.eRes.scene,
-            function (p)
-                -- 设置进度
-                set_progress(exCfg.unloadSceneRate + p * exCfg.loadABRate)
-            end)
-end
-
---- 当场景卸载完毕
----@param eScene: 场景枚举
----@param args: 参数 默认传递空表
-local function on_scene_unloaded(eScene, args)
-    -- 设置进度
-    set_progress(exCfg.unloadSceneRate)
-
-    -- 是否清除其他的场景
-    if sceneCfg.cfg[eScene].isClearOthers then
-        -- 清空栈
-        sceneMgr.listScene = {}
-    end
-
-    -- 加载场景
-    do_load_scene(eScene, args)
-end
-
---- 执行卸载场景
----@param callback: 完毕回调
----@param progressCallback: 进度回调
-local function do_unload_scene(callback, progressCallback)
-    -- 获得实例
-    local ins = sceneMgr.listScene[#sceneMgr.listScene].ins
-
-    -- 标记
-    sceneMgr.isExecuting = true
-    ins.isSceneUnloading = true
-
-    -- 回调
-    ins:OnClose()
-
-    -- 获得场景名
-    local sceneName = sceneCfg.cfg[sceneMgr.currScene].name
-
-    -- 卸载
-    gCSharp.UnloadScene(sceneName,
-            function ()
-                -- 标记
-                sceneMgr.isExecuting = false
-
-                -- 移除数据
-                table.remove(sceneMgr.listScene, #sceneMgr.listScene)
-
-                if callback then
-                    callback()
-                end
-            end,
-            function(progress)
-                if progressCallback then
-                    progressCallback(progress)
-                end
-            end)
-
-    -- 设置当前场景为空
-    sceneMgr.currScene = nil
-end
-
---- ==================== 公共方法 ====================
-
---- 加载场景
----@param eScene: 场景枚举
----@param args: 参数 默认传递空表
----@param callback: 完成回调(*) 可空
----@param progressCallback: 进度回调(*) 可空
-function sceneMgr.load_scene(eScene, args, callback, progressCallback)
-    if string.is_nil(eScene) then
-        gError(string.format("[scene_mgr] 尝试加载一个错误的场景: '%s'", eScene))
-        return
-    end
-
-    -- 是否正在执行操作中
-    if sceneMgr.isExecuting then
-        gError(string.format("[scene_mgr] 不能在执行其他操作时再次加载: '%s'", eScene))
-        return
-    end
-    
-    -- 是否当前已经在该场景
-    if sceneMgr.currScene == eScene then
-        return
-    end
-
-    -- 记录回调
-    sceneMgr.callback = callback
-    sceneMgr.progressCallback = progressCallback
-
-    -- 清空部分UI
-    gMgrs.ui.auto_clear()
-
-    -- 显示遮罩
-    gMgrs.cover.show_cover(gMgrs.cover.eCover.sceneLoading)
-
-    -- 设置进度
-    set_progress(0)
-    
-    -- 当前有场景
-    if sceneMgr.currScene then
-        -- 卸载场景
-        do_unload_scene(
-                function ()
-                    on_scene_unloaded(eScene, args)
-                end,
-                function (progress)
-                    -- 设置进度
-                    set_progress(progress * exCfg.unloadSceneRate)
-                end)
+---comment 打开场景，默认loadingscene
+function scene_mgr:open_scene(scene_key,param,on_finish,progressCallback)
+    local isloading = gSceneCfg[scene_key].isloading or true
+    if isloading then
+        ---进入loading 场景
+        gCSharp.OpenScene(LOADING_SCENE,function()
+            self:_loading_to_new_scene(scene_key,param,on_finish,progressCallback)
+        end)
     else
-        -- 直接回调
-        on_scene_unloaded(eScene, args)
+       self:_just_load_new_scene(scene_key,param,on_finish,progressCallback)
     end
 end
 
---- 卸载当前场景
----@param callback: 完毕回调(*) 可空
----@param progressCallback: 进度回调(*) 可空
-function sceneMgr.unload_scene(callback, progressCallback)
-    -- 当前正在加载中
-    if sceneMgr.isExecuting then
-        gError("[scene_mgr] 不能在执行其他操作时卸载场景.")
+---comment 弹出顶层的场景
+function scene_mgr:pop_scene()
+    if #self.scene_stack <= 1 then
+        return;
+    end
+    local last_scene_info = self.scene_stack[#self.scene_stack - 1]
+    if last_scene_info then
+        self:open_scene(last_scene_info.scene_key,last_scene_info.param)
+    end
+end
+
+---comment 重新加载当前场景
+function scene_mgr:reload_cur_scene()
+    if #self.scene_stack <= 0 then
+        return;
+    end
+    local last_scene_info = self:_get_last_scene()
+    if last_scene_info then
+        self:open_scene(last_scene_info.scene_key,last_scene_info.param)
+    end
+end
+
+--#endregion
+
+--#region 私有方法
+
+---comment 找当前的栈信息，将其剔除掉
+---@param scene_key string key
+---@return any
+---@return any
+function scene_mgr:_find_stack(scene_key)
+    local stack_scene_info = nil
+    local scene_index = nil
+    for index = #self.scene_stack,1,-1 do
+        local scene_info = self.scene_stack[index]
+        if scene_info.scene_key ==scene_key then
+            stack_scene_info = scene_info
+            scene_index = index;
+            break
+        end
+    end
+    return stack_scene_info,scene_index
+end
+
+---comment 如果该场景在栈中，则弹出栈
+---@param scene_key any
+function scene_mgr:_pop_stack(scene_key)
+    local scene_info ,scene_index = self:_find_stack()
+    if scene_index == nil then
         return
     end
-
-    -- 是否当前没有场景了
-    if #sceneMgr.listScene == 0 then
-        gError("[scene_mgr] 当前没有场景可卸载.")
-        return
+    for index = #self.scene_stack,scene_index,-1 do
+        self.scene_stack[#self.scene_stack] = nil
     end
+end    
 
-    -- 清空部分UI
-    gMgrs.ui.auto_clear()
-
-    -- 执行卸载场景
-    do_unload_scene(callback, progressCallback)
+---comment 向栈内压入参数和key
+---@param scene_key any
+---@param param any
+function scene_mgr:_push_stack(scene_key,param,new_scene)
+    self.scene_stack[#self.scene_stack+1] = {scene_key = scene_key,param = param,scene = new_scene}
 end
 
---- 获得当前激活的场景 加载/卸载中会返回nil
-function sceneMgr.get_curr_scene()
-    return sceneMgr.currScene
+---comment 获取当前scene
+function scene_mgr:_get_last_scene()
+    return self.scene_stack[#self.scene_stack]
 end
 
---- 检测当前是否传递的场景
----@param eScene: 场景枚举
-function sceneMgr.check_scene(eScene)
-    local curr = sceneMgr.get_curr_scene()
-    return curr == eScene
+---comment 在进入loading后，准备进入用户指定的场景
+function scene_mgr:_loading_to_new_scene(scene_key,param,on_finish,progressCallback)
+    ---生成loading scene
+    local loading = loading_scene:new()
+    loading:on_loaded()
+
+    ---加载新的场景
+    local scene_info = gSceneCfg[scene_key]
+    local scene_class = scene_info.scene_class
+    local scene_name = scene_info.name
+    gCSharp.OpenScene(scene_name,
+    ---comment 新场景加载完成回调
+    function()
+        if on_finish then
+            on_finish()
+        end
+
+        local old_scene = self:_get_last_scene()
+        --由base scene来释放相关资源
+        old_scene:_close()
+        --由使用者使用的 关闭回调
+        old_scene:on_close()
+
+        self:_pop_stack(scene_key)
+        local new_scene = scene_class:new()
+        self:_push_stack(scene_key,param,new_scene)
+        new_scene:_init(scene_key,table.deepcopy(param) )
+        new_scene:on_loaded()
+    end
+    ---comment 更新进度函数
+    ,function(value)
+        loading:update_prog_value(value)
+        if progressCallback then
+            progressCallback(value)
+        end
+    end)
 end
 
-return sceneMgr
+---comment 直接进入新场景，不使用loading
+---@param scene_key any
+---@param param any
+---@param on_finish any
+---@param progressCallback any
+function scene_mgr:_just_load_new_scene(scene_key,param,on_finish,progressCallback)
+    local scene_info = gSceneCfg[scene_key]
+    local scene_class = scene_info.scene_class
+    local scene_name = scene_info.name
+    gCSharp.OpenScene(scene_name,
+    ---comment 新场景加载完成回调
+    function()
+        if on_finish then
+            on_finish()
+        end
+
+        local old_scene = self:_get_last_scene()
+        --由base scene来释放相关资源
+        old_scene:_close()
+        --由使用者使用的 关闭回调
+        old_scene:on_close()
+
+        self:_pop_stack(scene_key)
+        local new_scene = scene_class:new()
+        self:_push_stack(scene_key,param,new_scene)
+        new_scene:_init(scene_key,table.deepcopy(param) )
+        new_scene:on_loaded()
+    end
+    ---comment 更新进度函数
+    ,function(value)
+        if progressCallback then
+            progressCallback(value)
+        end
+    end)
+end
+
+--#endregion
+
+return scene_mgr

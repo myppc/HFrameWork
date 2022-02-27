@@ -1,0 +1,21 @@
+local ui_mgr = {}
+
+function ui_mgr:init()
+self.ui_stack = {}
+
+end
+
+function ui_mgr:open_ui(ui_key)
+end
+
+function ui_mgr:close_ui(ui_key)
+
+end
+
+function ui_mgr:on_ui_loaded(ui_key,go)
+if gUICfg[ui_key].background then
+
+end
+end
+
+return ui_mgr

@@ -141,7 +141,7 @@ namespace HFrameWork.Script.Pool
                 GameObject.Destroy(go);
                 return;
             }
-            var key = string.Format("{0}/{1}", info.path, info.name);
+            var key = string.Format("{0}/{1}", info.path, info.assetName);
             if (!GoDict.ContainsKey(key))
             {
                 GoDict.Add(key,new List<GameObject>());
@@ -235,6 +235,7 @@ namespace HFrameWork.Script.Pool
                     for (var i = 0; i < count; i++)
                     {
                         ResMgr.Ins.LoadAsync(ERes.GameObject, cacheInfo.path, cacheInfo.assetName,(go)=> {
+                            AddTag(go as GameObject, cacheInfo.path, cacheInfo.assetName);
                             RecoveryGo(go as GameObject);
                         },true);
                     }
@@ -256,7 +257,7 @@ namespace HFrameWork.Script.Pool
             {
                 var objCacheInfo = go.AddComponent<ObjectCacheInfo>();
                 objCacheInfo.key = key;
-                objCacheInfo.name = name;
+                objCacheInfo.assetName = name;
                 objCacheInfo.path = path;
             }
         }
@@ -278,7 +279,7 @@ namespace HFrameWork.Script.Pool
                 var go = goList[0];
                 var cacheInfo = go.GetComponent<ObjectCacheInfo>();
                 //cacheInfo.path
-                var maniestAsset = ToolFunc.GetManifestAsset(cacheInfo.path, cacheInfo.name);
+                var maniestAsset = ToolFunc.GetManifestAsset(cacheInfo.path, cacheInfo.assetName);
                 if (!abDict.ContainsKey(maniestAsset.abName))
                 {
                     abDict.Add(maniestAsset.abName, true);

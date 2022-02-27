@@ -1,0 +1,19 @@
+
+
+
+
+
+
+local scene_mgr = {}
+
+
+
+
+
+function scene_mgr:init()
+self.scene_stack = {}
+end
+
+function scene_mgr:open_scene(scene_name,)
+
+return sceneMgr

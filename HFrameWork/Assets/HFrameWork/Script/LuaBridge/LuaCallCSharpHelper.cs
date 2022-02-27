@@ -74,6 +74,11 @@ public class LuaCallCSharpHelper
         ResMgr.Ins.LoadManifest();
     }
 
+    public static void ClearPreGoCache()
+    {
+        ResMgr.Ins.ClearPreGoCache();
+    }
+
     #endregion
 
     #region AB资源包
@@ -119,9 +124,9 @@ public class LuaCallCSharpHelper
     /// <param name="callback"></param>
     /// <param name="progressCallback"></param>
     /// <returns></returns>
-    public static void OpenScene(string sceneName, List<object> args = null, Action finish = null, Action<float> progressCallback = null)
+    public static void OpenScene(string sceneName, Action finish = null, Action<float> progressCallback = null)
     {
-        SceneMgr.Ins.OpenScene(sceneName, args, finish, progressCallback);
+        SceneMgr.Ins.OpenScene(sceneName, finish, progressCallback);
     }
     #endregion
 
@@ -222,7 +227,7 @@ public class LuaCallCSharpHelper
         GoPoolManager.Ins.Init();
     }
 
-    public static void  RegisterCacheInfo(string path, string name,int poolType = 0, int cacheCount = 3, string sceneName = "DEFAULT")
+    public static void  RegisterCacheInfo(string path, string name,int poolType = 0, int cacheCount = 10, string sceneName = "DEFAULT")
     {
         GoPoolManager.Ins.RegisterCacheInfo(path,name, (PoolType)poolType, cacheCount, sceneName);
 
