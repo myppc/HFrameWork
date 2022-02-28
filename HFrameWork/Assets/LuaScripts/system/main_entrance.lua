@@ -55,15 +55,15 @@ function mainEntrance.lock_global()
 end
 
 --- 开始游戏
-function mainEntrance.start_game()
+--function mainEntrance.start_game()
     -- 初始化网络管理器
     --gMgrs.net.init()
 
     -- 初始化unity更新管理器
-    gMgrs.unityUpdate.init()
+    --gMgrs.unityUpdate.init()
 
     -- 初始化计时器管理器
-    gMgrs.timer.init()
+    --gMgrs.timer.init()
 
     -- 初始化更新管理器
     --gMgrs.update.init()
@@ -79,13 +79,13 @@ function mainEntrance.start_game()
     --gData.init()
 
     -- 初始化ui管理器
-    --gMgrs.ui.init()
+    --gMgrs.ui:init()
 
     -- 初始化配置表
     --gCfg.init()
 
     -- 进入热更新流程
-    mainEntrance.start_update()
+    --mainEntrance.start_update()
 
     -- 1. 拉取基础资源 基场景, uiCanvas预制体，更新界面预制体，lua系统级和管理层代码
     -- 2. 打开基场景
@@ -104,13 +104,7 @@ function mainEntrance.start_game()
     -- 5. 热更新
     -- 6. 更新完毕且校验通过后存储版本文件
     -- 7. 进入登录界面
-end
-
---- 进入热更新
-function mainEntrance.start_update()
-    -- 打开更新界面
-    gMgrs.ui.show_ui(gMgrs.ui.eUI.update)
-end
+--end
 
 --- 入口方法
 function mainEntrance.run()
@@ -125,6 +119,17 @@ function mainEntrance.run()
     
     -- 开始游戏
     mainEntrance.start_game()
+end
+
+function mainEntrance.start_game()
+    gMgrs.scene:init()
+    gMgrs.ui:init()
+    
+    gMgrs.scene:open_scene(gSceneKey.SCENE1,{msg = "open scene1 "},function()
+        gLog("============ scene1 open")
+    end)
+
+    
 end
 
 --- 注销回调

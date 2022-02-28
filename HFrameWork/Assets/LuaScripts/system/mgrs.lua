@@ -13,7 +13,7 @@ mgrs.res = require('mgrs/res/res_mgr')
 --mgrs.cover = require('mgrs/cover/cover_mgr')
 mgrs.timer = require("mgrs/timer/timer_mgr") --#
 mgrs.msg = require("mgrs/msg/msg_mgr") --#
-mgrs.scene = require("mgrs/scene/scene_mgr") -- #
+mgrs.scene = require("mgrs/scene/scene_mgr") -- +
 mgrs.unityUpdate = require("mgrs/unity_update/unity_update_mgr") -- #
 mgrs.pool = require("mgrs/pool/pool_mgr") -- +
 

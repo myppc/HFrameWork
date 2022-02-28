@@ -28,7 +28,7 @@ local scene_config = {
         reload_ui = true,--是否从新加载UI
     },
     [scene_key.SCENE2] = {
-        module = "mode1",
+        module = "mode2",
         name = "Scene2",
         scene_class = scene2,
         isloading = true,
