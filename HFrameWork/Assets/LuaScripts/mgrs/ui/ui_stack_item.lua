@@ -11,38 +11,38 @@ function ui_stack_item:Ctor(scene_name)
     }
 end
 
+---comment 向栈内压入信息
+---@param ui_key any
+---@param info any
 function ui_stack_item:push_info(ui_key,info)
     local ui_type = gUICfg[ui_key]
     local stack = self.ui_stack[ui_type]
-    local remove_index = -1
+    stack[#stack+1] = info
+end
+
+---comment 关闭指定ui
+---@param ui_type any
+function ui_stack_item:pop_info(ui_key)
+    local ui_type = gUICfg[ui_key]
+    local stack = self.ui_stack[ui_type]
     for k,v in pairs(stack) do
         if v.ui_key == ui_key then
-            remove_index = k
+            table.remove(stack,k)
             break
         end
     end
-
-    for index = #stack,remove_index,-1 do
-        self:pop_by_ui_type(ui_type)
-    end
-
-    stack[#stack+1] = info
-    gMgrs.ui:_on_stack_top(info.ui_key)
-end
-
----comment 关闭指定ui层的顶层UI
----@param ui_type any
-function ui_stack_item:pop_by_ui_type(ui_type)
-    local stack = self.ui_stack[ui_type]
-    local top_info = stack[#stack]
-    gMgrs.ui:close_ui(top_info.ui_key)
-    stack[#stack] = nil
 end
 
 ---comment 返回一个从Top层到BG层的排列顺序
-function ui_stack_item:get_ui_sort()
+function ui_stack_item:get_ui_sort(start_type,end_type)
+    start_type = start_type or gEnum.EUIType.Bg
+    end_type = end_type or gEnum.EUIType.Bg
+    if end_type < start_type then
+        return {}
+    end
+
     local ret = {}
-    for layer = gEnum.EUIType.Top ,gEnum.EUIType.Bg,-1 do
+    for layer = end_type ,start_type,-1 do
         local stack = self.ui_stack[layer]
         for i = #stack,1,-1 do
             ret[#ret + 1] = stack[i].ui_key
@@ -63,6 +63,20 @@ function ui_stack_item:get_ui_info(ui_key)
         end
     end
     return nil
+end
+
+---comment 查找指定UI的位置
+---@param ui_key any
+---@return any
+function ui_stack_item:ui_is_open(ui_key)
+    local ui_type = gUICfg[ui_key].ui_type
+    local stack = self.ui_stack[ui_type]
+    for k,v in pairs(stack) do
+        if v.ui_key == ui_key then
+            return true
+        end
+    end
+    return false
 end
 
 return ui_stack_item

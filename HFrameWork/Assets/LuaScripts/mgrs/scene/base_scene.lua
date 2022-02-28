@@ -15,7 +15,7 @@ end
 function base_scene:_init(scene_key,param)
     self.scene_key = scene_key
     self.param = param
-    self.scene_root = gMgrs.res:load(gEnum.ERes.GameObject,"System","SceneRoot.prefab")
+
 end
 
 ---comment 由管理器调用，使用者不要复写

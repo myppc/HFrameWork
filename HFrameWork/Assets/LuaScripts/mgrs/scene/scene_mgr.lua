@@ -127,7 +127,16 @@ function scene_mgr:_loading_to_new_scene(scene_key,param,on_finish,progressCallb
         local new_scene = scene_class:new()
         self:_push_stack(scene_key,param,new_scene)
         new_scene:_init(scene_key,table.deepcopy(param) )
-        new_scene:on_loaded()
+
+        new_scene.scene_root = gMgrs.res:load(gEnum.ERes.GameObject,"System","SceneRoot.prefab")
+        gMgrs.ui:on_load_new_scene(scene_key,new_scene.scene_root)
+        if scene_info.reload_ui then
+            gMgrs.ui:reload_scene_ui(function()
+                new_scene:on_loaded()
+            end)
+        else
+            new_scene:on_loaded()
+        end
     end
     ---comment 更新进度函数
     ,function(value)
@@ -164,7 +173,15 @@ function scene_mgr:_just_load_new_scene(scene_key,param,on_finish,progressCallba
         local new_scene = scene_class:new()
         self:_push_stack(scene_key,param,new_scene)
         new_scene:_init(scene_key,table.deepcopy(param) )
-        new_scene:on_loaded()
+        new_scene.scene_root = gMgrs.res:load(gEnum.ERes.GameObject,"System","SceneRoot.prefab")
+        gMgrs.ui:on_load_new_scene(scene_key,new_scene.scene_root)
+        if scene_info.reload_ui then
+            gMgrs.ui:reload_scene_ui(function()
+                new_scene:on_loaded()
+            end)
+        else
+            new_scene:on_loaded()
+        end
     end
     ---comment 更新进度函数
     ,function(value)

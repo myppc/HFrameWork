@@ -25,6 +25,7 @@ local scene_config = {
         scene_class = scene1, --场景对象
         isloading = true, --是否使用loading 场景
         allow_pop = false, -- 是否允许pop该场景
+        reload_ui = true,--是否从新加载UI
     },
     [scene_key.SCENE2] = {
         module = "mode1",
@@ -32,6 +33,7 @@ local scene_config = {
         scene_class = scene2,
         isloading = true,
         allow_pop = true,
+        reload_ui = true,
     },
 }
 

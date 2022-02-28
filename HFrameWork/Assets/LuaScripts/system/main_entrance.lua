@@ -31,7 +31,7 @@ function mainEntrance.set_global()
     gColor = require("system/color") -- +
     gUtf8 = require("system/extension/utf8")
     gEnum = require("system/system_enum")
-    gUICfg,gUIKey = require("mgrs/ui_new/ui_config")
+    gUICfg,gUIKey = require("mgrs/ui/ui_config")
     gSceneCfg,gSceneKey = require("mgrs/scene/scene_config")
 end
 

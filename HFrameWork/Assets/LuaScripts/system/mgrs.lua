@@ -6,7 +6,7 @@
 
 local mgrs = {}
 
-mgrs.ui = require('mgrs/ui_new/ui_mgr')
+mgrs.ui = require('mgrs/ui/ui_mgr')
 mgrs.res = require('mgrs/res/res_mgr')
 --mgrs.update = require('mgrs/update/update_mgr')
 --mgrs.net = require('mgrs/net/net_mgr')
