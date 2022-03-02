@@ -11,16 +11,16 @@ function ui_stack_item:Ctor(scene_name)
     }
 end
 
----comment 向栈内压入信息
+--- 向栈内压入信息
 ---@param ui_key any
 ---@param info any
 function ui_stack_item:push_info(ui_key,info)
-    local ui_type = gUICfg[ui_key]
+    local ui_type = gUICfg[ui_key].ui_type
     local stack = self.ui_stack[ui_type]
     stack[#stack+1] = info
 end
 
----comment 关闭指定ui
+--- 关闭指定ui
 ---@param ui_type any
 function ui_stack_item:pop_info(ui_key)
     local ui_type = gUICfg[ui_key]
@@ -33,7 +33,7 @@ function ui_stack_item:pop_info(ui_key)
     end
 end
 
----comment 返回一个从Top层到BG层的排列顺序
+--- 返回一个从Top层到BG层的排列顺序
 function ui_stack_item:get_ui_sort(start_type,end_type)
     start_type = start_type or gEnum.EUIType.Bg
     end_type = end_type or gEnum.EUIType.Bg
@@ -51,7 +51,7 @@ function ui_stack_item:get_ui_sort(start_type,end_type)
     return ret
 end
 
----comment 获取指定ui的信息
+--- 获取指定ui的信息
 ---@param ui_key any
 ---@return any
 function ui_stack_item:get_ui_info(ui_key)
@@ -65,7 +65,7 @@ function ui_stack_item:get_ui_info(ui_key)
     return nil
 end
 
----comment 查找指定UI的位置
+--- 查找指定UI的位置
 ---@param ui_key any
 ---@return any
 function ui_stack_item:ui_is_open(ui_key)

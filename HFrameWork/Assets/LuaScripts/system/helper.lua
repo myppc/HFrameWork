@@ -85,24 +85,26 @@ function helper.pair_child_node(node, callback, isForwardPair)
     end
 end
 
----comment 获取node下所有子节点
+--- 获取node下所有子节点
 ---@param node any
 ---@param list any
 function helper.get_child(node,list)
     if list == nil then
         list = {}
     end
-
-    local childCount = node.transfrom.childCount
-    for i=  0,childCount -1 do
-        local child = node.transfrom:GetChild(i).gameObject
-        list[child.name] = child
-        helper.get_child(child,list)
+    local transform = node.transform
+    local childCount = transform.childCount
+    if childCount > 0 then
+        for i=  0,childCount -1 do
+            local child = node.transform:GetChild(i).gameObject
+            list[child.name] = child
+            helper.get_child(child,list)
+        end
     end
     return list;
 end
 
----comment 遍历直接点，并获取组件
+--- 遍历直接点，并获取组件
 ---@param node any
 ---@param list any
 ---@return any
@@ -112,22 +114,24 @@ function helper.filter_child(node,list)
     end
 
     local childCount = node.transfrom.childCount
-    for i=  0,childCount -1 do
-        local child = node.transfrom:GetChild(i).gameObject
-        local namelist = string.split(child.name,"#")
-        if #namelist > 1 then
-            local add = {}
-            add.go = child
-            for index = 2,#namelist do
-                local add_str = namelist[index];
-                if component_map[add_str] ~= nil then
-                    local component = child.GetComponent(component_map[add_str])
-                    add[component_map[add_str]] = component
+    if childCount > 0 then
+        for i=  0,childCount -1 do
+            local child = node.transfrom:GetChild(i).gameObject
+            local namelist = string.split(child.name,"#")
+            if #namelist > 1 then
+                local add = {}
+                add.go = child
+                for index = 2,#namelist do
+                    local add_str = namelist[index];
+                    if component_map[add_str] ~= nil then
+                        local component = child.GetComponent(component_map[add_str])
+                        add[component_map[add_str]] = component
+                    end
                 end
+                list[namelist[1]] = add
             end
-            list[namelist[1]] = add
+            helper.filter_child(child,list)
         end
-        helper.filter_child(child,list)
     end
     return list;
 end

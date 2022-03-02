@@ -31,7 +31,7 @@ namespace XLua.CSObjectWrap
 			Utils.EndObjectRegister(type, L, translator, null, null,
 			    null, null, null);
 
-		    Utils.BeginClassRegister(type, L, __CreateInstance, 44, 0, 0);
+		    Utils.BeginClassRegister(type, L, __CreateInstance, 45, 0, 0);
 			Utils.RegisterFunc(L, Utils.CLS_IDX, "GetManifest", _m_GetManifest_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "GetVersionStr", _m_GetVersionStr_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "Load", _m_Load_xlua_st_);
@@ -44,7 +44,8 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.CLS_IDX, "LoadAssetBundleAsync", _m_LoadAssetBundleAsync_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "GetLoader", _m_GetLoader_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "SetLoader", _m_SetLoader_xlua_st_);
-            Utils.RegisterFunc(L, Utils.CLS_IDX, "OpenScene", _m_OpenScene_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "UnloadScene", _m_UnloadScene_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "LoadScene", _m_LoadScene_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "GetRunMode", _m_GetRunMode_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "FormatStr", _m_FormatStr_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "GetFileMD5", _m_GetFileMD5_xlua_st_);
@@ -431,7 +432,7 @@ namespace XLua.CSObjectWrap
         }
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-        static int _m_OpenScene_xlua_st_(RealStatePtr L)
+        static int _m_UnloadScene_xlua_st_(RealStatePtr L)
         {
 		    try {
             
@@ -447,7 +448,7 @@ namespace XLua.CSObjectWrap
                     System.Action _finish = translator.GetDelegate<System.Action>(L, 2);
                     System.Action<float> _progressCallback = translator.GetDelegate<System.Action<float>>(L, 3);
                     
-                    LuaCallCSharpHelper.OpenScene( _sceneName, _finish, _progressCallback );
+                    LuaCallCSharpHelper.UnloadScene( _sceneName, _finish, _progressCallback );
                     
                     
                     
@@ -458,7 +459,7 @@ namespace XLua.CSObjectWrap
                     string _sceneName = LuaAPI.lua_tostring(L, 1);
                     System.Action _finish = translator.GetDelegate<System.Action>(L, 2);
                     
-                    LuaCallCSharpHelper.OpenScene( _sceneName, _finish );
+                    LuaCallCSharpHelper.UnloadScene( _sceneName, _finish );
                     
                     
                     
@@ -468,7 +469,7 @@ namespace XLua.CSObjectWrap
                 {
                     string _sceneName = LuaAPI.lua_tostring(L, 1);
                     
-                    LuaCallCSharpHelper.OpenScene( _sceneName );
+                    LuaCallCSharpHelper.UnloadScene( _sceneName );
                     
                     
                     
@@ -479,7 +480,60 @@ namespace XLua.CSObjectWrap
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
             
-            return LuaAPI.luaL_error(L, "invalid arguments to LuaCallCSharpHelper.OpenScene!");
+            return LuaAPI.luaL_error(L, "invalid arguments to LuaCallCSharpHelper.UnloadScene!");
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_LoadScene_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+            
+			    int gen_param_count = LuaAPI.lua_gettop(L);
+            
+                if(gen_param_count == 3&& (LuaAPI.lua_isnil(L, 1) || LuaAPI.lua_type(L, 1) == LuaTypes.LUA_TSTRING)&& translator.Assignable<System.Action>(L, 2)&& translator.Assignable<System.Action<float>>(L, 3)) 
+                {
+                    string _sceneName = LuaAPI.lua_tostring(L, 1);
+                    System.Action _finish = translator.GetDelegate<System.Action>(L, 2);
+                    System.Action<float> _progressCallback = translator.GetDelegate<System.Action<float>>(L, 3);
+                    
+                    LuaCallCSharpHelper.LoadScene( _sceneName, _finish, _progressCallback );
+                    
+                    
+                    
+                    return 0;
+                }
+                if(gen_param_count == 2&& (LuaAPI.lua_isnil(L, 1) || LuaAPI.lua_type(L, 1) == LuaTypes.LUA_TSTRING)&& translator.Assignable<System.Action>(L, 2)) 
+                {
+                    string _sceneName = LuaAPI.lua_tostring(L, 1);
+                    System.Action _finish = translator.GetDelegate<System.Action>(L, 2);
+                    
+                    LuaCallCSharpHelper.LoadScene( _sceneName, _finish );
+                    
+                    
+                    
+                    return 0;
+                }
+                if(gen_param_count == 1&& (LuaAPI.lua_isnil(L, 1) || LuaAPI.lua_type(L, 1) == LuaTypes.LUA_TSTRING)) 
+                {
+                    string _sceneName = LuaAPI.lua_tostring(L, 1);
+                    
+                    LuaCallCSharpHelper.LoadScene( _sceneName );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+            return LuaAPI.luaL_error(L, "invalid arguments to LuaCallCSharpHelper.LoadScene!");
             
         }
         

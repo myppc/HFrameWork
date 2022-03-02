@@ -31,8 +31,10 @@ function mainEntrance.set_global()
     gColor = require("system/color") -- +
     gUtf8 = require("system/extension/utf8")
     gEnum = require("system/system_enum")
-    gUICfg,gUIKey = require("mgrs/ui/ui_config")
-    gSceneCfg,gSceneKey = require("mgrs/scene/scene_config")
+    gUIKey = require("ui_key")
+    gUICfg = require("mgrs/ui/ui_config")
+    gSceneKey = require("scene_key")
+    gSceneCfg = require("mgrs/scene/scene_config")
 end
 
 --- 设置扩展
@@ -124,7 +126,6 @@ end
 function mainEntrance.start_game()
     gMgrs.scene:init()
     gMgrs.ui:init()
-    
     gMgrs.scene:open_scene(gSceneKey.SCENE1,{msg = "open scene1 "},function()
         gLog("============ scene1 open")
     end)

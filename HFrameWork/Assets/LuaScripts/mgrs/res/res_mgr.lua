@@ -4,7 +4,7 @@
 --- DateTime: 2021/7/30 10:28
 ---
 
-local reg_mgr = {}
+local res_mgr = {}
 
 ---获取manifest信息
 function res_mgr:get_manifest()

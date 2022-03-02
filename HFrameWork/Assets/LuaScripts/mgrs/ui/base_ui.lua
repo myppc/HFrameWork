@@ -25,7 +25,7 @@ function base_ui:_init(go,param)
     self:on_loaded()
 end
 
----comment 刷新是否可见,该方法由管理器调用，并回调对应的register和show方法
+--- 刷新是否可见,该方法由管理器调用，并回调对应的register和show方法
 ---@param is_visible any
 function base_ui:_update_visible(is_visible)
     if is_visible == self.is_show then
@@ -82,4 +82,6 @@ end
 
 function base_ui:on_destroy()
 end
+
 ------------------------------------------
+return base_ui

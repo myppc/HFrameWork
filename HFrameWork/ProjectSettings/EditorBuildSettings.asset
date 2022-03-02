@@ -4,5 +4,17 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Modules/System/Scene/EntraceScene.unity
+    guid: 9fc0d4010bbf28b4594072e72b8655ab
+  - enabled: 1
+    path: Assets/Modules/mode1/Scene/Scene1.unity
+    guid: eff9173b6e1d16649bb4597620b6994e
+  - enabled: 1
+    path: Assets/Modules/mode2/Scene/Scene2.unity
+    guid: 44541e240b89a4f4280b1eef9d142474
+  - enabled: 1
+    path: Assets/Modules/System/Scene/LOADING_SCENE.unity
+    guid: f36e4b3e67a8a3240acd3a33a167891c
   m_configObjects: {}

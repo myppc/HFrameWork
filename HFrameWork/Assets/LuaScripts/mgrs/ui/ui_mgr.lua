@@ -8,7 +8,7 @@ function ui_mgr:init()
     self.reloading = false;
 end
 
----comment 打开ui
+--- 打开ui
 ---@param ui_key any
 ---@param param any
 function ui_mgr:open_ui(ui_key,param)
@@ -22,7 +22,7 @@ function ui_mgr:open_ui(ui_key,param)
     end)
 end
 
----comment 关闭指定的UI
+--- 关闭指定的UI
 ---@param ui_key any
 function ui_mgr:close_ui(ui_key)
     if self.reloading  then
@@ -38,7 +38,7 @@ function ui_mgr:close_ui(ui_key)
 
 end
 
----comment 弹出顶层ui
+--- 弹出顶层ui
 function ui_mgr:pop_ui()
     local cur_stack = self.ui_stack[self.cur_scene]
     local keys = cur_stack:get_ui_sort()
@@ -52,7 +52,7 @@ function ui_mgr:pop_ui()
     end
 end
 
----comment 关闭全部的ui，此方法会将栈的的信息一并删除
+--- 关闭全部的ui，此方法会将栈的的信息一并删除
 function ui_mgr:close_all_ui()
     if self.reloading  then
         return
@@ -64,7 +64,7 @@ function ui_mgr:close_all_ui()
     end
 end
 
----comment 将场景下所有节点释放掉，但是会保留信息，以便于从新加载栈
+--- 将场景下所有节点释放掉，但是会保留信息，以便于从新加载栈
 function ui_mgr:release_scene_ui()
     if self.reloading  then
         return
@@ -81,7 +81,7 @@ function ui_mgr:release_scene_ui()
     end
 end
 
----comment 从新加载当前场景下的所有UI
+--- 从新加载当前场景下的所有UI
 function ui_mgr:reload_scene_ui(on_complete_call)
     if self.reloading  then
         return
@@ -89,6 +89,7 @@ function ui_mgr:reload_scene_ui(on_complete_call)
     self.reloading = true;
     self.child["ClickBlock"]:SetActive(true)
     if self.ui_stack[self.cur_scene] == nil then
+        gLog("------- sceneName " .. tostring(self.cur_scene))
         self.ui_stack[self.cur_scene] = ui_stack_item:new(self.cur_scene)
     end
 
@@ -97,10 +98,10 @@ function ui_mgr:reload_scene_ui(on_complete_call)
     self:_reload_next_ui(key_list,1,on_complete_call)
 end
 
----comment 设置场景根节点
+--- 设置场景根节点
 ---@param root any
 function ui_mgr:on_load_new_scene(scene_name,root)
-    self.scene_name = scene_name
+    self.cur_scene = scene_name
     self.child = gHelper.get_child(root)
     self.child["ClickBlock"]:SetActive(false)
     self.child["BlockUI"]:SetActive(false)
@@ -110,7 +111,7 @@ end
 ------------------------------------------
 ---私有方法 
 
----comment 当从新加载的UI完成后，进行下一个的加载
+--- 当从新加载的UI完成后，进行下一个的加载
 ---@param key_list any
 ---@param cur_index any
 function ui_mgr:_reload_next_ui(key_list,cur_index,on_complete_call)
@@ -142,7 +143,7 @@ function ui_mgr:_reload_next_ui(key_list,cur_index,on_complete_call)
 end
 
 
----comment 在ui从新载入后回调,如果全都回调完成后就会刷新black位子和设置可见
+--- 在ui从新载入后回调,如果全都回调完成后就会刷新black位子和设置可见
 function ui_mgr:on_reload_finish()
     self.child["ClickBlock"]:SetActive(false)
     self.reloading = false;
@@ -152,7 +153,7 @@ function ui_mgr:on_reload_finish()
     self:_update_black_ui_pos()
 end
 
----comment 在UI节点加载好了之后进行回调
+--- 在UI节点加载好了之后进行回调
 ---@param ui_key any
 ---@param go any
 function ui_mgr:_on_ui_loaded(ui_key,go,ui_ins,param)
@@ -175,12 +176,12 @@ function ui_mgr:_on_ui_loaded(ui_key,go,ui_ins,param)
     
 end
 
----comment 为新生成的UI节点添加上屏蔽背景
+--- 为新生成的UI节点添加上屏蔽背景
 function ui_mgr:_add_block_for_ui(ui_key,go)
     if gUICfg[ui_key].ui_type == gEnum.EUIType.Bar then
         return go
     end
-    local block = gCSharp.GameObject.Instance(self.child["BlockUI"])
+    local block = gUnity.GameObject.Instantiate(self.child["BlockUI"])
     block:SetActive(true)
     block.name = string.format("%s_block",ui_key)
     go.transform:SetParent(block.transform,false)
@@ -192,7 +193,7 @@ function ui_mgr:_add_block_for_ui(ui_key,go)
     return block
 end
 
----comment 根据配置将UI添加至对应的layer中
+--- 根据配置将UI添加至对应的layer中
 ---@param ui_key any
 ---@param go any
 function ui_mgr:_add_new_ui_to_layer(ui_key,go)
@@ -201,7 +202,7 @@ function ui_mgr:_add_new_ui_to_layer(ui_key,go)
     go.transform:SetParent(layer.transform,false)
 end
 
----comment 根据key返回layer节点
+--- 根据key返回layer节点
 ---@param ui_type any
 function ui_mgr:get_layer(ui_type)
     local switch = 
@@ -215,7 +216,7 @@ function ui_mgr:get_layer(ui_type)
     return switch[ui_type]
 end
 
----comment 刷新每层UI的可见，参考UI配置的alway_show来设置可见,每层只有top的UI必然可见，其他根据配置
+--- 刷新每层UI的可见，参考UI配置的alway_show来设置可见,每层只有top的UI必然可见，其他根据配置
 function ui_mgr:_update_ui_visible()
     local cur_stack = self.ui_stack[self.cur_scene]
     for type_name,ui_type in pairs(gEnum.EUIType) do
@@ -228,7 +229,7 @@ function ui_mgr:_update_ui_visible()
     end
 end
 
----comment 刷新blackground的位置
+--- 刷新blackground的位置
 function ui_mgr:_update_black_ui_pos()
     local stack_item = self.ui_stack[self.cur_scene]
     local sort = stack_item:get_ui_sort()
@@ -248,16 +249,16 @@ end
 
 
 
----comment 将blackground 从层级节点中释放出来，将blackground的子节点设置到对应layer中,并且隐藏掉block
+--- 将blackground 从层级节点中释放出来，将blackground的子节点设置到对应layer中,并且隐藏掉block
 function ui_mgr:_release_black()
     if self.child["BlackGround"].transform.childCount > 0 then
         local last_ui = self.child["BlackGround"].transform.GetChild(0)
         last_ui.transform:SetParent(self.child["BlackGround"].transform.parent,false)
     end
-    self.child["BlackGround"].SetActive(false)
+    self.child["BlackGround"]:SetActive(false)
 end
 
----comment 将block设置给指定UI
+--- 将block设置给指定UI
 ---@param ui_key any
 function ui_mgr:_add_to_blackground(ui_key)
     local ui_info = self:_get_ui_info(ui_key)
@@ -273,16 +274,20 @@ function ui_mgr:_add_to_blackground(ui_key)
     self.child["BlackGround"].transform:SetParent(layer.transform,false)
 end
 
----comment 获取指定ui的信息
+--- 获取指定ui的信息
 function ui_mgr:_get_ui_info(ui_key)
     local stack_item = self.ui_stack[self.cur_scene]
     return stack_item:get_ui_info(ui_key)
 end
 
----comment 压入ui 信息
+--- 压入ui 信息
 ---@param info {ui_key:string, ins: any, param:table}
 function ui_mgr:_push_info(info)
+    if self.ui_stack[self.cur_scene] == nil then
+        self.ui_stack[self.cur_scene] = ui_stack_item:new()
+    end
     local stack_item = self.ui_stack[self.cur_scene]
+    gLog(stack_item)
     local is_open = stack_item:ui_is_open(info.ui_key)
     ---如果要压入的ui不是加载到bar层而且已经打开过，那么就要将其之上的ui全部关闭
     ---如果是加载到bar层上的，那么释放之前的ui，从新加载新的ui
@@ -310,14 +315,14 @@ end
 
 
 
----comment 将指定UI出栈
+--- 将指定UI出栈
 ---@param ui_key any
 function ui_mgr:_pop_info(ui_key)
     local stack_item = self.ui_stack[self.cur_scene]
     stack_item:pop_info(ui_key)
 end
 
----comment 清理当前的scene_root
+--- 清理当前的scene_root
 function ui_mgr:_clear_scene_root()
     self.child = {}
 end

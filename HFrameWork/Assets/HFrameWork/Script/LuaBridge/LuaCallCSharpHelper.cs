@@ -50,7 +50,7 @@ public class LuaCallCSharpHelper
     /// <param name="assetName">资源名</param>
     /// <param name="eRes">资源类型</param>
     /// <returns>加载完毕后的资源</returns>
-    public static UnityEngine.Object Load(int eRes,string module, string assetName )
+    public static UnityEngine.Object Load(int eRes,string module, string assetName ) 
     {
         return ResMgr.Ins.Load((ERes)eRes,module, assetName);
     }
@@ -117,6 +117,20 @@ public class LuaCallCSharpHelper
     #endregion
 
     #region 场景
+
+
+    /// <summary>
+    /// 卸载场景
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="callback"></param>
+    /// <param name="progressCallback"></param>
+    /// <returns></returns>
+    public static void UnloadScene( string sceneName ,Action finish = null, Action<float> progressCallback = null)
+    {
+        SceneMgr.Ins.UnloadScene(sceneName,finish, progressCallback);
+    }
+
     /// <summary>
     /// 加载场景
     /// </summary>
@@ -124,10 +138,11 @@ public class LuaCallCSharpHelper
     /// <param name="callback"></param>
     /// <param name="progressCallback"></param>
     /// <returns></returns>
-    public static void OpenScene(string sceneName, Action finish = null, Action<float> progressCallback = null)
+    public static void LoadScene(string sceneName, Action finish = null, Action<float> progressCallback = null)
     {
-        SceneMgr.Ins.OpenScene(sceneName, finish, progressCallback);
+        SceneMgr.Ins.LoadScene(sceneName, finish, progressCallback);
     }
+
     #endregion
 
     #region 公共
@@ -394,7 +409,6 @@ public class LuaCallCSharpHelper
         {
             GameObject.Destroy(obj);
         }
-        
     }
     #endregion
 }

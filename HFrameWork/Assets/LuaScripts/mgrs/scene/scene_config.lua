@@ -8,18 +8,11 @@ local scene1 = require("scene1")
 local scene2 = require("scene2")
 
 
-local scene_key = {
-    --- 场景枚举
-    BASE_SCENE = "BASE_SCENE",
-    SCENE1 = "SCENE1",
-    SCENE2 = "SCENE2",
 
-
-}
 
 --- 配置
 local scene_config = {
-    [scene_key.SCENE1] = {
+    [gSceneKey.SCENE1] = {
         module = "mode1", --模块名
         name = "Scene1", --场景名
         scene_class = scene1, --场景对象
@@ -27,7 +20,7 @@ local scene_config = {
         allow_pop = false, -- 是否允许pop该场景
         reload_ui = true,--是否从新加载UI
     },
-    [scene_key.SCENE2] = {
+    [gSceneKey.SCENE2] = {
         module = "mode2",
         name = "Scene2",
         scene_class = scene2,
@@ -37,4 +30,4 @@ local scene_config = {
     },
 }
 
-return scene_config,scene_key
+return scene_config
