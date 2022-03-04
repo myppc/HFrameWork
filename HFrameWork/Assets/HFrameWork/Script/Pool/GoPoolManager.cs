@@ -39,13 +39,13 @@ namespace HFrameWork.Script.Pool
     {
         public PoolType poolType;
         public int cacheCount;
-        public string sceneName;
+        public string sceneKey;
     }
 
 
     public class GoPoolManager:SingletonClass<GoPoolManager>
     {
-        private string curSceneName = "DEFAULT";
+        private string curSceneKey = "DEFAULT";
         private GameObject poolRoot;
         private Dictionary<string, CacheInfo> cacheInfoDict;
         private Dictionary<string, List<GameObject>> GoDict;
@@ -68,9 +68,9 @@ namespace HFrameWork.Script.Pool
         /// <param name="name">prefabName</param>
         /// <param name="poolType">缓存类型</param>
         /// <param name="cacheCount">缓存个数</param>
-        public void RegisterCacheInfo(string path,string name,PoolType poolType  = PoolType.TEMP,int cacheCount  = 20,string sceneName = "")
+        public void RegisterCacheInfo(string path,string name,PoolType poolType  = PoolType.TEMP,int cacheCount  = 20,string sceneKey = "")
         {
-            sceneName = sceneName != "" ? sceneName : curSceneName;
+            sceneKey = sceneKey != "" ? sceneKey : curSceneKey;
             poolType = poolType == PoolType.STATIC ? PoolType.DYNAMIC : poolType;
             var key = string.Format("{0}/{1}", path, name);
             if (!cacheInfoDict.ContainsKey(key))
@@ -85,7 +85,7 @@ namespace HFrameWork.Script.Pool
             //如果缓存信息中有这个场景的信息了，那么替换成新的
             var cacheInfo = cacheInfoDict[key];
             var index = cacheInfo.saveInfos.FindIndex((item) => {
-                return item.sceneName == sceneName;
+                return item.sceneKey == sceneKey;
             });
             if (index != -1)
             {
@@ -95,7 +95,7 @@ namespace HFrameWork.Script.Pool
             SaveInfo saveInfo;
             saveInfo.poolType = poolType;
             saveInfo.cacheCount = cacheCount;
-            saveInfo.sceneName = sceneName;
+            saveInfo.sceneKey = sceneKey;
             cacheInfo.saveInfos.Add(saveInfo);
         }
 
@@ -149,7 +149,7 @@ namespace HFrameWork.Script.Pool
             var list = GoDict[key];
             //判断当前场景是否需要缓存这个对象
             var index = cacheInfoDict[key].saveInfos.FindIndex((item)=> {
-                return curSceneName == item.sceneName;
+                return curSceneKey == item.sceneKey;
             });
             //若当前场景不需要缓存该对象，就直接删除
             if (index == -1)
@@ -176,17 +176,17 @@ namespace HFrameWork.Script.Pool
         /// <summary>
         /// 清理当前场景缓存
         /// </summary>
-        /// <param name="sceneName"></param>
-        public void ClearSceneCache(string sceneName = "",bool onlyTemp = false)
+        /// <param name="sceneKey"></param>
+        public void ClearSceneCache(string sceneKey = "",bool onlyTemp = false)
         {
-            sceneName = sceneName != "" ? sceneName : curSceneName;
+            sceneKey = sceneKey != "" ? sceneKey : curSceneKey;
             foreach (var item in cacheInfoDict)
             {
                 var key = item.Key;
                 var cacheInfo = item.Value;
                 var maxCacheCount = 0;
                 var isRemove = cacheInfo.saveInfos.FindIndex((item) => {
-                    return (item.sceneName == sceneName && (item.poolType == PoolType.TEMP || (item.poolType == PoolType.SCENE && !onlyTemp) )); 
+                    return (item.sceneKey == sceneKey && (item.poolType == PoolType.TEMP || (item.poolType == PoolType.SCENE && !onlyTemp) )); 
                 });
                 //这一类资源没有缓存在该场景下
                 if (isRemove == -1)
@@ -196,7 +196,7 @@ namespace HFrameWork.Script.Pool
                 foreach (var saveInfo in cacheInfo.saveInfos)
                 {
                     //找出其他场景下常驻的最大个数
-                    if (saveInfo.sceneName != sceneName)
+                    if (saveInfo.sceneKey != sceneKey)
                     {
                         if ((saveInfo.poolType == PoolType.DYNAMIC || saveInfo.poolType == PoolType.STATIC) || (!onlyTemp && saveInfo.poolType == PoolType.SCENE))
                         {
@@ -213,15 +213,15 @@ namespace HFrameWork.Script.Pool
         /// <summary>
         /// 加载指定场景需要缓存的对象
         /// </summary>
-        /// <param name="sceneName"></param>
-        public void LoadCacheByScene(string sceneName)
+        /// <param name="sceneKey"></param>
+        public void LoadCacheByScene(string sceneKey)
         {
-            curSceneName = sceneName;
+            curSceneKey = sceneKey;
             foreach (var item in cacheInfoDict)
             {
                 var cacheInfo = item.Value;
                 var loadItemIndex = cacheInfo.saveInfos.FindIndex((item) => {
-                    return (item.sceneName == sceneName && item.poolType == PoolType.SCENE);
+                    return (item.sceneKey == sceneKey && item.poolType == PoolType.SCENE);
                 });
                 if (loadItemIndex != -1)
                 {

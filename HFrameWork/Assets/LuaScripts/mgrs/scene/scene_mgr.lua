@@ -148,11 +148,10 @@ function scene_mgr:_loading_to_new_scene(scene_key,param,on_finish,progressCallb
             if on_finish then
                 on_finish()
             end
+            
             gCSharp.UnloadScene(LOADING_SCENE)
-
             self.cur_scene_name = scene_name;
             self:_init_new_scene(scene_key,param)
-
         end
         --- 更新进度函数
         ,function(value)
@@ -214,7 +213,7 @@ end
 function scene_mgr:_init_new_scene(scene_key,param)
     local scene_info = gSceneCfg[scene_key]
     ---缓存池加载场景需要的缓存对象
-    gMgrs.pool:load_cache_by_scene(scene_info.name)
+    gMgrs.pool:load_cache_by_scene(scene_key)
     ---生成新场景实例
     local new_scene = scene_info.scene_class:new()
     ---将新场景入栈

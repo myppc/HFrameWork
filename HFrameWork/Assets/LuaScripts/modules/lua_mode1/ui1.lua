@@ -22,6 +22,9 @@ function ui1:on_loaded()
         gMgrs.ui:open_ui(gUIKey.UI_TEST2)
     end)
 
+    self.child[name_index.BTN2].Button:AddEvent(function()
+        gMgrs.scene:open_scene(gSceneKey.SCENE2)
+    end)
 end
 
 return ui1
