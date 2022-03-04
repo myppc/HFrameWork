@@ -62,7 +62,13 @@ GameEntrance:
 事件：
 	
 
-UI管理器
+UI管理器:
+	打开，关闭UI +
+	base_ui +
+	重开场景时 重载UI栈 +
+	关闭场景时 释放UI栈 +
+		
+
 
 网络
 

@@ -112,11 +112,10 @@ function helper.filter_child(node,list)
     if list == nil then
         list = {}
     end
-
-    local childCount = node.transfrom.childCount
+    local childCount = node.transform.childCount
     if childCount > 0 then
         for i=  0,childCount -1 do
-            local child = node.transfrom:GetChild(i).gameObject
+            local child = node.transform:GetChild(i).gameObject
             local namelist = string.split(child.name,"#")
             if #namelist > 1 then
                 local add = {}
@@ -124,7 +123,7 @@ function helper.filter_child(node,list)
                 for index = 2,#namelist do
                     local add_str = namelist[index];
                     if component_map[add_str] ~= nil then
-                        local component = child.GetComponent(component_map[add_str])
+                        local component = child:GetComponent(component_map[add_str])
                         add[component_map[add_str]] = component
                     end
                 end
@@ -134,6 +133,12 @@ function helper.filter_child(node,list)
         end
     end
     return list;
+end
+
+function helper.load_go_index(asset)
+    local str = asset.."_index"
+    local name_index = require(str)
+    return name_index
 end
 
 

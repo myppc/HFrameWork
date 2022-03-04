@@ -62,7 +62,7 @@ namespace HFrameWork.Script.SceneMgr
 
                 await UniTask.WaitForEndOfFrame();
             }
-
+            Resources.UnloadUnusedAssets();
             // 回调
             progressCallback?.Invoke(ao.progress);
             callback?.Invoke();

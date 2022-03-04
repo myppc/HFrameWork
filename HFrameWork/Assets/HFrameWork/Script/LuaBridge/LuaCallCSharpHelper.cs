@@ -114,6 +114,12 @@ public class LuaCallCSharpHelper
     {
         AssetsBundleMgr.Ins.SetLoader(abName, loader);
     }
+
+
+    public static void UnLoadAllABCache()
+    {
+        AssetsBundleMgr.Ins.UnLoadAllABCache();
+    }
     #endregion
 
     #region 场景

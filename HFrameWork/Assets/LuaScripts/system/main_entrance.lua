@@ -126,8 +126,11 @@ end
 function mainEntrance.start_game()
     gMgrs.scene:init()
     gMgrs.ui:init()
+
+    gMgrs.pool:register_cache_info("mode1","box.prefab",gEnum.EPoolType.SCENE,1000,"Scene")
+
     gMgrs.scene:open_scene(gSceneKey.SCENE1,{msg = "open scene1 "},function()
-        gLog("============ scene1 open")
+
     end)
 
     

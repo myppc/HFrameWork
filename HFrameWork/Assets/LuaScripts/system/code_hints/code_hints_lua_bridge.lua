@@ -11,6 +11,7 @@ local code_hints_lua_bridge = {
      LoadAssetBundleAsync = function( abName, finishCallback) end ,
      GetLoader = function( abName) end ,
      SetLoader = function( abName, loader) end ,
+     UnLoadAllABCache = function() end ,
      UnloadScene = function( sceneName , finish , progressCallback ) end ,
      LoadScene = function( sceneName, finish , progressCallback ) end ,
      GetRunMode = function() end ,

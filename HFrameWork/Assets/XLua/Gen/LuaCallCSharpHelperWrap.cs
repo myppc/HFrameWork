@@ -31,7 +31,7 @@ namespace XLua.CSObjectWrap
 			Utils.EndObjectRegister(type, L, translator, null, null,
 			    null, null, null);
 
-		    Utils.BeginClassRegister(type, L, __CreateInstance, 45, 0, 0);
+		    Utils.BeginClassRegister(type, L, __CreateInstance, 46, 0, 0);
 			Utils.RegisterFunc(L, Utils.CLS_IDX, "GetManifest", _m_GetManifest_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "GetVersionStr", _m_GetVersionStr_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "Load", _m_Load_xlua_st_);
@@ -44,6 +44,7 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.CLS_IDX, "LoadAssetBundleAsync", _m_LoadAssetBundleAsync_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "GetLoader", _m_GetLoader_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "SetLoader", _m_SetLoader_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "UnLoadAllABCache", _m_UnLoadAllABCache_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "UnloadScene", _m_UnloadScene_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "LoadScene", _m_LoadScene_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "GetRunMode", _m_GetRunMode_xlua_st_);
@@ -419,6 +420,29 @@ namespace XLua.CSObjectWrap
                     Assets.HFrameWork.Script.Res.ABLoader _loader = (Assets.HFrameWork.Script.Res.ABLoader)translator.GetObject(L, 2, typeof(Assets.HFrameWork.Script.Res.ABLoader));
                     
                     LuaCallCSharpHelper.SetLoader( _abName, _loader );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_UnLoadAllABCache_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+            
+            
+                
+                {
+                    
+                    LuaCallCSharpHelper.UnLoadAllABCache(  );
                     
                     
                     

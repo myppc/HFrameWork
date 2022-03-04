@@ -29,6 +29,7 @@ function scene_mgr:open_scene(scene_key,param,on_finish,progressCallback)
         ---进入loading 场景
         gCSharp.LoadScene(LOADING_SCENE,function()
             self:_last_scene_close()
+            self:_clear_scene_resource(scene_key)
             gCSharp.UnloadScene(self.cur_scene_name)
             self.cur_scene_name = LOADING_SCENE
             self:_loading_to_new_scene(scene_key,param,on_finish,progressCallback)
@@ -63,6 +64,27 @@ end
 --#endregion
 
 --#region 私有方法
+---在场景退出时清理资源
+---@param new_scene_key any
+function scene_mgr:_clear_scene_resource(new_scene_key)
+    local last_scene_info = self:_get_last_scene()
+    if last_scene_info == nil then
+        return
+    end
+    local last_scene_name = gSceneCfg[last_scene_info.scene_key].name
+    if last_scene_info.scene_key == new_scene_key then
+        --只清理临时缓存
+        gMgrs.pool:clear_scene_cache(last_scene_name,true);
+    else
+        --清理预加载Prefab
+        gMgrs.res:clear_pre_go_cache();
+        --清理对象池中的
+        gMgrs.pool:clear_scene_cache(last_scene_name);
+        --清理没有用到的AB包
+        gCSharp.UnLoadAllABCache();
+    end
+end
+
 
 --- 找当前的栈信息，将其剔除掉
 ---@param scene_key string key
@@ -127,6 +149,7 @@ function scene_mgr:_loading_to_new_scene(scene_key,param,on_finish,progressCallb
                 on_finish()
             end
             gCSharp.UnloadScene(LOADING_SCENE)
+
             self.cur_scene_name = scene_name;
             self:_init_new_scene(scene_key,param)
 
@@ -157,7 +180,9 @@ function scene_mgr:_just_load_new_scene(scene_key,param,on_finish,progressCallba
                 on_finish()
             end
             self:_last_scene_close()
+            self:_clear_scene_resource(scene_key)
             gCSharp.UnloadScene(self.cur_scene_name)
+            ---初始化场景
             self.cur_scene_name = scene_name;
             self:_init_new_scene(scene_key,param)
         end
@@ -174,24 +199,28 @@ end
 function scene_mgr:_last_scene_close()
     local old_scene_info = self:_get_last_scene()
     if old_scene_info then
+        --释放栈内UI
+        gMgrs.ui:close_all_ui()
         --由base scene来释放相关资源
         old_scene_info.scene:_close()
         --由使用者使用的 关闭回调
         old_scene_info.scene:on_close()
         self:_pop_stack(old_scene_info.scene_key)
+
     end
 end
 
 --- 为加载好的场景生成实例并且调用生命周期
 function scene_mgr:_init_new_scene(scene_key,param)
     local scene_info = gSceneCfg[scene_key]
+    ---缓存池加载场景需要的缓存对象
+    gMgrs.pool:load_cache_by_scene(scene_info.name)
     ---生成新场景实例
     local new_scene = scene_info.scene_class:new()
     ---将新场景入栈
     self:_push_stack(scene_key,param,new_scene)
     ---为新场景生成UI根节点
     new_scene.scene_root = gMgrs.res:load(gEnum.ERes.GameObject,"system","SceneRoot.prefab")
-
     ---将生成好的UI根节点设置到ui管理器中
     gMgrs.ui:on_load_new_scene(scene_key,new_scene.scene_root)
     ---初始化新场景，传递参数

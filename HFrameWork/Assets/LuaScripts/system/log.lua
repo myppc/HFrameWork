@@ -10,7 +10,23 @@ local log = {
 --- 打印
 ---@param content : 内容
 function log.print(content)
-    print(string.format("%s\n%s", content, debug.traceback()))
+    if type(content) == "table" then
+        print(log.get_table_str(content))
+    else
+        print(string.format("%s\n%s", content, debug.traceback()))
+    end
+end
+
+function log.get_table_str(t)
+    local str = ""
+    for k,v in pairs(t) do
+        if type(v) == "table" then
+            str = string.format("%s %s = {%s},",str,tostring(k),log.get_table_str(v))
+        else
+            str = string.format("%s %s = %s,",str,tostring(k),tostring(v))
+        end
+    end
+    return str
 end
 
 --- 打印一组数据
@@ -18,7 +34,7 @@ end
 function log.print_group(...)
     local array = {}
     for i, v in pairs({ ... }) do
-        table.insert(array, tostring(v))
+        table.insert(array,tostring(v))
     end
     print(string.format("%s\n%s", table.concat(array, " "), debug.traceback()))
 end

@@ -23,7 +23,7 @@ end
 --- 关闭指定ui
 ---@param ui_type any
 function ui_stack_item:pop_info(ui_key)
-    local ui_type = gUICfg[ui_key]
+    local ui_type = gUICfg[ui_key].ui_type
     local stack = self.ui_stack[ui_type]
     for k,v in pairs(stack) do
         if v.ui_key == ui_key then
@@ -33,10 +33,10 @@ function ui_stack_item:pop_info(ui_key)
     end
 end
 
---- 返回一个从Top层到BG层的排列顺序
+--- 返回一个从Top层到BG层的排列顺序,index越小，越靠前
 function ui_stack_item:get_ui_sort(start_type,end_type)
     start_type = start_type or gEnum.EUIType.Bg
-    end_type = end_type or gEnum.EUIType.Bg
+    end_type = end_type or gEnum.EUIType.Top
     if end_type < start_type then
         return {}
     end

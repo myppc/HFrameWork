@@ -78,6 +78,11 @@ public static class AppConfig
     public static readonly string AB_BUILD_PATH = Path.Combine(Application.streamingAssetsPath, "AssetBundle", GetPlatformString());
 
     /// <summary>
+    /// lua 下标文件路径
+    /// </summary>
+    public static readonly string LUA_GO_INDEX = Path.Combine(Application.dataPath, "LuaScripts/name_indexs");
+
+    /// <summary>
     /// 主配置文件加载路径
     /// </summary>
     public static string MANIFEST_LOAD_PATH

@@ -28,6 +28,7 @@ end
 
 ---清理当前场景缓存
 function pool_mgr:clear_scene_cache(sceneName,onlyTemp)
+    onlyTemp = onlyTemp or false
     gCSharp.ClearSceneCache(sceneName,onlyTemp)
 end
 

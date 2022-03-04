@@ -23,8 +23,8 @@ using UnityEngine;
 //----------------------------------------------------------------*/
 #endregion
 public class EditorTool
-{ 
-
+{
+    private static GameObject targetObj;
     [MenuItem("Tool/Gen Lua Hint")]
     static void GenLuaHint()
     {
@@ -104,4 +104,11 @@ public class EditorTool
         FileHelper.SaveFile(savaPath,luaMsg);
         Debug.Log("Gen lua hint Succ");
     }
+
+    [InitializeOnLoadMethod]
+    static void StartInitializeOnLoadMethod()
+    {
+
+    }
+
 }
