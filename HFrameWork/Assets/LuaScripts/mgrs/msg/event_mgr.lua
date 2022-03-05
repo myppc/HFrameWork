@@ -9,6 +9,10 @@ end
 
 --- 监听事件
 function event_mgr:add_listener(event_key,call_back,tag)
+    if not self.reg_list[event_key] then
+        self.reg_list[event_key] = {}
+    end
+
     
 end
 

@@ -18,7 +18,7 @@ end
 
 function ui2:on_loaded()
     self.child[UI.TEXT].Text.text = "22222222222222"
-
+    
     self.child[UI.BTN1].Button:AddEvent(function()
         gMgrs.ui:open_ui(gUIKey.UI_TEST3)
     end)
