@@ -12,7 +12,7 @@ local unityUpdateMgr = {
 }
 
 --- 初始化
-function unityUpdateMgr.init()
+function unityUpdateMgr:init()
     if unityUpdateMgr.isInit then
         return
     end
@@ -27,14 +27,14 @@ function unityUpdateMgr.init()
 end
 
 --- 销毁回调
-function unityUpdateMgr.on_destroy()
+function unityUpdateMgr:on_destroy()
     gCSharp.UnRegUpdate(unityUpdateMgr.on_update)
     gCSharp.UnRegLateUpdate(unityUpdateMgr.on_late_update)
     gCSharp.UnRegFixedUpdate(unityUpdateMgr.on_fixed_update)
 end
 
 --- Update回调
-function unityUpdateMgr.on_update()
+function unityUpdateMgr:on_update()
     -- 遍历
     for i, v in pairs(unityUpdateMgr.listUpdate) do
         v()
@@ -42,7 +42,7 @@ function unityUpdateMgr.on_update()
 end
 
 --- LateUpdate回调
-function unityUpdateMgr.on_late_update()
+function unityUpdateMgr:on_late_update()
     -- 遍历
     for i, v in pairs(unityUpdateMgr.listLateUpdate) do
         v()
@@ -50,7 +50,7 @@ function unityUpdateMgr.on_late_update()
 end
 
 --- FixedUpdate回调
-function unityUpdateMgr.on_fixed_update()
+function unityUpdateMgr:on_fixed_update()
     -- 遍历
     for i, v in pairs(unityUpdateMgr.listFixedUpdate) do
         v()
@@ -58,48 +58,57 @@ function unityUpdateMgr.on_fixed_update()
 end
 
 --- 注册Update
-function unityUpdateMgr.reg_update(callback)
+function unityUpdateMgr:reg_update(callback)
     unityUpdateMgr.listUpdate[tostring(callback)] = callback
 end
 
 --- 注销Update
-function unityUpdateMgr.unreg_update(callback)
+function unityUpdateMgr:unreg_update(callback)
     unityUpdateMgr.listUpdate[tostring(callback)] = nil
 end
 
 --- 清除Update
-function unityUpdateMgr.clear_update()
+function unityUpdateMgr:clear_update()
     unityUpdateMgr.listUpdate = {}
 end
 
 --- 注册LateUpdate
-function unityUpdateMgr.reg_lateupdate(callback)
+function unityUpdateMgr:reg_lateupdate(callback)
     unityUpdateMgr.listLateUpdate[tostring(callback)] = callback
 end
 
 --- 注销LateUpdate
-function unityUpdateMgr.unreg_lateupdate(callback)
+function unityUpdateMgr:unreg_lateupdate(callback)
     unityUpdateMgr.listLateUpdate[tostring(callback)] = nil
 end
 
 --- 清除LateUpdate
-function unityUpdateMgr.clear_lateupdate()
+function unityUpdateMgr:clear_lateupdate()
     unityUpdateMgr.listLateUpdate = {}
 end
 
 --- 注册FixedUpdate
-function unityUpdateMgr.reg_fixedupdate(callback)
+function unityUpdateMgr:reg_fixedupdate(callback)
     unityUpdateMgr.listFixedUpdate[tostring(callback)] = callback
 end
 
 --- 注销FixedUpdate
-function unityUpdateMgr.unreg_fixedupdate(callback)
+function unityUpdateMgr:unreg_fixedupdate(callback)
+    if callback == nil then
+        return;
+    end
     unityUpdateMgr.listFixedUpdate[tostring(callback)] = nil
 end
 
 --- 清除FixedUpdate
-function unityUpdateMgr.clear_fixedupdate()
+function unityUpdateMgr:clear_fixedupdate()
     unityUpdateMgr.listFixedUpdate = {}
+end
+
+function unityUpdateMgr:clear()
+    unityUpdateMgr:clear_fixedupdate()
+    unityUpdateMgr:clear_lateupdate()
+    unityUpdateMgr:clear_update()
 end
 
 return unityUpdateMgr

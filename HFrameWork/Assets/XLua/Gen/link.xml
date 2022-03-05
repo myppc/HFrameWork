@@ -11,6 +11,7 @@
 		<type fullname="Tutorial.DerivedClass+TestEnumInner" preserve="all"/>
 		<type fullname="ExtensionHelper" preserve="all"/>
 		<type fullname="LuaCallCSharpHelper" preserve="all"/>
+		<type fullname="TickerParam" preserve="all"/>
 		
 	</assembly>
 

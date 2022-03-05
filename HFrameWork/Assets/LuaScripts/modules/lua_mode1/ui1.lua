@@ -25,6 +25,11 @@ function ui1:on_loaded()
     self.child[name_index.BTN2].Button:AddEvent(function()
         gMgrs.scene:open_scene(gSceneKey.SCENE2)
     end)
+
+    gMgrs.timer:use_loop("Test",false,1,5,10,function(count)
+        gLog(count)
+    end)
+
 end
 
 return ui1

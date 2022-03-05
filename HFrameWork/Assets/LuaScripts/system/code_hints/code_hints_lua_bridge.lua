@@ -44,5 +44,15 @@ local code_hints_lua_bridge = {
      DoCancelInvoke = function( funcName ) end ,
      DoLoopCoroutine = function( checkHandler, handler) end ,
      UnityDestroy = function( obj) end ,
+     InitTickMgr = function() end ,
+     StartTick = function() end ,
+     AddTick = function( param) end ,
+     CancelByUid = function( uid) end ,
+     CancelTickersByTag = function( tag) end ,
+     SetPause = function( isPause) end ,
+     OnFrameUpdateTick = function() end ,
+     Destroy = function() end ,
+     GetTickerParam = function() end ,
+     GetFrame = function() end ,
 }
 return code_hints_lua_bridge

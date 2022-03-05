@@ -119,36 +119,40 @@ function mainEntrance.run()
     -- 屏蔽全局
     mainEntrance.lock_global()
     
+    ---初始化管理器
+    mainEntrance.init_mgr()
+
     -- 开始游戏
     mainEntrance.start_game()
+
+end
+
+---初始化管理器
+function mainEntrance.init_mgr()
+    gMgrs.scene:init()
+    gMgrs.ui:init()
+    gMgrs.unityUpdate:init()
+    gMgrs.tick:init()
+    gMgrs.tick:start_tick()
+    gMgrs.timer:init();
 end
 
 function mainEntrance.start_game()
-    gMgrs.scene:init()
-    gMgrs.ui:init()
-
-    gMgrs.scene:open_scene(gSceneKey.SCENE1,{msg = "open scene1 "},function()
-
-    end)
-
-    
+    gMgrs.scene:open_scene(gSceneKey.SCENE1,{msg = "open scene1 "})
 end
 
 --- 注销回调
----@param callback: 回调
 function mainEntrance.on_destroy()
-    -- -- 关闭tcp
-    -- local tcpMgr = require("mgrs/net/tcp/tcp_mgr")
-    -- tcpMgr.clear()
-
-    -- -- 清空所有消息
-    -- gMgrs.msg.clear_all()
+    gMgrs.ui:close_all_ui()
+    gMgrs.tick:clear()
+    gMgrs.timer:clear()
+    gMgrs.unityUpdate:clear()
 end
 
 --- 执行注销
 function mainEntrance.destroy()
     -- -- 销毁回调
-    -- mainEntrance.on_destroy()
+    mainEntrance.on_destroy()
 
     -- -- 销毁所有UI
     -- gMgrs.ui.clear_all()

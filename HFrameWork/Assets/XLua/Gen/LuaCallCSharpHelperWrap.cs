@@ -31,7 +31,7 @@ namespace XLua.CSObjectWrap
 			Utils.EndObjectRegister(type, L, translator, null, null,
 			    null, null, null);
 
-		    Utils.BeginClassRegister(type, L, __CreateInstance, 46, 0, 0);
+		    Utils.BeginClassRegister(type, L, __CreateInstance, 56, 0, 0);
 			Utils.RegisterFunc(L, Utils.CLS_IDX, "GetManifest", _m_GetManifest_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "GetVersionStr", _m_GetVersionStr_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "Load", _m_Load_xlua_st_);
@@ -77,6 +77,16 @@ namespace XLua.CSObjectWrap
             Utils.RegisterFunc(L, Utils.CLS_IDX, "DoCancelInvoke", _m_DoCancelInvoke_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "DoLoopCoroutine", _m_DoLoopCoroutine_xlua_st_);
             Utils.RegisterFunc(L, Utils.CLS_IDX, "UnityDestroy", _m_UnityDestroy_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "InitTickMgr", _m_InitTickMgr_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "StartTick", _m_StartTick_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "AddTick", _m_AddTick_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "CancelByUid", _m_CancelByUid_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "CancelTickersByTag", _m_CancelTickersByTag_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "SetPause", _m_SetPause_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "OnFrameUpdateTick", _m_OnFrameUpdateTick_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "Destroy", _m_Destroy_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "GetTickerParam", _m_GetTickerParam_xlua_st_);
+            Utils.RegisterFunc(L, Utils.CLS_IDX, "GetFrame", _m_GetFrame_xlua_st_);
             
 			
             
@@ -1378,6 +1388,249 @@ namespace XLua.CSObjectWrap
                     
                     
                     return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_InitTickMgr_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+            
+            
+                
+                {
+                    
+                    LuaCallCSharpHelper.InitTickMgr(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_StartTick_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+            
+            
+                
+                {
+                    
+                    LuaCallCSharpHelper.StartTick(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_AddTick_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+            
+                
+                {
+                    TickerParam _param;translator.Get(L, 1, out _param);
+                    
+                        var gen_ret = LuaCallCSharpHelper.AddTick( _param );
+                        LuaAPI.xlua_pushinteger(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_CancelByUid_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+            
+            
+                
+                {
+                    int _uid = LuaAPI.xlua_tointeger(L, 1);
+                    
+                    LuaCallCSharpHelper.CancelByUid( _uid );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_CancelTickersByTag_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+            
+                
+                {
+                    object _tag = translator.GetObject(L, 1, typeof(object));
+                    
+                    LuaCallCSharpHelper.CancelTickersByTag( _tag );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_SetPause_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+            
+            
+                
+                {
+                    bool _isPause = LuaAPI.lua_toboolean(L, 1);
+                    
+                    LuaCallCSharpHelper.SetPause( _isPause );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_OnFrameUpdateTick_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+            
+            
+                
+                {
+                    
+                    LuaCallCSharpHelper.OnFrameUpdateTick(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_Destroy_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+            
+            
+                
+                {
+                    
+                    LuaCallCSharpHelper.Destroy(  );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_GetTickerParam_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+            
+                
+                {
+                    
+                        var gen_ret = LuaCallCSharpHelper.GetTickerParam(  );
+                        translator.Push(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_GetFrame_xlua_st_(RealStatePtr L)
+        {
+		    try {
+            
+            
+            
+                
+                {
+                    
+                        var gen_ret = LuaCallCSharpHelper.GetFrame(  );
+                        LuaAPI.xlua_pushinteger(L, gen_ret);
+                    
+                    
+                    
+                    return 1;
                 }
                 
             } catch(System.Exception gen_e) {

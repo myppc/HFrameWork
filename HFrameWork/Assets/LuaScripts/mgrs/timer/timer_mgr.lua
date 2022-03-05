@@ -189,10 +189,10 @@ end
 --- ==================== 公共方法 ====================
 
 --- 初始化
-function timerMgr.init()
+function timerMgr:init()
     -- 注册更新回调
-    gMgrs.unityUpdate.reg_update(on_update)
-    gMgrs.unityUpdate.reg_fixedupdate(on_fixed_update)
+    gMgrs.unityUpdate:reg_update(on_update)
+    gMgrs.unityUpdate:reg_fixedupdate(on_fixed_update)
 end
 
 --- 使用延迟调用
@@ -201,7 +201,7 @@ end
 ---@param delay: 第一次延迟时间 秒
 ---@param callback: 回调方法 调用时传递一个参数count，代表回调计次
 ---@return: 计时器句柄 {key, close, checkEnabled, callNow}
-function timerMgr.use(key, isUnscaled, delay, callback)
+function timerMgr:use(key, isUnscaled, delay, callback)
     -- 判空
     if callback == nil then
         gError("[use] [计时器回调不能为空]")
@@ -249,7 +249,7 @@ end
 ---@param loopNum: 循环次数 除开第一次的次数 空或小于等于0则永久循环
 ---@param callback: 回调方法 调用时传递一个参数count，代表回调计次
 ---@return: 计时器句柄 {key, close, checkEnabled, callNow}
-function timerMgr.use_loop(key, isUnscaled, delay, loopInterval, loopNum, callback)
+function timerMgr:use_loop(key, isUnscaled, delay, loopInterval, loopNum, callback)
     -- 判空
     if callback == nil then
         gError("[use_loop] [计时器回调不能为空]")
@@ -301,14 +301,14 @@ function timerMgr.use_loop(key, isUnscaled, delay, loopInterval, loopNum, callba
 end
 
 --- 清除计时器
-function timerMgr.clear(key)
+function timerMgr:cancel_by_key(key)
     -- 移除
     timerMgr.dicTimer.scaledTimers[key] = nil
     timerMgr.dicTimer.unscaledTimers[key] = nil
 end
 
 --- 清除所有计时器
-function timerMgr.clear_all()
+function timerMgr:clear()
     -- 清空所有数据
     timerMgr.dicTimer.scaledTimers = {}
     timerMgr.dicTimer.unscaledTimers = {}

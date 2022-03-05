@@ -52,6 +52,7 @@ public static class LuaGenConfig
                 typeof(Debug),
                 typeof(ExtensionHelper),
                 typeof(LuaCallCSharpHelper),
+                typeof(TickerParam),
                 //typeof(AssetsBundleMgr),
                 //typeof(Manifest),
                 //typeof(ManifestModule),

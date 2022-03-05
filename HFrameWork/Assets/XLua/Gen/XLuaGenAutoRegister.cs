@@ -130,6 +130,9 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(LuaCallCSharpHelper), LuaCallCSharpHelperWrap.__Register);
         
         
+            translator.DelayWrapLoader(typeof(TickerParam), TickerParamWrap.__Register);
+        
+        
         
         }
         

@@ -417,4 +417,57 @@ public class LuaCallCSharpHelper
         }
     }
     #endregion
+
+    #region  计时器
+
+    public static void InitTickMgr()
+    {
+        TickManager.GetInstance().Init();
+    }
+
+    public static void StartTick()
+    {
+        TickManager.GetInstance().StartTick();
+    }
+
+    public static int AddTick(TickerParam param)
+    {
+        return TickManager.GetInstance().AddTick(param);
+    }
+
+    public static void CancelByUid(int uid)
+    {
+        TickManager.GetInstance().CancelByUid(uid);
+    }
+
+    public static void CancelTickersByTag(object tag)
+    {
+        TickManager.GetInstance().CancelTickersByTag(tag);
+    }
+
+    public static void SetPause(bool isPause)
+    {
+        TickManager.GetInstance().SetPause(isPause);
+    }
+
+    public static void OnFrameUpdateTick()
+    {
+        TickManager.GetInstance().OnFrameUpdateTick();
+    }
+
+    public static void Destroy()
+    {
+        TickManager.GetInstance().Destroy();
+    }
+
+    public static TickerParam GetTickerParam()
+    {
+        return TickManager.GetTickerParam();
+    }
+
+    public static int GetFrame()
+    {
+        return TickManager.GetInstance().GetFrame();
+    }
+    #endregion
 }
