@@ -135,6 +135,7 @@ function mainEntrance.init_mgr()
     gMgrs.tick:init()
     gMgrs.tick:start_tick()
     gMgrs.timer:init();
+    gMgrs.event:init()
 end
 
 function mainEntrance.start_game()

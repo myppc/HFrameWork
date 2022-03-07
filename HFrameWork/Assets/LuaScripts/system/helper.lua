@@ -10,7 +10,7 @@ local component_map =
     rt = "RectTransform",
     atr = "Animator",
     t = "Text",
-    scr = "ScrollView",
+    scr = "ScrollRect",
     iscr = "InfiniteScroll",
     btn = "Button",
 }

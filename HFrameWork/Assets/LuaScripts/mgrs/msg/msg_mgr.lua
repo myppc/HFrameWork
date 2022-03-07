@@ -180,4 +180,4 @@ function msgMgr.clear_all()
     msgMgr.dicData = {}
 end
 
-return msgMgr
+return msgMgr   

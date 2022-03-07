@@ -13,12 +13,17 @@ public class ComponentRefWindow : EditorWindow
 {
     Dictionary<string, string> ComponentDict;
     static Texture2D iconTexture;
-    private static readonly EditorApplication.HierarchyWindowItemCallback hiearchyItemCallback;
+    private static EditorApplication.HierarchyWindowItemCallback hiearchyItemCallback;
 
 
     static ComponentRefWindow()
     {
         //初始化层级窗口项回调
+        AddHiearchyListener();
+    }
+
+    static void AddHiearchyListener()
+    {
         ComponentRefWindow.hiearchyItemCallback = new EditorApplication.HierarchyWindowItemCallback(ComponentRefWindow.DrawIcon);
         //加到委托列表
         EditorApplication.hierarchyWindowItemOnGUI = (EditorApplication.HierarchyWindowItemCallback)Delegate.Combine(
@@ -26,14 +31,21 @@ public class ComponentRefWindow : EditorWindow
             ComponentRefWindow.hiearchyItemCallback);
     }
 
-
-    [MenuItem("Window/AutoMenuRef", false, 11)]
+    [MenuItem("Tool/Auto Component Ref", false, 11)]
     static void AutoMenu()
     {
-        iconTexture = Resources.Load<Texture2D>("Editor/nfs_common_hpngtaiyang");
+
         var window = EditorWindow.GetWindow<ComponentRefWindow>(false, "AutoComponentRef");
         window.position = new Rect(200,200,200,100);
         window.Show();
+    }
+
+    private void OnFocus()
+    {
+        //EditorApplication.hierarchyWindowItemOnGUI = (EditorApplication.HierarchyWindowItemCallback)Delegate.Combine(
+        //    EditorApplication.hierarchyWindowItemOnGUI,
+        //    ComponentRefWindow.hiearchyItemCallback);
+        AddHiearchyListener();
     }
 
     private void OnEnable()
@@ -43,7 +55,7 @@ public class ComponentRefWindow : EditorWindow
         ComponentDict.Add("RectTransform", "rt");
         ComponentDict.Add("Animator", "atr");
         ComponentDict.Add("Text", "t");
-        ComponentDict.Add("ScrollView", "scr");
+        ComponentDict.Add("ScrollRect", "scr");
         ComponentDict.Add("InfiniteScroll", "iscr");
         ComponentDict.Add("Button", "btn");
     }
@@ -135,22 +147,18 @@ public class ComponentRefWindow : EditorWindow
             ClearRef();
         }
 
-        if (GUILayout.Button("Record Lua Index"))
-        {
-            RecordLuaIndex();
-        }
-
         GUISelectComponent();
     }
 
     public void RecordLuaIndex()
     {
+        
         if (Selection.gameObjects.Length <= 0)
         {
             Debug.Log("需要选中一个gameobject 进行文件命名");
+
             return;
         }
-
         var nameList = new List<string>();
         var allGos = Resources.FindObjectsOfTypeAll(typeof(GameObject));
         var previousSelection = Selection.objects;
@@ -165,19 +173,35 @@ public class ComponentRefWindow : EditorWindow
                 nameList.Add(name);
             }
         }
+        var go = Selection.gameObjects[0];
+        var fileName = "";
 
-
-        var fileName = Selection.gameObjects[0].name;
+        while (true)
+        {
+            if (go.transform.parent == null)
+            {
+                break;
+            }
+            if (go.transform.parent.gameObject.name == "Canvas (Environment)")
+            {
+                fileName = go.transform.name;
+                break;
+            }
+            go = go.transform.parent.gameObject;
+        }
+        if (fileName == "")
+        {
+            Debug.Log("-----------save fail :没有找到正确的根节点");
+        }
         var content = "";
         foreach (var index in nameList)
         {
-            content = $"{content}    {index.ToUpper()} = '{index}',\n";
+            var itemName = index.ToUpper();
+            itemName = itemName.Replace(" ", "_");
+            content = $"{content}    {itemName.ToUpper()} = '{index}',\n";
         }
-        var str = "local go_index = {\n " + content + "\n}\nreturn  go_index";
-
-
+        var str = "local go_index = {\n" + content + "\n}\nreturn  go_index";
         var result = FileHelper.SaveFile(Path.Combine(AppConfig.LUA_GO_INDEX, $"{fileName}_index.lua"), str);
-        Debug.Log($"-------------- save index {result} ,File Name : {fileName}_index.lua");
     }
 
     public void ClearRef()
@@ -192,6 +216,8 @@ public class ComponentRefWindow : EditorWindow
             return;
         }
         targetObj.name = targetObj.name.Split('#')[0];
+        EditorUtility.SetDirty(targetObj);
+        RecordLuaIndex();
     }
 
     public void SelectComponent(object cpName)
@@ -211,9 +237,17 @@ public class ComponentRefWindow : EditorWindow
         }
         else
         {
-            targetObj.name += $"#{ComponentDict[(string)cpName]}";
+            if (targetObj.name.Last() == '#')
+            {
+                targetObj.name += $"{ComponentDict[(string)cpName]}";
+            }
+            else 
+            { 
+                targetObj.name += $"#{ComponentDict[(string)cpName]}";
+            }
         }
-        //EditorUtility.
+        EditorUtility.SetDirty(targetObj);
+        RecordLuaIndex();
     }
 
     public  void popMenu()
@@ -244,6 +278,10 @@ public class ComponentRefWindow : EditorWindow
         if (!go.name.Contains("#"))
         {
             return;
+        }
+        if (iconTexture == null)
+        {
+            iconTexture = Resources.Load<Texture2D>("Editor/nfs_common_hpngtaiyang");
         }
         Rect r = new Rect(selectionRect);
         //矩形赋值
