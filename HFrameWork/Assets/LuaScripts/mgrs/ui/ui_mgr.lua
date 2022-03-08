@@ -88,6 +88,34 @@ function ui_mgr:on_load_new_scene(scene_key,root)
     self.child["BlockUI"]:SetActive(false)
 end
 
+---设置屏蔽层是否可见
+function ui_mgr:set_cover_active(active)
+    if active then
+        self.child["BlockUI"].SetActive(true)
+        if self.cover_tick ~= nil then
+            self.cover_tick = gMgrs.tick:tick_frame(1,100,function(frame)
+                self.child["BlockUI"].GetComponent("Image").color = gColor.block
+            end,nil,self)
+        end
+    else
+        self.child["BlockUI"].SetActive(true)
+        self.child["BlockUI"].GetComponent("Image").color = gColor.zero
+        if self.cover_tick ~= nil then
+            gMgrs.tick:cancel_by_uid(self.cover_tick)
+            self.cover_tick = nil
+        end
+    end
+end
+
+
+---清理时调用 
+function ui_mgr:clear()
+    if self.cover_tick ~= nil then
+        gMgrs.tick:cancel_by_uid(self.cover_tick)
+        self.cover_tick = nil
+    end
+    self:_destroy_scene_ui()
+end
 
 ------------------------------------------
 --#region 私有方法

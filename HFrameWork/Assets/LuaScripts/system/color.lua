@@ -6,6 +6,11 @@
 
 local color = {}
 
+
+color.block = gUnity.Color(0,0,0,0.725)     --遮罩透明度
+color.zero = gUnity.Color(0,0,0,0)          --全透明
+
+
 --- 文本
 color.text = {
     green = gUnity.Color(0.1686, 0.8156, 0.3372),

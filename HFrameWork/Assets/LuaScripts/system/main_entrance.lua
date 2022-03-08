@@ -144,10 +144,12 @@ end
 
 --- 注销回调
 function mainEntrance.on_destroy()
-    gMgrs.ui:close_all_ui()
+    gMgrs.ui:clear()
     gMgrs.tick:clear()
     gMgrs.timer:clear()
     gMgrs.unityUpdate:clear()
+    gMgrs.event:clear()
+
 end
 
 --- 执行注销

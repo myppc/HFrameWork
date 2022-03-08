@@ -100,6 +100,11 @@ function event_mgr:remove_all_events()
     end
 end
 
+function event_mgr:clear()
+    self:remove_all_events()
+    self.reg_list = {}
+    self.tag_list = {}
+end
 --#region 私有方法
 
 ---移除指定tag下的指定事件

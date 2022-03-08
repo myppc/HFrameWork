@@ -18,10 +18,6 @@ function tick_mgr:start_tick()
     gMgrs.unityUpdate:reg_fixedupdate(self._on_frame)
 end
 
---添加计时回调
-function tick_mgr:add_tick(tick_param)
-    return gCSharp.AddTick(tick_param)
-end
 
 ---通过唯一id移除计时器
 ---@param uid integer 唯一ID
@@ -78,7 +74,7 @@ function tick_mgr:tick_frame(loop,delay,callback,on_cancel,tag)
     param.OnTickCallBack = callback
     param.OnCancelCallBack = on_cancel
     param.Tag = tag or param.Tag
-    return self:add_tick(param)
+    return self:_add_tick(param)
 end
 
 ---延迟一帧调用
@@ -87,8 +83,13 @@ function tick_mgr:next_frame(callback)
     local param = self:get_ticker_param()
     param.LoopCount = 1
     param.OnTickCallBack = callback
-    return self:add_tick(param)
+    return self:_add_tick(param)
 end
 
+--------------------------------------------------
+--添加计时回调
+function tick_mgr:_add_tick(tick_param)
+    return gCSharp.AddTick(tick_param)
+end
 
 return tick_mgr
