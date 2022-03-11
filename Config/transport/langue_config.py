@@ -1,0 +1,1 @@
+langue_short = ['zh','en','ja']
