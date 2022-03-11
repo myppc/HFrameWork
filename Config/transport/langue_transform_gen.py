@@ -25,11 +25,9 @@ def create_main_langue_instance():
     file.close()
 
 def get_input():
-    old_tag = input("输入原始版本tag: ")
-    new_tag = input("输入比较版本tag: ")
+    dest_tag = input("输入差异文件翻译后的tag: ")
     try:
-        old_tag = int(old_tag)
-        new_tag = int(new_tag)
+        dest_tag = int(dest_tag)
     except ValueError:
         raise ValueError("版本信息必须为数字")
     short = input("输入差异文件语言类型： 默认为 all ")
@@ -39,11 +37,11 @@ def get_input():
     else:
         input("指定翻译版本为 [{0}]".format(short))
 
-    return old_tag,new_tag,short
+    return dest_tag,short
 
 
-def read_file(old_tag,new_tag,short):
-    filename = '{_short}-[{_otag}-{_ntag}]-langue_transfrom.py'.format(_short = short,_otag = old_tag,_ntag = new_tag)
+def read_file(dest_tag,short):
+    filename = '{_short}-[{_dest_tag}]-langue_transfrom.py'.format(_short = short,_dest_tag = dest_tag)
     if not os.path.exists(path_config.langue_transform_path + filename):
         input("没有找到该文件 " + filename)
         exit()
@@ -69,8 +67,10 @@ def record_main_langue():
         content += "    '{_main_key}':{{\n".format(_main_key = main_key)
         for short in main_item:
             lang = main_item[short]
+            if lang == "" or lang == '':
+                continue
             content += "        '{_short}':'{_lang}',\n".format(_short = short,_lang = lang)
-        content += "},\n"
+        content += "    },\n"
     content += "}"
 
     file = open(path_config.langue_main_file,'w+',encoding="utf-8")
@@ -80,8 +80,8 @@ def record_main_langue():
 
 def main():
     create_main_langue_instance()
-    old_tag,new_tag,short = get_input()
-    read_file(old_tag,new_tag,short)
+    dest_tag,short = get_input()
+    read_file(dest_tag,short)
     record_main_langue()
 
 main()
